@@ -149,7 +149,7 @@ EutherCharge Studio 0.1 byggdes som en lokal, beroendefri webbapp med:
 - filstorleks- och SHA-256-kontroll;
 - texteditor med fast allokering och överflödesskydd;
 - rågrafikvisare för 1-, 2-, 4-, 8-bpp- och RGB565-hypoteser;
-- fyra temaprototyper, ELDRÄNG MODE och simulerad Fan Hymn;
+- fyra temaprototyper, ELDRÄNG MODE och Fan Hymn i simulatorn;
 - export av ny image och JSON-manifest.
 
 En svensk ersättning för samtliga 162 semantiska poster i English-banken har
@@ -162,11 +162,21 @@ Svenska:  c484052b5b9f1ad51ede0672b28b96de289d82b48fd882b730be6311322419ae
 Storlek:  4 194 304 byte för båda
 ```
 
-Rådata vid `0x000000–0x0001FF` gav ingen säker ikon eller bild under 1-bpp-,
-4-bpp-, 8-bpp- eller RGB565-tolkning. Den kan vara färg-, test-, font- eller
-kontrolldata, men är inte ett verifierat grafikformat. Inga grafikbyte har
-patchats.
+Rådata vid `0x000000–0x0001FF` identifierades efter ytterligare dimensionstest
+som en komplett `128×32` KONNWEI-startlogga i 1-bpp, kolumnvis LSB-format.
+En EUTHERCHARGE-logga har byggts och återavkodats i exakt samma 512-byteformat.
+Den integrerade svenska/logo-imagen har SHA-256
+`4a4947e116dc405e577c97e965c342cc89f7f8b3f517babee9a8105e400d0329`
+och skiljer sig med 2 269 byte, enbart inom loggan och English-bankens
+strängpayloads. Ingen ytterligare bildruta eller animationstabell är verifierad.
 
-Åtta Python-test och fem JavaScript-test passerar. Webbvyn renderades i
-Firefox. Den svenska imagen är ännu inte programmerad eller provad på fysisk
-hårdvara.
+Fyra 52-byteposter med `0xA5`-markör identifierades vid `0x383000`. Fält vid
+`+0x24`, `+0x26`, `+0x28` och `+0x2C` ger plausibla spännings-, procent- och
+resistansvärden, men presenteras uttryckligen som hypoteser tills de har
+jämförts mot apparatens Review-skärm. En skrivskyddad parser finns både i
+Studio och `kw520_resources.py history`.
+
+Nio Python-test och sju JavaScript-test passerar. Den integrerade imagen
+byggdes om från originaldumpen och blev byte-identisk med den tidigare lokala
+artefakten. Webbvyn renderades i Firefox. Den svenska imagen är ännu inte
+programmerad eller provad på fysisk hårdvara.

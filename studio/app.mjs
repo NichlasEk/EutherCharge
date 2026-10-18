@@ -7,9 +7,17 @@ import {
   getPixel,
   hex,
   parseAllBanks,
+  parseHistory,
   requiredBytes,
 } from "./core.mjs";
 import { SWEDISH } from "./sv-SE.mjs";
+import {
+  LOGO_HEIGHT,
+  LOGO_WIDTH,
+  decodeColumnLsb,
+  encodeColumnLsb,
+  generateEutherChargeLogo,
+} from "./boot-logo.mjs";
 
 const $ = (selector) => document.querySelector(selector);
 const $$ = (selector) => [...document.querySelectorAll(selector)];
@@ -28,7 +36,7 @@ function toast(message, error = false) {
 }
 
 function setEnabled(enabled) {
-  for (const selector of ["#languageSelect", "#stringFilter", "#applySwedish", "#resetEdits", "#exportImage", "#exportReport"]) {
+  for (const selector of ["#languageSelect", "#stringFilter", "#applySwedish", "#resetEdits", "#includeLogo", "#exportImage", "#exportReport"]) {
     $(selector).disabled = !enabled;
   }
   for (const input of $$("#graphicsControls input, #graphicsControls select, #graphicsControls button")) input.disabled = !enabled;
@@ -55,8 +63,13 @@ async function loadFile(file) {
     $("#stringsEmpty").hidden = true;
     $("#stringList").hidden = false;
     setEnabled(true);
+    $("#includeLogo").checked = hash === KNOWN_SHA256;
+    $("#includeLogo").disabled = hash !== KNOWN_SHA256;
+    rebuildWorking();
     renderStrings();
     renderRaw();
+    renderLogos();
+    renderHistory();
     updateChangeCount();
     toast(hash === KNOWN_SHA256 ? "Verifierad KW520 1.0.1-dump öppnad." : "Resurserna validerar, men filhashen avviker från referensen.", hash !== KNOWN_SHA256);
   } catch (error) {
@@ -65,8 +78,9 @@ async function loadFile(file) {
 }
 
 function updateChangeCount() {
-  $("#changeCount").textContent = String(state.changes.size);
-  $("#exportImage").disabled = !state.source || state.changes.size === 0;
+  const total = state.changes.size + ($("#includeLogo").checked ? 1 : 0);
+  $("#changeCount").textContent = String(total);
+  $("#exportImage").disabled = !state.source || total === 0;
 }
 
 function renderStrings() {
@@ -112,6 +126,9 @@ function rebuildWorking() {
   for (const change of state.changes.values()) {
     const entry = state.banks.get(change.language)[change.index];
     applyFixedTextPatch(state.working, entry, change.afterText);
+  }
+  if ($("#includeLogo").checked && state.sourceHash === KNOWN_SHA256) {
+    state.working.set(encodeColumnLsb(generateEutherChargeLogo()), 0);
   }
 }
 
@@ -165,6 +182,45 @@ function renderRaw() {
   }
 }
 
+function drawLogo(canvas, pixels, color = "#ff961b") {
+  const context = canvas.getContext("2d");
+  const image = context.createImageData(LOGO_WIDTH, LOGO_HEIGHT);
+  for (let index = 0; index < pixels.length; index += 1) {
+    const on = pixels[index] !== 0;
+    image.data.set(on ? [255, 150, 27, 255] : [5, 12, 14, 255], index * 4);
+  }
+  context.putImageData(image, 0, 0);
+}
+
+function renderLogos() {
+  drawLogo($("#eutherLogo"), generateEutherChargeLogo());
+  if (state.source) drawLogo($("#originalLogo"), decodeColumnLsb(state.source));
+}
+
+function renderHistory() {
+  if (!state.source) return;
+  const records = parseHistory(state.source);
+  const table = $("#historyTable");
+  table.replaceChildren();
+  for (const record of records) {
+    const card = document.createElement("article");
+    card.className = "history-card";
+    card.innerHTML = `<header><span>POST ${record.index + 1} · MARKÖR ${record.markerHex.toUpperCase()}</span><span>${hex(record.offset)}</span></header>
+      <div class="history-values">
+        <div><small>SPÄNNING?</small><strong>${record.voltage.toFixed(2)} V</strong></div>
+        <div><small>UPPMÄTT VÄRDE?</small><strong>${record.measuredValue}</strong></div>
+        <div><small>HÄLSA?</small><strong>${record.healthPercent} %</strong></div>
+        <div><small>LADDNING?</small><strong>${record.chargePercent} %</strong></div>
+        <div><small>RESISTANS?</small><strong>${record.resistance.toFixed(2)} mΩ</strong></div>
+        <div><small>ANGIVET VÄRDE?</small><strong>${record.ratedValue}</strong></div>
+        <div><small>LÄGESBYTE?</small><strong>${record.modeByteCandidate}</strong></div>
+      </div>`;
+    table.append(card);
+  }
+  $("#historyEmpty").hidden = records.length > 0;
+  table.hidden = records.length === 0;
+}
+
 function stepRaw(direction) {
   const offset = parseOffset($("#rawOffset").value);
   const length = requiredBytes(Number($("#rawWidth").value), Number($("#rawHeight").value), $("#rawFormat").value);
@@ -194,8 +250,9 @@ async function buildReport() {
       imageSizePreserved: state.source.length === state.working.length,
       pointerTablesModified: false,
       lengthPrefixesModified: false,
-      scope: "verified language string payload bytes only",
+      scope: $("#includeLogo").checked ? "verified boot logo and language string payload bytes" : "verified language string payload bytes only",
     },
+    graphics: $("#includeLogo").checked ? [{ offset: 0, length: 512, width: 128, height: 32, format: "1bpp-column-lsb", name: "EUTHERCHARGE boot logo" }] : [],
     changes: [...state.changes.values()],
   };
 }
@@ -227,13 +284,15 @@ $("#applySwedish").addEventListener("click", () => {
   }
 });
 $("#resetEdits").addEventListener("click", () => { state.changes.clear(); rebuildWorking(); renderStrings(); renderRaw(); updateChangeCount(); toast("Alla lokala patchar återställda."); });
+$("#includeLogo").addEventListener("change", () => { rebuildWorking(); renderRaw(); updateChangeCount(); });
 
 for (const control of $$("#graphicsControls input, #graphicsControls select")) control.addEventListener("input", renderRaw);
 for (const button of $$('[data-preset]')) button.addEventListener("click", () => {
-  const rgb = button.dataset.preset === "rgb";
-  $("#rawWidth").value = rgb ? 16 : 32;
-  $("#rawHeight").value = rgb ? 16 : 32;
-  $("#rawFormat").value = rgb ? "rgb565be" : "mono-row-msb";
+  const preset = button.dataset.preset;
+  $("#rawOffset").value = "0x000000";
+  $("#rawWidth").value = preset === "logo" ? 128 : preset === "rgb" ? 16 : 32;
+  $("#rawHeight").value = preset === "logo" ? 32 : preset === "rgb" ? 16 : 32;
+  $("#rawFormat").value = preset === "logo" ? "mono-column-lsb" : preset === "rgb" ? "rgb565be" : "mono-row-msb";
   renderRaw();
 });
 for (const button of $$('[data-step]')) button.addEventListener("click", () => stepRaw(Number(button.dataset.step)));
@@ -251,13 +310,34 @@ setInterval(() => { messageIndex = (messageIndex + 1) % messages.length; $("#cha
 
 let hymnTimer = null;
 let hymnStep = 0;
+let hymnAudio = null;
+let hymnOscillator = null;
+const hymnNotes = [220, 277.18, 329.63, 440, 329.63, 277.18, 246.94, 220];
+function playHymnNote(frequency) {
+  const AudioContext = window.AudioContext || window.webkitAudioContext;
+  if (!AudioContext) return;
+  hymnAudio ??= new AudioContext();
+  if (hymnAudio.state === "suspended") hymnAudio.resume();
+  try { hymnOscillator?.stop(); } catch { /* oscillator already ended */ }
+  const oscillator = hymnAudio.createOscillator();
+  const gain = hymnAudio.createGain();
+  oscillator.type = "square";
+  oscillator.frequency.value = frequency;
+  gain.gain.setValueAtTime(0.025, hymnAudio.currentTime);
+  gain.gain.exponentialRampToValueAtTime(0.001, hymnAudio.currentTime + 0.15);
+  oscillator.connect(gain).connect(hymnAudio.destination);
+  oscillator.start();
+  oscillator.stop(hymnAudio.currentTime + 0.16);
+  hymnOscillator = oscillator;
+}
 $("#fanButton").addEventListener("click", () => {
   const bars = $$("#sequencer i");
   if (hymnTimer) {
-    clearInterval(hymnTimer); hymnTimer = null; bars.forEach((bar) => bar.classList.remove("active")); $("#fanButton").textContent = "▶ STARTA"; return;
+    clearInterval(hymnTimer); hymnTimer = null; try { hymnOscillator?.stop(); } catch { /* ended */ } hymnOscillator = null; bars.forEach((bar) => bar.classList.remove("active")); $("#fanButton").textContent = "▶ STARTA"; return;
   }
   $("#fanButton").textContent = "■ AVBRYT";
-  hymnTimer = setInterval(() => { bars.forEach((bar, index) => bar.classList.toggle("active", index === hymnStep || index === (hymnStep + 3) % 8)); hymnStep = (hymnStep + 1) % 8; }, 180);
+  playHymnNote(hymnNotes[hymnStep]);
+  hymnTimer = setInterval(() => { bars.forEach((bar, index) => bar.classList.toggle("active", index === hymnStep || index === (hymnStep + 3) % 8)); playHymnNote(hymnNotes[hymnStep]); hymnStep = (hymnStep + 1) % 8; }, 180);
 });
 
 $("#exportImage").addEventListener("click", async () => {
@@ -271,3 +351,4 @@ $("#exportReport").addEventListener("click", async () => {
 });
 
 setEnabled(false);
+renderLogos();

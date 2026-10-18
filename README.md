@@ -26,7 +26,9 @@ fortfarande bekräftas mot ett skarpt foto av hela märkningen.
 - [x] Externflashens språkformat identifierat: 8 banker × 162 poster
 - [x] EutherCharge Studio 0.1 med texteditor, rågrafiklabb och LCD-prototyp
 - [x] Svensk fastallokerad 162-posters image genererad lokalt
-- [ ] MCU-firmware, displaybuss, fläkt-PWM och grafikformat identifierade
+- [x] Originalets 128×32-startlogga avkodad och ersatt i originalformat
+- [x] Fyra 52-bytehistorikposter läses skrivskyddat med tydliga fälthypoteser
+- [ ] MCU-firmware, displaybuss, fläkt-PWM och övriga grafikformat identifierade
 - [ ] Första patch testad på isolerad bänk
 - [ ] Verifierad återläsning efter programmering
 - [ ] Test i fysisk KW520
@@ -50,6 +52,10 @@ python3 tools/fwtool.py inspect dumps/read-1.bin
 
 # Kontrollera det uppmätta JEDEC-ID:t.
 python3 tools/fwtool.py identify 1c3016
+
+# Läs de fyra lokala historikposterna utan att ändra imagen. Fältnamnen är
+# uttryckligen hypoteser tills värdena jämförts med laddarens Review-skärm.
+python3 tools/kw520_resources.py history dumps/original.bin
 
 # Skapa en ny fil med en kontrollerad, längdbevarande patch.
 python3 tools/fwtool.py patch dumps/read-1.bin build/modified.bin \
@@ -93,14 +99,21 @@ python3 -m http.server 8765 -d studio
 
 Öppna `http://127.0.0.1:8765` i Firefox. Studio arbetar helt lokalt och kan
 öppna referensdumpen, visa/redigera alla språkposter, lägga in den kompletta
-svenska startbanken, prova råpixelhypoteser och exportera ny image plus rapport.
+svenska startbanken, visa den skrivskyddade historiktolkningen, prova
+råpixelhypoteser och exportera ny image plus rapport.
 LCD-prototypen innehåller Industrial, CyberCharge, Holy Ampere, RetroTech,
-ELDRÄNG MODE och en simulerad Fan Hymn.
+ELDRÄNG MODE och en hörbar Web Audio-version av Fan Hymn.
 
 Samma svenska image kan byggas reproducerbart från terminalen:
 
 ```sh
 node tools/build-swedish.mjs dumps/original.bin build/euthercharge-sv.bin
+```
+
+Den integrerade svenska imagen med EUTHERCHARGE-startlogga byggs med:
+
+```sh
+node tools/build-euthercharge.mjs dumps/original.bin build/euthercharge-full.bin
 ```
 
 Varken originaldump eller genererad image får läggas i Git.

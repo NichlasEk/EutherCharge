@@ -2,6 +2,8 @@ export const KNOWN_IMAGE_SIZE = 4 * 1024 * 1024;
 export const KNOWN_SHA256 = "d369a860ae39b307ec9cdd00fb59b2501937a20f7f20d9417ff5eede83b841e2";
 export const POINTER_BASE = 0x3200;
 export const ENTRY_COUNT = 162;
+export const HISTORY_OFFSET = 0x383000;
+export const HISTORY_RECORD_SIZE = 52;
 
 export const BANKS = Object.freeze([
   { name: "English", tableOffset: 0x3600, stringsOffset: 0x3888, editable: true },
@@ -27,6 +29,38 @@ export function readU16BE(data, offset) {
 export function readU32BE(data, offset) {
   return (((data[offset] * 0x1000000) + (data[offset + 1] << 16) +
     (data[offset + 2] << 8) + data[offset + 3]) >>> 0);
+}
+
+export function readU16LE(data, offset) {
+  return data[offset] | (data[offset + 1] << 8);
+}
+
+export function readF32LE(data, offset) {
+  return new DataView(data.buffer, data.byteOffset + offset, 4).getFloat32(0, true);
+}
+
+export function parseHistory(data) {
+  const records = [];
+  for (let index = 0; index < 64; index += 1) {
+    const offset = HISTORY_OFFSET + index * HISTORY_RECORD_SIZE;
+    if (offset + HISTORY_RECORD_SIZE > data.length) break;
+    if (data[offset] === 0xff && data[offset + 1] === 0xff) break;
+    if (data[offset + 1] !== 0xa5) throw new Error(`Historikpost #${index} saknar A5-markör`);
+    records.push({
+      index,
+      offset,
+      markerHex: `${data[offset].toString(16).padStart(2, "0")}${data[offset + 1].toString(16).padStart(2, "0")}`,
+      modeByteCandidate: data[offset + 15],
+      ratedValue: readU16LE(data, offset + 24),
+      measuredValue: readU16LE(data, offset + 34),
+      voltageRaw: readU16LE(data, offset + 36),
+      voltage: readU16LE(data, offset + 36) / 100,
+      healthPercent: readU16LE(data, offset + 38),
+      chargePercent: readU16LE(data, offset + 40),
+      resistance: readF32LE(data, offset + 44),
+    });
+  }
+  return records;
 }
 
 export function parseBank(data, bank) {

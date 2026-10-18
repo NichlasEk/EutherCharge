@@ -82,7 +82,7 @@
         </div>
 
         <div class="fan-hymn">
-          <div><strong>FAN HYMN // DEMO</strong><span>Endast ljudlös sequencerprototyp. Ingen hårdvara styrs.</span></div>
+          <div><strong>FAN HYMN // WEB AUDIO DEMO</strong><span>Spelas i webbläsaren. Ingen laddarhårdvara styrs.</span></div>
           <button id="fanButton">▶ STARTA</button>
           <div class="sequencer" id="sequencer" aria-label="simulerad fläktsekvens">
             <i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i>
@@ -110,16 +110,22 @@
 
     <section class="panel graphics-panel">
       <div class="section-title">
-        <div><p class="eyebrow">FORMATLABB // HYPOTES</p><h2>Rågrafik-visualiserare</h2></div>
-        <span class="hypothesis-badge">EJ FORMATBEVIS</span>
+        <div><p class="eyebrow">GRAFIK + FORMATLABB</p><h2>Rågrafik-visualiserare</h2></div>
+        <span class="hypothesis-badge">1 FORMAT BEVISAT</span>
       </div>
-      <p class="muted">Den tidiga binärdatan är strukturerad men formatet är inte fastställt. Prova pixelordningar direkt mot den laddade dumpen och exportera ingen grafikpatch förrän en bild har matchats mot fysisk LCD.</p>
+      <p class="muted">Startloggan vid 0x000000 är verifierad som 128×32, 1-bpp, kolumnvis LSB först. Övriga pixelordningar i rålabbet är fortfarande hypoteser och exporteras inte som grafikpatchar.</p>
+      <div class="logo-compare">
+        <figure><canvas id="originalLogo" width="128" height="32"></canvas><figcaption>ORIGINAL · KONNWEI · 0x000000</figcaption></figure>
+        <div class="compare-arrow">→</div>
+        <figure><canvas id="eutherLogo" width="128" height="32"></canvas><figcaption>PATCH · EUTHERCHARGE · 512 BYTE</figcaption></figure>
+      </div>
+      <label class="patch-toggle"><input id="includeLogo" type="checkbox" checked disabled> Inkludera den verifierade 512-bytesloggan i exporterad image</label>
       <div class="graphics-workbench">
         <div class="canvas-wrap"><canvas id="rawCanvas" width="16" height="16"></canvas><span id="canvasCaption">Ladda dump för rådata</span></div>
         <form id="graphicsControls">
           <label>OFFSET<input id="rawOffset" value="0x000000" spellcheck="false"></label>
-          <label>BREDD<input id="rawWidth" type="number" min="1" max="1024" value="16"></label>
-          <label>HÖJD<input id="rawHeight" type="number" min="1" max="1024" value="16"></label>
+          <label>BREDD<input id="rawWidth" type="number" min="1" max="1024" value="128"></label>
+          <label>HÖJD<input id="rawHeight" type="number" min="1" max="1024" value="32"></label>
           <label>FORMAT<select id="rawFormat">
             <option value="rgb565be">RGB565 big-endian</option>
             <option value="rgb565le">RGB565 little-endian</option>
@@ -131,10 +137,11 @@
             <option value="mono-row-msb">1-bpp rader, MSB</option>
             <option value="mono-row-lsb">1-bpp rader, LSB</option>
             <option value="mono-column-msb">1-bpp kolumner, MSB</option>
-            <option value="mono-column-lsb">1-bpp kolumner, LSB</option>
+            <option value="mono-column-lsb" selected>1-bpp kolumner, LSB</option>
           </select></label>
           <label>ZOOM<input id="rawZoom" type="range" min="2" max="24" value="14"></label>
           <div class="preset-row">
+            <button type="button" data-preset="logo">KW520-logga</button>
             <button type="button" data-preset="rgb">16×16 RGB</button>
             <button type="button" data-preset="mono">32×32 1-bpp</button>
             <button type="button" data-step="-1">← Föregående</button>
@@ -142,6 +149,16 @@
           </div>
         </form>
       </div>
+    </section>
+
+    <section class="panel history-panel">
+      <div class="section-title">
+        <div><p class="eyebrow">0x383000 // READ ONLY</p><h2>Sparad mäthistorik</h2></div>
+        <span class="hypothesis-badge">FÄLTHYPOTES</span>
+      </div>
+      <p class="muted">52-byteposterna är strukturellt verifierade. Volt-, procent- och resistansfälten är starka kandidater men måste jämföras mot apparatens Review-skärm innan de kallas uppmätta värden.</p>
+      <div class="history-empty" id="historyEmpty">Ladda originaldumpen för att läsa de lokala posterna.</div>
+      <div class="history-table" id="historyTable" hidden></div>
     </section>
 
     <section class="panel export-panel">
@@ -157,7 +174,7 @@
     </section>
   </main>
 
-  <footer><strong>SÄKERHETSGRÄNS:</strong> Studio ändrar endast verifierade UI-strängfält. Laddreglering, kalibrering, temperaturgränser och skyddsfunktioner ingår inte.</footer>
+  <footer><strong>SÄKERHETSGRÄNS:</strong> Studio ändrar endast verifierade UI-strängfält och den verifierade startloggan. Laddreglering, historik, kalibrering, temperaturgränser och skyddsfunktioner ingår inte.</footer>
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
   <script type="module" src="app.mjs"></script>
 </body>

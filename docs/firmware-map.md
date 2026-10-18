@@ -27,7 +27,8 @@ att den externa flashen är krypterad.
 
 | Område | Storlek | Observation |
 |---|---:|---|
-| `0x000000–0x00BFFF` | 48 KiB | Rå binärdata, tabeller, grafik/typsnitt och UI-strängar |
+| `0x000000–0x0001FF` | 512 byte | Verifierad 128×32 KONNWEI-startlogga, 1-bpp kolumn/LSB |
+| `0x000200–0x00BFFF` | 47,5 KiB | Tabeller, okänd data och UI-strängar |
 | `0x00C000–0x37FFFF` | 3 588 KiB | Helt raderat (`0xff`) |
 | `0x380000–0x381FFF` | 8 KiB | Små metadata-/statusposter |
 | `0x382000–0x382FFF` | 4 KiB | Helt raderat (`0xff`) |
@@ -54,10 +55,12 @@ NUL-terminerad text. Bland posterna finns `Battery Repair`, `Battery Charge`,
 `Calibration Mode`, `Lithium Iron Phosphate` och temperatur-/säkerhetsvarningar.
 Se [resource-format.md](resource-format.md) för exakta offsets och format.
 
-Området vid `0x383000` innehåller poster med fast längd och talfält. Placeringen
-nära slutet av den använda ytan och innehållets form talar för sparade resultat,
-kalibrering eller enhetsinställningar. Det är ännu en hypotes och området ska
-inte patchas innan fälten har kartlagts.
+Området vid `0x383000` innehåller fyra 52-byteposter med en stabil `0xA5`-markör.
+Talserierna korrelerar starkt med batteritesthistorik: kandidatvärdena omfattar
+12.52/12.00/12.35/26.77 V, två procentfält och float32-värden som plausibelt
+kan vara intern resistans. Betydelserna är inte fysiskt verifierade och visas
+därför endast som fälthypoteser. Området är skrivskyddat i verktygen. Se
+[resource-format.md](resource-format.md) för offsets och råvärden.
 
 ## Tolkning
 

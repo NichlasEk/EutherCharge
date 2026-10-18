@@ -20,6 +20,9 @@ KNOWN_IMAGE_SIZE = 4 * 1024 * 1024
 KNOWN_SHA256 = "d369a860ae39b307ec9cdd00fb59b2501937a20f7f20d9417ff5eede83b841e2"
 POINTER_BASE = 0x3200
 ENTRY_COUNT = 162
+HISTORY_OFFSET = 0x383000
+HISTORY_RECORD_SIZE = 52
+HISTORY_MAX_RECORDS = 64
 
 
 @dataclass(frozen=True)
@@ -52,6 +55,23 @@ class StringEntry:
     allocation: int
     raw: bytes
     text: str
+
+
+@dataclass(frozen=True)
+class HistoryRecord:
+    """Read-only candidate interpretation of one persistent 52-byte record."""
+
+    index: int
+    offset: int
+    marker_hex: str
+    mode_byte_candidate: int
+    rated_value: int
+    measured_value: int
+    voltage_raw: int
+    voltage_candidate: float
+    health_percent_candidate: int
+    charge_percent_candidate: int
+    resistance_candidate: float
 
 
 def sha256(data: bytes) -> str:
@@ -130,6 +150,41 @@ def validate_layout(data: bytes) -> dict[str, object]:
     }
 
 
+def parse_history(data: bytes) -> list[HistoryRecord]:
+    """Parse structurally known records without claiming field semantics.
+
+    The A5 marker, 52-byte stride and record count are observed facts. Field
+    names ending in ``candidate`` are hypotheses pending comparison with the
+    charger's Review screen.
+    """
+
+    records: list[HistoryRecord] = []
+    for index in range(HISTORY_MAX_RECORDS):
+        offset = HISTORY_OFFSET + index * HISTORY_RECORD_SIZE
+        if offset + HISTORY_RECORD_SIZE > len(data):
+            break
+        if data[offset : offset + 2] == b"\xff\xff":
+            break
+        if data[offset + 1] != 0xA5:
+            raise ValueError(f"history record #{index} lacks A5 marker")
+        records.append(
+            HistoryRecord(
+                index=index,
+                offset=offset,
+                marker_hex=data[offset : offset + 2].hex(),
+                mode_byte_candidate=data[offset + 15],
+                rated_value=struct.unpack_from("<H", data, offset + 24)[0],
+                measured_value=struct.unpack_from("<H", data, offset + 34)[0],
+                voltage_raw=struct.unpack_from("<H", data, offset + 36)[0],
+                voltage_candidate=struct.unpack_from("<H", data, offset + 36)[0] / 100,
+                health_percent_candidate=struct.unpack_from("<H", data, offset + 38)[0],
+                charge_percent_candidate=struct.unpack_from("<H", data, offset + 40)[0],
+                resistance_candidate=struct.unpack_from("<f", data, offset + 44)[0],
+            )
+        )
+    return records
+
+
 def patch_entry(image: bytearray, entry: StringEntry, text: str) -> dict[str, object]:
     bank = get_bank(entry.language)
     if not bank.verified_text:
@@ -197,6 +252,19 @@ def command_strings(args: argparse.Namespace) -> int:
     return 0
 
 
+def command_history(args: argparse.Namespace) -> int:
+    data = args.image.read_bytes()
+    records = parse_history(data)
+    output = {
+        "status": "field-hypotheses-not-physically-correlated",
+        "offset": HISTORY_OFFSET,
+        "record_size": HISTORY_RECORD_SIZE,
+        "records": [record.__dict__ for record in records],
+    }
+    print(json.dumps(output, indent=2, ensure_ascii=False))
+    return 0
+
+
 def command_patch_text(args: argparse.Namespace) -> int:
     source = args.input.resolve()
     output = args.output.resolve()
@@ -253,6 +321,11 @@ def build_parser() -> argparse.ArgumentParser:
     strings.add_argument("image", type=Path)
     strings.add_argument("--language", default="English")
     strings.set_defaults(func=command_strings)
+    history = commands.add_parser(
+        "history", help="show read-only 52-byte history records and candidate fields"
+    )
+    history.add_argument("image", type=Path)
+    history.set_defaults(func=command_history)
     patch = commands.add_parser("patch-text", help="create a fixed-allocation text-patched copy")
     patch.add_argument("input", type=Path)
     patch.add_argument("output", type=Path)

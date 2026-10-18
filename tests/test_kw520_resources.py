@@ -56,6 +56,27 @@ class ResourceTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "exceeds"):
             resources.patch_entry(data, entry, "TOO-LONG")
 
+    def test_history_parser_marks_semantics_as_candidates(self) -> None:
+        data = bytearray(b"\xff" * (resources.HISTORY_OFFSET + 0x1000))
+        offset = resources.HISTORY_OFFSET
+        data[offset : offset + resources.HISTORY_RECORD_SIZE] = b"\0" * resources.HISTORY_RECORD_SIZE
+        data[offset + 1] = 0xA5
+        data[offset + 15] = 2
+        struct.pack_into("<H", data, offset + 24, 400)
+        struct.pack_into("<H", data, offset + 34, 505)
+        struct.pack_into("<H", data, offset + 36, 1252)
+        struct.pack_into("<H", data, offset + 38, 100)
+        struct.pack_into("<H", data, offset + 40, 90)
+        struct.pack_into("<f", data, offset + 44, 5.75)
+
+        records = resources.parse_history(bytes(data))
+
+        self.assertEqual(len(records), 1)
+        self.assertEqual(records[0].voltage_raw, 1252)
+        self.assertEqual(records[0].voltage_candidate, 12.52)
+        self.assertEqual(records[0].resistance_candidate, 5.75)
+        self.assertEqual(records[0].mode_byte_candidate, 2)
+
 
 if __name__ == "__main__":
     unittest.main()

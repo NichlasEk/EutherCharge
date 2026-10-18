@@ -55,28 +55,70 @@ Den medföljande svenska startbanken översätter samtliga 162 semantiska poster
 i English-banken. 142 poster får ändrade byte; standardnamn som `CCA`, `DIN`
 och `SAE` förblir identiska. Säkerhetsmeddelanden är sakliga, inte humoristiska.
 
-## Grafik- och färgdata
+## Verifierad startlogga
 
-`0x000000–0x0001FF` är ett strukturerat 512-bytesblock med mönster som passar
-färg-, test- eller pixeldata. Tolkningar som 1-bpp, 4-bpp och RGB565 har
-visualiserats, men ingen har ännu gett en säker match mot en fysisk skärmbild.
-Blocket får därför inte kallas en verifierad ikonatlas eller palett.
+`0x000000–0x0001FF` är en komplett `128×32` monokrom bitmap. Byten ligger
+kolumnvis i fyra åttapixelsidor och bitarna är LSB först inom varje byte:
+
+```text
+offset = page_y * 128 + x
+pixel  = (byte[offset] >> (y % 8)) & 1
+```
+
+Avkodningen visar ordmärket `KONNWEI` med ramlinjer. EutherCharge ersätter
+samtliga 512 byte med en `EUTHER / CHARGE`-logga i exakt samma format och
+adress. Originalfirmware behöver därför ingen ny resursläsare för denna patch.
+
+Ingen ytterligare bildruta eller animationstabell är ännu verifierad.
+
+En atlas av samtliga 512-byteblock i det använda resursområdet
+`0x000000–0x00BFFF` avkodades med samma 128×32-format. Endast blocket vid
+`0x000000` gav en sammanhängande bild. Områdena från `0x003600` och uppåt är
+pekartabeller och textbanker, inte fler bilder i detta format.
 
 `0x001000` och `0x002000` innehåller två byte-identiska, mycket glesa
 4-KiB-sektorer. De första 48 byten ser ut som parametrar eller tabellvärden;
-resten är noll. Deras funktion är okänd.
+ytterligare sex värdebyte ligger vid `0x001280`/`0x002280` och resten är noll.
+De 48 första bytena provades som alla naturliga 24×16-, 16×24- och 48×8-
+monokromformat utan att bilda en sammanhängande ikon. Sektorerna behandlas som
+okänd redundant konfigurationsdata och patchas inte.
 
 Det finns inga identifierade PNG-, JPEG-, BMP- eller GIF-signaturer och ingen
-bevisad bildresurstabell. Det är fullt möjligt att ikoner och typsnitt ligger i
-MCU:ns interna flash eller ritas som primitiver. Studio visar därför alla
-råpixeltolkningar som **hypoteser**, aldrig som extraherade originalbilder.
+bevisad bildresurstabell utöver startloggan. Det är fullt möjligt att ikoner och
+typsnitt ligger i MCU:ns interna flash eller ritas som primitiver. Studio märker
+därför alla övriga råpixeltolkningar som **hypoteser**.
+
+## Skrivskyddad historik vid `0x383000`
+
+Fyra tätt packade poster finns vid `0x383000`, `0x383034`, `0x383068` och
+`0x38309C`; nästa postplats vid `0x3830D0` är raderad. Varje post är 52 byte
+och har `0xA5` som andra byte. Detta ger en verifierad poststorlek och markör,
+men ännu inte verifierade betydelser för alla fält.
+
+Följande korrelation är stark men fortfarande en **fälthypotes**:
+
+| Relativ offset | Typ | Fyra observerade värden | Kandidatbetydelse |
+|---:|---|---|---|
+| `+0x0F` | u8 | `0, 0, 0, 2` | läge/flaggbyte, möjligen 12/24 V |
+| `+0x18` | u16le | `400, 400, 400, 400` | angivet referensvärde |
+| `+0x22` | u16le | `505, 110, 502, 1198` | uppmätt testvärde |
+| `+0x24` | u16le / 100 | `12.52, 12.00, 12.35, 26.77` | volt |
+| `+0x26` | u16le | `100, 27, 100, 100` | hälsa i procent |
+| `+0x28` | u16le | `90, 25, 69, 100` | laddning i procent |
+| `+0x2C` | float32le | `5.77, 26.51, 5.81, 9.74` | intern resistans i mΩ |
+
+Kombinationen liknar batteritestresultat och stämmer semantiskt med UI-posten
+`Review`, men det är inte fysisk bekräftelse. Studio och kommandot
+`kw520_resources.py history` visar därför frågetecken/candidate-namn och gör
+inga skrivningar i området. Nästa verifiering är att fotografera Review-skärmen
+och jämföra en post fält för fält.
 
 ## Områden som inte får patchas ännu
 
 - `0x003200–0x0035FF`: blandad strukturerad data före språkbankerna.
 - `0x380000–0x381FFF`: gles metadata/status.
-- `0x383000–0x383FFF`: beständiga poster, möjligen resultat, inställningar
-  eller kalibrering.
+- `0x383000–0x383FFF`: historikposterna får läsas men inte patchas innan
+  fältbetydelserna har korrelerats mot apparaten.
 
 Särskilt `0x383000` hålls helt utanför UI-patchar tills fälten har korrelerats
 mot kontrollerade ändringar på apparaten.

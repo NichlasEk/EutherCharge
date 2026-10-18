@@ -3,12 +3,23 @@ import assert from "node:assert/strict";
 import {
   POINTER_BASE,
   ENTRY_COUNT,
+  HISTORY_OFFSET,
+  HISTORY_RECORD_SIZE,
   parseBank,
+  parseHistory,
   applyFixedTextPatch,
   getPixel,
   requiredBytes,
 } from "../studio/core.mjs";
 import { SWEDISH } from "../studio/sv-SE.mjs";
+import {
+  LOGO_HEIGHT,
+  LOGO_SIZE,
+  LOGO_WIDTH,
+  decodeColumnLsb,
+  encodeColumnLsb,
+  generateEutherChargeLogo,
+} from "../studio/boot-logo.mjs";
 
 function fixture() {
   const bank = { name: "Test", tableOffset: 0x1000, stringsOffset: 0x3400, editable: true };
@@ -64,4 +75,34 @@ test("Swedish starter has exactly one Latin-1 string per entry", () => {
   for (const text of SWEDISH) {
     assert.equal([...text].every((character) => character.codePointAt(0) <= 0xff), true);
   }
+});
+
+test("EUTHERCHARGE logo round-trips through the discovered KW520 format", () => {
+  const pixels = generateEutherChargeLogo();
+  const encoded = encodeColumnLsb(pixels);
+  assert.equal(pixels.length, LOGO_WIDTH * LOGO_HEIGHT);
+  assert.equal(encoded.length, LOGO_SIZE);
+  assert.deepEqual(decodeColumnLsb(encoded), pixels);
+});
+
+test("history parser exposes candidate measurement fields read-only", () => {
+  const data = new Uint8Array(HISTORY_OFFSET + HISTORY_RECORD_SIZE * 2).fill(0xff);
+  const view = new DataView(data.buffer);
+  data[HISTORY_OFFSET] = 0x42;
+  data[HISTORY_OFFSET + 1] = 0xa5;
+  data[HISTORY_OFFSET + 15] = 2;
+  view.setUint16(HISTORY_OFFSET + 24, 400, true);
+  view.setUint16(HISTORY_OFFSET + 34, 505, true);
+  view.setUint16(HISTORY_OFFSET + 36, 1252, true);
+  view.setUint16(HISTORY_OFFSET + 38, 100, true);
+  view.setUint16(HISTORY_OFFSET + 40, 90, true);
+  view.setFloat32(HISTORY_OFFSET + 44, 5.774829, true);
+  const records = parseHistory(data);
+  assert.equal(records.length, 1);
+  assert.equal(records[0].voltage, 12.52);
+  assert.equal(records[0].measuredValue, 505);
+  assert.equal(records[0].chargePercent, 90);
+  assert.equal(records[0].markerHex, "42a5");
+  assert.equal(records[0].modeByteCandidate, 2);
+  assert.equal(records[0].resistance.toFixed(3), "5.775");
 });

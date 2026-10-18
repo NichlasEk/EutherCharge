@@ -28,8 +28,8 @@ AT32F421 intern flash
               │
               ▼
 EN25Q32 extern flash
-  ├─ produktdata och språkresurser   [verifierat]
-  ├─ färg-/displaydata               [möjligt]
+  ├─ startlogga och språkresurser    [verifierat]
+  ├─ övrig färg-/displaydata         [möjligt]
   └─ historik/inställningar          [möjligt]
 ```
 
@@ -57,8 +57,9 @@ testhårdvara.
 ### Nivå A — extern resursersättning, implementerad
 
 - fastallokerad svensk textbank;
+- verifierad ersättning av den befintliga 128×32-startloggan;
 - fullständig ändringsmanifest och hash;
-- ingen ändring utanför engelska strängpayloads;
+- ingen ändring utanför startloggan och engelska strängpayloads;
 - simulator för teman och nya informationsvyer.
 
 ### Nivå B — intern UI-hook, kräver MCU-dump
@@ -86,7 +87,7 @@ Härledda värden ska märkas `beräknad`; okända värden visas som `—`.
 
 ## Fan Hymn
 
-Nuvarande Fan Hymn är en ljudlös sequencer i Studio och styr ingen hårdvara.
+Nuvarande Fan Hymn använder Web Audio i Studio och styr ingen laddarhårdvara.
 En fysisk implementation får endast aktiveras när följande kan bevisas:
 
 - separat, avbrytbart demo-läge utan pågående laddning;
