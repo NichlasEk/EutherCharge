@@ -1,0 +1,25 @@
+# Firmware, dumps and generated artifacts must remain local.
+*.bin
+*.rom
+*.hex
+*.img
+*.dump
+dumps/
+build/
+artifacts/
+
+# Local lab notes may contain serial numbers or machine-specific details.
+lab-private/
+
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.venv/
+.git-local/
+
+# Editors and OS metadata
+.idea/
+.vscode/
+.DS_Store
+*~
