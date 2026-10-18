@@ -90,6 +90,8 @@ Se [docs/hardware.md](docs/hardware.md) och
 verifierade statiska kartan finns i [docs/firmware-map.md](docs/firmware-map.md),
 detaljer om språkposterna i [docs/resource-format.md](docs/resource-format.md)
 och kod-/hårdvarugränserna i [docs/architecture.md](docs/architecture.md).
+För MCU:n finns en separat
+[icke-destruktiv SWD-plan](docs/internal-flash-access.md).
 
 ## EutherCharge Studio
 

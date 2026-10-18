@@ -23,6 +23,19 @@ identifierats. Avsaknad av signatur är inte ensam ett bevis, men tillsammans
 med klartexten, den låga entropin och den glesa layouten finns inget stöd för
 att den externa flashen är krypterad.
 
+## Nyckel- och certifikatsökning
+
+Dumpen innehåller inga träffar för PEM, vanliga DER-certifikathuvuden, SSH,
+HTTP/HTTPS-adresser eller AES-S-boxens välkända prefix. Det finns inte heller
+någon kvarvarande okänd högentropiblobb: sektorerna med högst entropi är de
+redan verifierade språkbankerna, särskilt den ryska teckenkodningen.
+
+Detta är stark evidens mot lagrade certifikat, URL-/tokenkonfiguration eller en
+vanlig inbäddad nyckelcontainer i externflashen. Det kan däremot aldrig bevisa
+att en godtycklig 16- eller 32-bytesföljd inte används som rå kryptonyckel.
+De okända parameterblocken är små, glesa och duplicerade och behandlas därför
+fortsatt som inställnings-/kalibreringskandidater, inte som bevisade nycklar.
+
 ## Grov minneskarta
 
 | Område | Storlek | Observation |

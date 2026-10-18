@@ -23,7 +23,9 @@ Det är den enda godkända originaldumpen. Den identifierar produkten som
 
 Huvudprocessorn har rapporterats vara `AT32F421C8T7` (ARM Cortex-M4), men den
 uppgiften är ännu inte verifierad mot ett skarpt kortfoto eller en read-only
-debuggeridentifiering. Ingen intern MCU-flash har lästs.
+debuggeridentifiering. Ingen intern MCU-flash har lästs. Se
+[internal-flash-access.md](internal-flash-access.md) för SWD-pinout,
+anslutningsordning och stoppvillkor.
 
 ## Vanlig SOIC-8 SPI-NOR-pinout
 
