@@ -180,3 +180,20 @@ Nio Python-test och sju JavaScript-test passerar. Den integrerade imagen
 byggdes om från originaldumpen och blev byte-identisk med den tidigare lokala
 artefakten. Webbvyn renderades i Firefox. Den svenska imagen är ännu inte
 programmerad eller provad på fysisk hårdvara.
+
+## 2026-10-18 — glidande sökning efter små ikoner
+
+Produktens skärmbilder visar batteri-, blixt- och statusgrafik, så resursområdet
+genomsöktes igen utan antagandet att bilder måste vara 512-bytejusterade.
+Varje möjlig byteoffset i `0x000200–0x0035FF` provades som 8×8, 12×12, 16×16,
+24×24 och 32×32 monokrom sprite, både rad-/kolumnpackad och MSB/LSB först.
+Resultatet innehöll endast fragment av de glesa parameterblocken och tabellen
+vid `0x003200`; ingen koherent liten ikon hittades.
+
+Det tätare området `0x003600–0x00B30B` täcks utan luckor av de åtta verifierade
+språkbankerna. `0x00B30C–0x00B423` innehåller ytterligare åtta språkspecifika
+`P0000`-felkodstexter. Därmed finns ingen återstående okänd rådatayta i den
+externa resursdelen som rimligen rymmer originalets samling av små UI-ikoner.
+Arbetshypotesen är nu att de ligger i AT32F421C8T7:s interna flash eller ritas
+med primitiver av MCU-koden. Hypotesen kan verifieras först genom en
+icke-destruktiv SWD-läsning, om lässkyddet tillåter det.

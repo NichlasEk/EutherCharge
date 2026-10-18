@@ -55,6 +55,12 @@ NUL-terminerad text. Bland posterna finns `Battery Repair`, `Battery Charge`,
 `Calibration Mode`, `Lithium Iron Phosphate` och temperatur-/säkerhetsvarningar.
 Se [resource-format.md](resource-format.md) för exakta offsets och format.
 
+Ett byteglidande småbildssvep över alla okända byte före språkbankerna provade
+fem spriteformatstorlekar och fyra 1-bpp-packningar utan att hitta fler
+sammanhängande ikoner. Det utesluter inte okänd komprimering, men tillsammans
+med den glesa minneskartan talar fyndet för att batteri- och statusgrafiken
+ligger i MCU:ns interna flash eller ritas programmatiskt.
+
 Området vid `0x383000` innehåller fyra 52-byteposter med en stabil `0xA5`-markör.
 Talserierna korrelerar starkt med batteritesthistorik: kandidatvärdena omfattar
 12.52/12.00/12.35/26.77 V, två procentfält och float32-värden som plausibelt

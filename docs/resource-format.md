@@ -76,6 +76,15 @@ En atlas av samtliga 512-byteblock i det använda resursområdet
 `0x000000` gav en sammanhängande bild. Områdena från `0x003600` och uppåt är
 pekartabeller och textbanker, inte fler bilder i detta format.
 
+För att inte missa små eller ojusterade sprites gjordes dessutom ett glidande
+svep med start på **varje byte** i det ännu okända intervallet
+`0x000200–0x0035FF`. Storlekarna 8×8, 12×12, 16×16, 24×24 och 32×32 provades
+som rad- och kolumnpackad 1-bpp, vardera med MSB- och LSB-bitordning. De högst
+rankade kandidaterna var endast fragment av de kända parameter- och
+pekartabellerna; ingen sammanhängande batteri-, blixt- eller menyikon hittades.
+Detta är starkare negativ evidens än enbart den tidigare 512-byteatlasen, men
+utesluter inte ett ännu okänt komprimerat eller flerfärgat format.
+
 `0x001000` och `0x002000` innehåller två byte-identiska, mycket glesa
 4-KiB-sektorer. De första 48 byten ser ut som parametrar eller tabellvärden;
 ytterligare sex värdebyte ligger vid `0x001280`/`0x002280` och resten är noll.
@@ -87,6 +96,10 @@ Det finns inga identifierade PNG-, JPEG-, BMP- eller GIF-signaturer och ingen
 bevisad bildresurstabell utöver startloggan. Det är fullt möjligt att ikoner och
 typsnitt ligger i MCU:ns interna flash eller ritas som primitiver. Studio märker
 därför alla övriga råpixeltolkningar som **hypoteser**.
+
+Efter Nederlands-bankens sista ordinarie post vid `0x00B30B` följer åtta
+språkspecifika `P0000`-felkodstexter till och med `0x00B423`. De har pekare och
+längdprefix och är textdata, inte en dold ikonregion.
 
 ## Skrivskyddad historik vid `0x383000`
 

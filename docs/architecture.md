@@ -9,9 +9,9 @@
 - Åtta språkbanker med totalt 1 296 poster är strukturellt validerade.
 - Laddar-, temperatur- och skyddskod har inte lokaliserats i externflashen.
 
-MCU:n har uppgivits vara en Artery AT32F421C8T7. Arterys officiella material
-beskriver AT32F421-familjen som Cortex-M4 upp till 120 MHz med upp till 64 KiB
-intern flash, 16 KiB SRAM, ADC, timers, SPI, I²C och USART. Den exakta
+MCU:n har uppgivits vara en Artery AT32F421C8T7. Om märkningen är rätt anger
+Arterys officiella material 64 KiB intern flash och 16 KiB SRAM för just C8T7,
+med Cortex-M4 upp till 120 MHz, ADC, timers, SPI, I²C, USART och SWD. Den exakta
 kortkopplingen, kapselmärkningen och readout-protection-statusen är ännu inte
 verifierade i projektet.
 
@@ -29,8 +29,8 @@ AT32F421 intern flash
               ▼
 EN25Q32 extern flash
   ├─ startlogga och språkresurser    [verifierat]
-  ├─ övrig färg-/displaydata         [möjligt]
-  └─ historik/inställningar          [möjligt]
+  ├─ övrig UI-grafik                 [inte funnen i provade råformat]
+  └─ historikposter                  [struktur verifierad, semantik hypotes]
 ```
 
 Diagrammet är en arbetsmodell, inte bevis för var varje funktion ligger.
