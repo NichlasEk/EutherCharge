@@ -22,8 +22,8 @@ fortfarande bekräftas mot ett skarpt foto av hela märkningen.
 - [x] Lokalt analysverktyg utan externa Python-beroenden
 - [ ] Foto och fullständig kapselmärkning dokumenterade
 - [x] JEDEC-ID `1c 30 16` läst från den fysiska kretsen
-- [ ] Tre identiska originaldumpningar arkiverade lokalt (första försöket gav
-      olika data och är underkänt)
+- [ ] Tre identiska originaldumpningar arkiverade lokalt (två läsomgångar gav
+      olika data och är underkända)
 - [ ] Firmwareformat och processor identifierade
 - [ ] Första patch definierad och testad på bänk
 - [ ] Verifierad återläsning efter programmering

@@ -59,3 +59,23 @@ Ingen fil betraktas som en giltig backup och ingen skrivning har utförts.
 
 Koppla ur USB, sätt om kretsen i sockeln med verifierad pin 1, kontrollera och
 mät 3,3 V-matningen och gör därefter tre nya avläsningar.
+
+## 2026-10-18 — avläsning efter omsättning
+
+JEDEC-ID:t var åter stabilt som `1c 30 16`, men statusregistret var fortfarande
+`0xff`. Tre nya 4-MiB-läsningar gav följande lokala SHA-256:
+
+```text
+a865c10f26593403382ed3317a7442d620009e353d4823994bd6af5155c06f45  reseat-1
+9bb8c64f9115f08148c51804b73ebeab3377ac4b45bf72a07e8bb08a089f7e9b  reseat-2
+2a013f7122a352310266c5ff1384b813f808969525c8a22c373b4ce96a858fdf  reseat-3
+```
+
+Filparens avvikelser var 4 094, 20 425 respektive 24 519 byte. En körning
+rapporterade dessutom `Block protection could not be disabled!`. Regioner
+växlade mellan plausibla firmwaredata, `ff` och bitmönster, vilket talar för
+instabil fysisk kontakt, matning eller signalväg. Ingen fil godkänns som backup
+och ingen skrivning har utförts.
+
+Nästa steg är att kontrollera programmerarkortets 25xx-position, pin 1,
+sockel/adapter, rena kretsben samt mäta VCC mellan pin 8 och pin 4 under läsning.
