@@ -48,10 +48,11 @@ Fasta identifierare börjar vid `0x003000`:
 0x003020  1.0.1
 ```
 
-Från cirka `0x00388A` finns menyer, varningar och kalibreringssträngar i
-klartext, bland annat `Battery Repair`, `Battery Charge`, `Calibration Mode`,
-`Lithium Iron Phosphate` och temperatur-/säkerhetsvarningar. Därefter följer
-flera språkversioner, inklusive franska och nederländska.
+Från `0x003600` finns åtta verifierade pekartabeller och språkbanker med exakt
+162 poster per språk. Strängposterna har big-endian längdprefix och
+NUL-terminerad text. Bland posterna finns `Battery Repair`, `Battery Charge`,
+`Calibration Mode`, `Lithium Iron Phosphate` och temperatur-/säkerhetsvarningar.
+Se [resource-format.md](resource-format.md) för exakta offsets och format.
 
 Området vid `0x383000` innehåller poster med fast längd och talfält. Placeringen
 nära slutet av den använda ytan och innehållets form talar för sparade resultat,
@@ -65,6 +66,7 @@ och beständig användardata. Det finns ännu inget säkert bevis för att ladda
 exekverbara styrprogram ligger här. Det kan ligga i en separat MCU:s interna
 flash.
 
-En längdbevarande UI-patch är sannolikt möjlig, men pekare, längdprefix och
-eventuella kontrollsummor måste verifieras först. Ändringar av laddningslogik
-kräver dessutom identifiering av huvudprocessorn och dess firmwaregränssnitt.
+En fastallokerad UI-patch är implementerad utan att ändra pekare eller
+längdprefix. Någon global kontrollsumma har inte identifierats, men fysisk
+acceptans återstår. Ändringar av laddningslogik kräver identifiering och separat
+granskning av huvudprocessorns interna firmware.

@@ -135,3 +135,38 @@ skilde sig med 16 788 byte. Den är underkänd som både backup och skrivunderla
 Identifiera processorarkitektur, kod-/resursregioner och kontrollsummor från
 den verifierade TL866A-dumpen innan någon patch definieras. Originalkretsen får
 inte raderas eller skrivas under analysfasen.
+
+## 2026-10-18 — språkformat, Studio 0.1 och svensk image
+
+Åtta språkbanker identifierades med 162 poster vardera. Varje bank består av
+en big-endian 32-bitars pekartabell relativ till `0x3200` och poster med
+big-endian 16-bitars längd följd av NUL-terminerad text. Samtliga 1 296 poster
+validerar strukturellt. Den ryska banken använder en ännu okänd teckenkodning
+och är därför skrivskyddad.
+
+EutherCharge Studio 0.1 byggdes som en lokal, beroendefri webbapp med:
+
+- filstorleks- och SHA-256-kontroll;
+- texteditor med fast allokering och överflödesskydd;
+- rågrafikvisare för 1-, 2-, 4-, 8-bpp- och RGB565-hypoteser;
+- fyra temaprototyper, ELDRÄNG MODE och simulerad Fan Hymn;
+- export av ny image och JSON-manifest.
+
+En svensk ersättning för samtliga 162 semantiska poster i English-banken har
+byggts lokalt. 142 poster och totalt 1 912 byte skiljer sig från originalet.
+Imageformat, pekartabeller, längdprefix och alla andra områden är oförändrade.
+
+```text
+Original: d369a860ae39b307ec9cdd00fb59b2501937a20f7f20d9417ff5eede83b841e2
+Svenska:  c484052b5b9f1ad51ede0672b28b96de289d82b48fd882b730be6311322419ae
+Storlek:  4 194 304 byte för båda
+```
+
+Rådata vid `0x000000–0x0001FF` gav ingen säker ikon eller bild under 1-bpp-,
+4-bpp-, 8-bpp- eller RGB565-tolkning. Den kan vara färg-, test-, font- eller
+kontrolldata, men är inte ett verifierat grafikformat. Inga grafikbyte har
+patchats.
+
+Åtta Python-test och fem JavaScript-test passerar. Webbvyn renderades i
+Firefox. Den svenska imagen är ännu inte programmerad eller provad på fysisk
+hårdvara.

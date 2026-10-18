@@ -21,6 +21,10 @@ SHA-256 `d369a860ae39b307ec9cdd00fb59b2501937a20f7f20d9417ff5eede83b841e2`.
 Det är den enda godkända originaldumpen. Den identifierar produkten som
 `KONNWEI`, `KW520`, firmwareversion `1.0.1`.
 
+Huvudprocessorn har rapporterats vara `AT32F421C8T7` (ARM Cortex-M4), men den
+uppgiften är ännu inte verifierad mot ett skarpt kortfoto eller en read-only
+debuggeridentifiering. Ingen intern MCU-flash har lästs.
+
 ## Vanlig SOIC-8 SPI-NOR-pinout
 
 Använd endast tabellen efter att kapsel, datablad och pin 1 har verifierats.

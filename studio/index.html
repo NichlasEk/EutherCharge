@@ -1,0 +1,164 @@
+<!doctype html>
+<html lang="sv">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="dark">
+  <title>EutherCharge Studio</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="#top" aria-label="EutherCharge Studio">
+      <svg class="brand-mark" viewBox="0 0 64 64" aria-hidden="true">
+        <path d="M36 3 12 35h17l-2 26 25-35H35z"/>
+      </svg>
+      <span><strong>EUTHER</strong>CHARGE <em>STUDIO</em></span>
+    </a>
+    <div class="motto">ELECTRONS WITH ATTITUDE.</div>
+  </header>
+
+  <main id="top">
+    <section class="hero panel">
+      <div>
+        <p class="eyebrow">KW520 // RESOURCE LAB</p>
+        <h1>Gör laddaren<br><span>omisskännlig.</span></h1>
+        <p class="lead">Lokal firmwareanalys, säkra textpatchar, rågrafik och en levande LCD-prototyp. Dumpen lämnar aldrig webbläsaren.</p>
+      </div>
+      <div class="drop-zone" id="dropZone">
+        <input id="fileInput" type="file" accept=".bin,.rom,application/octet-stream">
+        <svg viewBox="0 0 48 48" aria-hidden="true"><path d="M24 4v26m0-26L14 14M24 4l10 10M7 30v10h34V30"/></svg>
+        <strong>Öppna KW520-dump</strong>
+        <span>eller släpp en 4 MiB-fil här</span>
+      </div>
+    </section>
+
+    <section class="status-grid" aria-label="Firmwarestatus">
+      <article><span>FIL</span><strong id="fileStatus">Ingen laddad</strong><small id="fileMeta">Prototypläge</small></article>
+      <article><span>INTEGRITET</span><strong id="hashStatus">—</strong><small id="hashMeta">SHA-256 kontrolleras lokalt</small></article>
+      <article><span>RESURSER</span><strong id="resourceStatus">8 × 162</strong><small>Språkbanker kartlagda</small></article>
+      <article><span>ÄNDRINGAR</span><strong id="changeCount">0</strong><small>Endast strängpayload</small></article>
+    </section>
+
+    <section class="workspace">
+      <article class="panel preview-panel">
+        <div class="section-title">
+          <div><p class="eyebrow">LIVE PROTOTYPE</p><h2>EutherLCD</h2></div>
+          <span class="simulation-badge">SIMULERING</span>
+        </div>
+        <div class="lcd-shell">
+          <div class="lcd theme-industrial" id="lcd">
+            <div class="scanlines"></div>
+            <div class="lcd-top"><span>EUTHERCHARGE</span><span class="live-dot">● DEMO</span></div>
+            <div class="lcd-main">
+              <div class="charge-visual">
+                <div class="battery">
+                  <div class="battery-fill"></div>
+                  <div class="battery-bolt">ϟ</div>
+                </div>
+                <div class="electron-track"><i></i><i></i><i></i></div>
+                <span class="charge-percent">68%</span>
+              </div>
+              <div class="readings">
+                <div><small>SPÄNNING</small><strong>14.42</strong><b>V</b></div>
+                <div><small>STRÖM</small><strong>4.80</strong><b>A</b></div>
+                <div><small>TEMP</small><strong>31</strong><b>°C</b></div>
+                <div><small>FLÄKT</small><strong>42</strong><b>%</b></div>
+              </div>
+            </div>
+            <div class="phase"><span>FAS 3 / ABSORPTION</span><div><i></i></div></div>
+            <div class="charge-message" id="chargeMessage">Elektronerna har hittat arbetsmoralen.</div>
+            <nav class="lcd-nav"><span>◈ ÖVERSIKT</span><span>▥ HISTORIK</span><span>⚙ SERVICE</span></nav>
+            <div class="eldrang-overlay" aria-hidden="true"><strong>ELDRÄNG MODE</strong><span>INGEN STRÖM UTAN ATTITYD</span></div>
+          </div>
+        </div>
+
+        <div class="theme-controls">
+          <button class="theme-button active" data-theme="industrial">INDUSTRIAL</button>
+          <button class="theme-button" data-theme="cyber">CYBERCHARGE</button>
+          <button class="theme-button" data-theme="holy">HOLY AMPERE</button>
+          <button class="theme-button" data-theme="retro">RETROTECH</button>
+          <button class="danger-button" id="eldrangButton">⚡ ELDRÄNG MODE</button>
+        </div>
+
+        <div class="fan-hymn">
+          <div><strong>FAN HYMN // DEMO</strong><span>Endast ljudlös sequencerprototyp. Ingen hårdvara styrs.</span></div>
+          <button id="fanButton">▶ STARTA</button>
+          <div class="sequencer" id="sequencer" aria-label="simulerad fläktsekvens">
+            <i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i>
+          </div>
+        </div>
+      </article>
+
+      <article class="panel editor-panel">
+        <div class="section-title">
+          <div><p class="eyebrow">VERIFIERAT FORMAT</p><h2>Språkbanker</h2></div>
+          <select id="languageSelect" disabled aria-label="Språkbank"></select>
+        </div>
+        <div class="filter-row">
+          <input id="stringFilter" type="search" placeholder="Sök text eller index…" disabled>
+          <button id="applySwedish" disabled>SVENSK START</button>
+          <button id="resetEdits" disabled>Återställ patchar</button>
+        </div>
+        <div class="empty-state" id="stringsEmpty">
+          <strong>162 poster per språk väntar</strong>
+          <span>Öppna originaldumpen för att redigera riktiga menyer med fast minnesallokering.</span>
+        </div>
+        <div class="string-list" id="stringList" hidden></div>
+      </article>
+    </section>
+
+    <section class="panel graphics-panel">
+      <div class="section-title">
+        <div><p class="eyebrow">FORMATLABB // HYPOTES</p><h2>Rågrafik-visualiserare</h2></div>
+        <span class="hypothesis-badge">EJ FORMATBEVIS</span>
+      </div>
+      <p class="muted">Den tidiga binärdatan är strukturerad men formatet är inte fastställt. Prova pixelordningar direkt mot den laddade dumpen och exportera ingen grafikpatch förrän en bild har matchats mot fysisk LCD.</p>
+      <div class="graphics-workbench">
+        <div class="canvas-wrap"><canvas id="rawCanvas" width="16" height="16"></canvas><span id="canvasCaption">Ladda dump för rådata</span></div>
+        <form id="graphicsControls">
+          <label>OFFSET<input id="rawOffset" value="0x000000" spellcheck="false"></label>
+          <label>BREDD<input id="rawWidth" type="number" min="1" max="1024" value="16"></label>
+          <label>HÖJD<input id="rawHeight" type="number" min="1" max="1024" value="16"></label>
+          <label>FORMAT<select id="rawFormat">
+            <option value="rgb565be">RGB565 big-endian</option>
+            <option value="rgb565le">RGB565 little-endian</option>
+            <option value="indexed8">8-bit index/gråskala</option>
+            <option value="indexed4-high">4-bpp index, hög nibble först</option>
+            <option value="indexed4-low">4-bpp index, låg nibble först</option>
+            <option value="indexed2-msb">2-bpp index, MSB först</option>
+            <option value="indexed2-lsb">2-bpp index, LSB först</option>
+            <option value="mono-row-msb">1-bpp rader, MSB</option>
+            <option value="mono-row-lsb">1-bpp rader, LSB</option>
+            <option value="mono-column-msb">1-bpp kolumner, MSB</option>
+            <option value="mono-column-lsb">1-bpp kolumner, LSB</option>
+          </select></label>
+          <label>ZOOM<input id="rawZoom" type="range" min="2" max="24" value="14"></label>
+          <div class="preset-row">
+            <button type="button" data-preset="rgb">16×16 RGB</button>
+            <button type="button" data-preset="mono">32×32 1-bpp</button>
+            <button type="button" data-step="-1">← Föregående</button>
+            <button type="button" data-step="1">Nästa →</button>
+          </div>
+        </form>
+      </div>
+    </section>
+
+    <section class="panel export-panel">
+      <div>
+        <p class="eyebrow">REPRODUCERBAR OUTPUT</p>
+        <h2>Bygg utan att röra originalet</h2>
+        <p>Exporten skapar en ny 4 MiB-image och en JSON-rapport med källhash, resulthash, exakta offsets och alla invariants.</p>
+      </div>
+      <div class="export-actions">
+        <button id="exportImage" class="primary" disabled>EXPORTERA MODIFIERAD .BIN</button>
+        <button id="exportReport" disabled>EXPORTERA RAPPORT</button>
+      </div>
+    </section>
+  </main>
+
+  <footer><strong>SÄKERHETSGRÄNS:</strong> Studio ändrar endast verifierade UI-strängfält. Laddreglering, kalibrering, temperaturgränser och skyddsfunktioner ingår inte.</footer>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <script type="module" src="app.mjs"></script>
+</body>
+</html>

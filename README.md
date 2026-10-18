@@ -23,8 +23,11 @@ fortfarande bekräftas mot ett skarpt foto av hela märkningen.
 - [ ] Foto och fullständig kapselmärkning dokumenterade
 - [x] JEDEC-ID `1c 30 16` läst från den fysiska kretsen
 - [x] Tre identiska originaldumpningar från TL866A arkiverade lokalt
-- [ ] Firmwareformat och processor identifierade
-- [ ] Första patch definierad och testad på bänk
+- [x] Externflashens språkformat identifierat: 8 banker × 162 poster
+- [x] EutherCharge Studio 0.1 med texteditor, rågrafiklabb och LCD-prototyp
+- [x] Svensk fastallokerad 162-posters image genererad lokalt
+- [ ] MCU-firmware, displaybuss, fläkt-PWM och grafikformat identifierade
+- [ ] Första patch testad på isolerad bänk
 - [ ] Verifierad återläsning efter programmering
 - [ ] Test i fysisk KW520
 
@@ -78,7 +81,29 @@ projektets referens. Ett korrekt chip-ID ensamt bevisar inte en korrekt dump.
 
 Se [docs/hardware.md](docs/hardware.md) och
 [docs/research-log.md](docs/research-log.md) innan kretsen ansluts. Den första
-verifierade statiska kartan finns i [docs/firmware-map.md](docs/firmware-map.md).
+verifierade statiska kartan finns i [docs/firmware-map.md](docs/firmware-map.md),
+detaljer om språkposterna i [docs/resource-format.md](docs/resource-format.md)
+och kod-/hårdvarugränserna i [docs/architecture.md](docs/architecture.md).
+
+## EutherCharge Studio
+
+```sh
+python3 -m http.server 8765 -d studio
+```
+
+Öppna `http://127.0.0.1:8765` i Firefox. Studio arbetar helt lokalt och kan
+öppna referensdumpen, visa/redigera alla språkposter, lägga in den kompletta
+svenska startbanken, prova råpixelhypoteser och exportera ny image plus rapport.
+LCD-prototypen innehåller Industrial, CyberCharge, Holy Ampere, RetroTech,
+ELDRÄNG MODE och en simulerad Fan Hymn.
+
+Samma svenska image kan byggas reproducerbart från terminalen:
+
+```sh
+node tools/build-swedish.mjs dumps/original.bin build/euthercharge-sv.bin
+```
+
+Varken originaldump eller genererad image får läggas i Git.
 
 ## Exempel med flashrom
 
