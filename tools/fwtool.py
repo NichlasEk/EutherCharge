@@ -16,6 +16,12 @@ from typing import Iterable
 
 
 KNOWN_JEDEC_IDS = {
+    "1c3016": {
+        "part": "Eon EN25Q32(A/B)",
+        "capacity_bytes": 4 * 1024 * 1024,
+        "voltage": "2.7-3.6 V",
+        "note": "Detected by flashrom; confirm the exact revision from the package marking.",
+    },
     "9d0046": {
         "part": "PM25LQ032C",
         "capacity_bytes": 4 * 1024 * 1024,

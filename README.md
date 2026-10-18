@@ -4,10 +4,9 @@
 firmware i batteriladdaren **KONNWEI KW520**.
 
 Projektet utgår från ett urplockat 8-bens flashminne märkt
-`032C-104HOP`. Märkningen är **inte ännu verifierad** som ett komplett
-artikelnummer. Den starkaste kandidaten är `PM25LQ032C`, ett 32-Mbit
-(4 MiB) SPI-NOR-minne för 2,7–3,6 V. Läs JEDEC-ID från kretsen innan du väljer
-krets i programmeraren.
+`032C-104HOP`. `flashrom` identifierar det som **Eon EN25Q32(A/B)** via
+JEDEC-ID `1c 30 16`: ett 32-Mbit (4 MiB) SPI-NOR-minne. Revisionen behöver
+fortfarande bekräftas mot ett skarpt foto av hela märkningen.
 
 > [!CAUTION]
 > KW520 är nätansluten och laddar bly-/litiumbatterier med hög energi. En
@@ -21,9 +20,10 @@ krets i programmeraren.
 
 - [x] Säker arbetsgång för dump, jämförelse och spårbar patchning
 - [x] Lokalt analysverktyg utan externa Python-beroenden
-- [ ] Foto och kapselmärkning dokumenterade
-- [ ] JEDEC-ID verifierat från den fysiska kretsen
-- [ ] Tre identiska originaldumpningar arkiverade lokalt
+- [ ] Foto och fullständig kapselmärkning dokumenterade
+- [x] JEDEC-ID `1c 30 16` läst från den fysiska kretsen
+- [ ] Tre identiska originaldumpningar arkiverade lokalt (första försöket gav
+      olika data och är underkänt)
 - [ ] Firmwareformat och processor identifierade
 - [ ] Första patch definierad och testad på bänk
 - [ ] Verifierad återläsning efter programmering
@@ -42,8 +42,8 @@ python3 tools/fwtool.py compare dumps/read-1.bin dumps/read-2.bin dumps/read-3.b
 # Inspektera storlek, hash, entropi, strängar och tomma områden.
 python3 tools/fwtool.py inspect dumps/read-1.bin
 
-# Kontrollera kandidatens JEDEC-ID (exempelvärdet är inte ett mätresultat).
-python3 tools/fwtool.py identify 9d0046
+# Kontrollera det uppmätta JEDEC-ID:t.
+python3 tools/fwtool.py identify 1c3016
 
 # Skapa en ny fil med en kontrollerad, längdbevarande patch.
 python3 tools/fwtool.py patch dumps/read-1.bin build/modified.bin \
@@ -93,7 +93,7 @@ inte innehålla proprietära firmwaredumpningar, nycklar eller personuppgifter.
 ## Källor
 
 - [KONNWEI KW520 användarmanual (TME)](https://www.tme.eu/Document/502a00441a3463319fa611c9cafbe740/KW520.pdf)
-- [PM25LQ032C sammanställning och JEDEC-ID](https://spiflash.readthedocs.io/en/latest/chips/9d0046.html)
+- [EN25Q32A datablad](https://www.alldatasheet.com/datasheet-pdf/pdf/313132/EON/EN25Q32A.html)
 - [flashrom-dokumentation](https://flashrom.org/)
 
 ## Licens

@@ -77,6 +77,10 @@ class FirmwareToolTests(unittest.TestCase):
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assertIn("PM25LQ032C", result.stdout)
 
+        measured = self.run_tool("identify", "1c3016")
+        self.assertEqual(measured.returncode, 0, measured.stderr)
+        self.assertIn("Eon EN25Q32(A/B)", measured.stdout)
+
 
 if __name__ == "__main__":
     unittest.main()

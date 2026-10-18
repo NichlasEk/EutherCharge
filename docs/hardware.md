@@ -2,14 +2,18 @@
 
 ## Observerad märkning
 
-Den urplockade kretsen har rapporterats som `032C-104HOP`. Ingen bild,
-JEDEC-avläsning eller kapselmätning finns ännu i repot.
+Den urplockade kretsen har rapporterats som `032C-104HOP`. Ingen bild eller
+kapselmätning finns ännu i repot.
 
-`032C` stämmer med kapacitetsdelen i artikelnumret `PM25LQ032C`. Den kretsen är
-en 32-Mbit (4 MiB) SPI-NOR för 2,7–3,6 V, med 256-byte sidor och 4-KiB sektorer.
-Detta är en **arbetshypotes**, inte identifierad hårdvara. Förväntat JEDEC-ID
-för kandidaten anges i tillgängliga källor som `9d 00 46` (ibland rapporterat
-med en JEP106-fortsättningsbyte eller som `9d 46`).
+Den 18 oktober 2026 identifierade `flashrom` 1.6.0-devel kretsen som
+`Eon EN25Q32(A/B)` med ID `1c 30 16` och kapaciteten 4096 KiB. Det ersätter den
+tidigare hypotesen `PM25LQ032C`. EN25Q32A-databladet anger 2,7–3,6 V,
+256-byte sidor och 4-KiB sektorer. Exakt A/B/C-revision är ännu inte verifierad
+mot märkningen.
+
+Tre första läsningar hade rätt storlek men olika SHA-256 och ungefär 95 000
+skilda byte per filpar. Första skillnaden låg vid `0x5000`. Dessa filer är
+diagnostik och får **inte** användas som backup eller skrivunderlag.
 
 ## Vanlig SOIC-8 SPI-NOR-pinout
 
@@ -32,7 +36,9 @@ Använd endast tabellen efter att kapsel, datablad och pin 1 har verifierats.
 - Mät kapselbredd och identifiera pin-1-markeringen.
 - Bekräfta programmerarens verkliga VCC med multimeter.
 - Börja med låg SPI-klocka om kontakten är osäker.
-- Läs statusregistren utan att ändra dem.
+- Läs statusregistren utan att ändra dem. Första proben rapporterade `0xff`,
+  vilket tillsammans med instabila läsningar motiverar kontroll av kontakt och
+  matning innan nästa försök.
 - Spara programmerarens identifieringsutskrift i en lokal labblogg.
 
 CH341A-kort finns i flera revisioner. Färg eller produktnamn är inte bevis på
