@@ -197,3 +197,33 @@ externa resursdelen som rimligen rymmer originalets samling av små UI-ikoner.
 Arbetshypotesen är nu att de ligger i AT32F421C8T7:s interna flash eller ritas
 med primitiver av MCU-koden. Hypotesen kan verifieras först genom en
 icke-destruktiv SWD-läsning, om lässkyddet tillåter det.
+
+## 2026-10-18 — EutherCharge-imagen programmerad med TL866A
+
+Den externa EN25Q32A-kretsen programmerades med TL866A, firmware `03.2.86`,
+`minipro` 0.7.4 och profilen `EN25Q32A@SOP8`. Chip-ID kontrollerades omedelbart
+före arbetet och var `0x1C3016 OK`.
+
+Före radering gjordes en ny fullständig 4-MiB-läsning. Den var byte-identisk
+med den bevarade originaldumpen:
+
+```text
+d369a860ae39b307ec9cdd00fb59b2501937a20f7f20d9417ff5eede83b841e2
+```
+
+Den integrerade EutherCharge-imagen skrevs därefter. Programmerarens
+automatiska verifiering och en separat verifieringskörning gav båda
+`Verification OK`. Slutligen lästes hela kretsen ut på nytt till en separat,
+Git-ignorerad readbackfil. Readbacken var byte-identisk med byggimagen och
+båda hade SHA-256:
+
+```text
+4a4947e116dc405e577c97e965c342cc89f7f8b3f517babee9a8105e400d0329
+```
+
+Efter readbacken passerade nio Python-test och sju JavaScript-test. Detta
+verifierar innehållet i den externa kretsen, inklusive den nya 512-byte-
+startloggan och de svenska strängarna i English-banken. Det verifierar ännu
+inte uppstart eller visning i den fysiska laddaren; det testet sker först efter
+att kretsen har monterats tillbaka med rätt pinne-1-orientering. Animationer,
+ljud och laddnings-/skyddslogik har inte modifierats.
