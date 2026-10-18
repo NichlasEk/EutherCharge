@@ -15,6 +15,12 @@ Tre första läsningar hade rätt storlek men olika SHA-256 och ungefär 95 000
 skilda byte per filpar. Första skillnaden låg vid `0x5000`. Dessa filer är
 diagnostik och får **inte** användas som backup eller skrivunderlag.
 
+Efter ytterligare CH341A-försök användes en TL866A med `minipro` 0.7.4 och
+profilen `EN25Q32A@SOP8`. Tre kompletta läsningar gav identiskt innehåll och
+SHA-256 `d369a860ae39b307ec9cdd00fb59b2501937a20f7f20d9417ff5eede83b841e2`.
+Det är den enda godkända originaldumpen. Den identifierar produkten som
+`KONNWEI`, `KW520`, firmwareversion `1.0.1`.
+
 ## Vanlig SOIC-8 SPI-NOR-pinout
 
 Använd endast tabellen efter att kapsel, datablad och pin 1 har verifierats.

@@ -22,8 +22,7 @@ fortfarande bekräftas mot ett skarpt foto av hela märkningen.
 - [x] Lokalt analysverktyg utan externa Python-beroenden
 - [ ] Foto och fullständig kapselmärkning dokumenterade
 - [x] JEDEC-ID `1c 30 16` läst från den fysiska kretsen
-- [ ] Tre identiska originaldumpningar arkiverade lokalt (två läsomgångar gav
-      olika data och är underkända)
+- [x] Tre identiska originaldumpningar från TL866A arkiverade lokalt
 - [ ] Firmwareformat och processor identifierade
 - [ ] Första patch definierad och testad på bänk
 - [ ] Verifierad återläsning efter programmering
@@ -72,6 +71,10 @@ det har verifierats mot en stabil programmerare.
 6. Spara minst en orörd backup utanför arbetskatalogen och notera dess SHA-256.
 7. Analysera och patcha en kopia. Skriv aldrig över den enda originaldumpen.
 8. Programmera, läs tillbaka till en ny fil och jämför mot den avsedda filen.
+
+För den dokumenterade enheten gav CH341A instabila data trots korrekt JEDEC-ID.
+Tre läsningar med TL866A och `minipro` blev byte-identiska och är därför
+projektets referens. Ett korrekt chip-ID ensamt bevisar inte en korrekt dump.
 
 Se [docs/hardware.md](docs/hardware.md) och
 [docs/research-log.md](docs/research-log.md) innan kretsen ansluts.

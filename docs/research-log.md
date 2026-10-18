@@ -106,3 +106,32 @@ skrivning innan TL866A-resultatet har verifierat den.
 
 Nästa korskontroll görs med en TL866A och `minipro`, som stöder både TL866A och
 EN25Q32A/B. Tre identiska TL866A-läsningar krävs innan dumpen godkänns.
+
+## 2026-10-18 — TL866A verifierar originaldumpen
+
+### Utrustning
+
+- Programmerare: TL866A, firmware `03.2.86`.
+- Verktyg: `minipro` 0.7.4, profil `EN25Q32A@SOP8`.
+- Chip-ID vid varje läsning: `0x1C3016 OK`.
+
+### Resultat
+
+Tre separata 4-MiB-läsningar var byte-identiska:
+
+```text
+d369a860ae39b307ec9cdd00fb59b2501937a20f7f20d9417ff5eede83b841e2
+```
+
+Dumpen innehåller identifierarna `KONNWEI`, `KW520` och version `1.0.1`.
+En skrivskyddad lokal kopia finns som
+`dumps/original/kw520-1.0.1-original-d369a860.bin`; `dumps/` är Git-ignorerad.
+
+CH341A-konsensusfilen matchade endast 1017 av 1024 exakta 4-KiB-block och
+skilde sig med 16 788 byte. Den är underkänd som både backup och skrivunderlag.
+
+### Nästa grind
+
+Identifiera processorarkitektur, kod-/resursregioner och kontrollsummor från
+den verifierade TL866A-dumpen innan någon patch definieras. Originalkretsen får
+inte raderas eller skrivas under analysfasen.
