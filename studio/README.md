@@ -12,7 +12,9 @@ python3 -m http.server 8765 -d studio
 Version 0.1 kan:
 
 - verifiera filstorlek, SHA-256 och alla åtta kända språkbanker;
-- visa originalets verifierade 128×32 KONNWEI-startlogga och ersätta den med EUTHERCHARGE i samma 512-byteformat;
+- visa originalets verifierade 128×32 KONNWEI-logoresurs och ersätta den med
+  EUTHERCHARGE i samma 512-byteformat; fysisk uppstart har inte bekräftat att
+  resursen faktiskt visas;
 - visa och redigera 162 textposter per bank;
 - skapa längdbevarande patchar utan att flytta pekare eller längdprefix;
 - visualisera rådata som flera 1-, 2-, 4-, 8-bpp- och RGB565-hypoteser;

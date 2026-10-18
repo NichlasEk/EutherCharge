@@ -55,7 +55,7 @@ Den medföljande svenska startbanken översätter samtliga 162 semantiska poster
 i English-banken. 142 poster får ändrade byte; standardnamn som `CCA`, `DIN`
 och `SAE` förblir identiska. Säkerhetsmeddelanden är sakliga, inte humoristiska.
 
-## Verifierad startlogga
+## Verifierad logoresurs, okänd aktiv användning
 
 `0x000000–0x0001FF` är en komplett `128×32` monokrom bitmap. Byten ligger
 kolumnvis i fyra åttapixelsidor och bitarna är LSB först inom varje byte:
@@ -67,7 +67,8 @@ pixel  = (byte[offset] >> (y % 8)) & 1
 
 Avkodningen visar ordmärket `KONNWEI` med ramlinjer. EutherCharge ersätter
 samtliga 512 byte med en `EUTHER / CHARGE`-logga i exakt samma format och
-adress. Originalfirmware behöver därför ingen ny resursläsare för denna patch.
+adress. Efter fysisk uppstart syntes ingen ny grafik, så det är inte bevisat
+att originalfirmware läser eller visar resursen i det observerade startflödet.
 
 Ingen ytterligare bildruta eller animationstabell är ännu verifierad.
 
@@ -93,7 +94,7 @@ monokromformat utan att bilda en sammanhängande ikon. Sektorerna behandlas som
 okänd redundant konfigurationsdata och patchas inte.
 
 Det finns inga identifierade PNG-, JPEG-, BMP- eller GIF-signaturer och ingen
-bevisad bildresurstabell utöver startloggan. Det är fullt möjligt att ikoner och
+bevisad bildresurstabell utöver logoresursen. Det är fullt möjligt att ikoner och
 typsnitt ligger i MCU:ns interna flash eller ritas som primitiver. Studio märker
 därför alla övriga råpixeltolkningar som **hypoteser**.
 

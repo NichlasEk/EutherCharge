@@ -40,7 +40,7 @@ fortsatt som inställnings-/kalibreringskandidater, inte som bevisade nycklar.
 
 | Område | Storlek | Observation |
 |---|---:|---|
-| `0x000000–0x0001FF` | 512 byte | Verifierad 128×32 KONNWEI-startlogga, 1-bpp kolumn/LSB |
+| `0x000000–0x0001FF` | 512 byte | Verifierad 128×32 KONNWEI-logoresurs, 1-bpp kolumn/LSB; aktiv användning ej bekräftad |
 | `0x000200–0x00BFFF` | 47,5 KiB | Tabeller, okänd data och UI-strängar |
 | `0x00C000–0x37FFFF` | 3 588 KiB | Helt raderat (`0xff`) |
 | `0x380000–0x381FFF` | 8 KiB | Små metadata-/statusposter |

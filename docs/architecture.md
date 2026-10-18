@@ -28,7 +28,8 @@ AT32F421 intern flash
               │
               ▼
 EN25Q32 extern flash
-  ├─ startlogga och språkresurser    [verifierat]
+  ├─ 128×32-logoresurs              [format verifierat, aktiv användning ej bekräftad]
+  ├─ språkresurser                   [verifierat och fysiskt bekräftat]
   ├─ övrig UI-grafik                 [inte funnen i provade råformat]
   └─ historikposter                  [struktur verifierad, semantik hypotes]
 ```
@@ -57,9 +58,10 @@ testhårdvara.
 ### Nivå A — extern resursersättning, implementerad
 
 - fastallokerad svensk textbank;
-- verifierad ersättning av den befintliga 128×32-startloggan;
+- verifierad formatbevarande ersättning av 128×32-logoresursen, men ingen
+  synlig grafisk ändring vid fysisk uppstart;
 - fullständig ändringsmanifest och hash;
-- ingen ändring utanför startloggan och engelska strängpayloads;
+- ingen ändring utanför logoresursen och engelska strängpayloads;
 - simulator för teman och nya informationsvyer.
 
 ### Nivå B — intern UI-hook, kräver MCU-dump
@@ -106,5 +108,8 @@ En fysisk implementation får endast aktiveras när följande kan bevisas:
 5. Verifiera display, knappar och alla språkposter.
 6. Separat granskning innan någon energibärande laddtest sker.
 
-Den nu genererade svenska imagen har inte passerat steg 3–6 och är därför inte
-godkänd för installation i den fungerande laddaren.
+Den svenska imagen har passerat programmering med bitexakt readback och har
+startat i den fysiska laddaren med svenska texter. Användaren såg ingen ny
+grafik. Denna uppstart ersätter inte de kontrollerade bänk- och laddtesterna i
+steg 4–6; laddnings-, temperatur- och skyddsfunktionerna är fortfarande inte
+fysiskt verifierade inom projektet.

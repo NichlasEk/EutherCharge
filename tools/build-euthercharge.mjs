@@ -86,10 +86,10 @@ const report = {
     imageSizePreserved: source.length === modified.length,
     pointerTablesModified: false,
     lengthPrefixesModified: false,
-    modifiedAreas: ["boot logo 0x000000-0x0001ff", "English string payload allocations"],
+    modifiedAreas: ["128x32 logo resource 0x000000-0x0001ff (runtime use unconfirmed)", "English string payload allocations"],
   },
   graphics: [{
-    name: "EUTHERCHARGE boot logo",
+    name: "EUTHERCHARGE logo resource (runtime use unconfirmed)",
     offset: LOGO_OFFSET,
     length: LOGO_SIZE,
     width: LOGO_WIDTH,

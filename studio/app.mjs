@@ -250,9 +250,9 @@ async function buildReport() {
       imageSizePreserved: state.source.length === state.working.length,
       pointerTablesModified: false,
       lengthPrefixesModified: false,
-      scope: $("#includeLogo").checked ? "verified boot logo and language string payload bytes" : "verified language string payload bytes only",
+      scope: $("#includeLogo").checked ? "known 128x32 logo resource and verified language string payload bytes" : "verified language string payload bytes only",
     },
-    graphics: $("#includeLogo").checked ? [{ offset: 0, length: 512, width: 128, height: 32, format: "1bpp-column-lsb", name: "EUTHERCHARGE boot logo" }] : [],
+    graphics: $("#includeLogo").checked ? [{ offset: 0, length: 512, width: 128, height: 32, format: "1bpp-column-lsb", name: "EUTHERCHARGE logo resource (runtime use unconfirmed)" }] : [],
     changes: [...state.changes.values()],
   };
 }

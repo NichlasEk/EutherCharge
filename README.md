@@ -26,12 +26,13 @@ fortfarande bekräftas mot ett skarpt foto av hela märkningen.
 - [x] Externflashens språkformat identifierat: 8 banker × 162 poster
 - [x] EutherCharge Studio 0.1 med texteditor, rågrafiklabb och LCD-prototyp
 - [x] Svensk fastallokerad 162-posters image genererad lokalt
-- [x] Originalets 128×32-startlogga avkodad och ersatt i originalformat
+- [x] Originalets 128×32-logoresurs avkodad och ersatt i originalformat
 - [x] Fyra 52-bytehistorikposter läses skrivskyddat med tydliga fälthypoteser
 - [ ] MCU-firmware, displaybuss, fläkt-PWM och övriga grafikformat identifierade
 - [ ] Första patch testad på isolerad bänk
-- [ ] Verifierad återläsning efter programmering
-- [ ] Test i fysisk KW520
+- [x] Verifierad återläsning efter programmering
+- [x] Fysisk KW520-start och svensk textbank bekräftade
+- [ ] Kontrollerat laddnings-, temperatur- och skyddstest
 
 Ingen originalfirmware eller modifierad firmware ingår i repot.
 
@@ -92,6 +93,7 @@ detaljer om språkposterna i [docs/resource-format.md](docs/resource-format.md)
 och kod-/hårdvarugränserna i [docs/architecture.md](docs/architecture.md).
 För MCU:n finns en separat
 [icke-destruktiv SWD-plan](docs/internal-flash-access.md).
+Fortsätt alltid från den aktuella [handoffen](HANDOFF.md).
 
 ## EutherCharge Studio
 
@@ -112,7 +114,7 @@ Samma svenska image kan byggas reproducerbart från terminalen:
 node tools/build-swedish.mjs dumps/original.bin build/euthercharge-sv.bin
 ```
 
-Den integrerade svenska imagen med EUTHERCHARGE-startlogga byggs med:
+Den integrerade svenska imagen med EUTHERCHARGE-logoresurs byggs med:
 
 ```sh
 node tools/build-euthercharge.mjs dumps/original.bin build/euthercharge-full.bin

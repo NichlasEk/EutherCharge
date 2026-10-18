@@ -227,3 +227,16 @@ startloggan och de svenska strängarna i English-banken. Det verifierar ännu
 inte uppstart eller visning i den fysiska laddaren; det testet sker först efter
 att kretsen har monterats tillbaka med rätt pinne-1-orientering. Animationer,
 ljud och laddnings-/skyddslogik har inte modifierats.
+
+## 2026-10-18 — fysisk uppstart och svensk text bekräftade
+
+Efter återmontering rapporterade användaren att laddaren startar igen och visar
+svenska, vilket bekräftar att den modifierade English-banken faktiskt läses
+från externflashen. Ingen ny grafik syntes. Området vid `0x000000` avkodar till
+en komplett 128×32 KONNWEI-bild, men betraktas därför inte längre som en
+fysiskt verifierad aktiv startlogga; den kan vara oanvänd, villkorad eller
+ersättas av grafik från MCU:ns interna flash.
+
+Det fysiska resultatet bekräftar uppstart och textresurser, inte laddning,
+temperaturreglering, fläkt eller skyddsfunktioner. Animationer och ljud har
+inte implementerats i enheten.
