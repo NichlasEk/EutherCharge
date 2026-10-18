@@ -79,3 +79,30 @@ och ingen skrivning har utförts.
 
 Nästa steg är att kontrollera programmerarkortets 25xx-position, pin 1,
 sockel/adapter, rena kretsben samt mäta VCC mellan pin 8 och pin 4 under läsning.
+
+## 2026-10-18 — andra omsättningen
+
+Statusregistret ändrades till `0xfc`, men tre nya läsningar var fortfarande
+olika. Första avvikelsen uppstod vid `0x1000` respektive `0x1`, och filparen
+skilde sig med 17 566–21 700 byte. SHA-256:
+
+```text
+044ae13bff87de11965fa11ae123cbb446d2b354201ccc030752e1e8535969c3  reseat2-1
+84c35d352f34750fc9d62081cb412c4cee2a2241656784b2f9947eb5bb3beccc  reseat2-2
+d5612dd0af1acae09eccce2900744ddc0f0a1b9176348a523f2b97f3c7738189  reseat2-3
+```
+
+Över samtliga nio CH341A-läsningar var 952 av 1024 fyrakilobytesblock identiska
+i alla nio filer. Resterande 72 block hade alla en unik exakt majoritet på minst
+5 av 9 observationer. Detta räcker för en härledd analyskopia, men inte för att
+godkänna CH341A-läsningen som återställningsbackup.
+
+En lokal, Git-ignorerad analyskopia skapades genom exakt majoritet per 4-KiB-
+block. SHA-256 är
+`d715d21dfb4dc36f0f10ca27fc6ef03fc2f4dacee187396f504683948f30dde0`.
+Blockens röststyrka var 5/9 för 7 block, 6/9 för 37, 7/9 för 10, 8/9 för 18
+och 9/9 för 952. Filen är uttryckligen härledd och får inte användas för
+skrivning innan TL866A-resultatet har verifierat den.
+
+Nästa korskontroll görs med en TL866A och `minipro`, som stöder både TL866A och
+EN25Q32A/B. Tre identiska TL866A-läsningar krävs innan dumpen godkänns.

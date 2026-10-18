@@ -148,6 +148,80 @@ def command_compare(args: argparse.Namespace) -> int:
     return 1
 
 
+def command_consensus(args: argparse.Namespace) -> int:
+    output = args.output.resolve()
+    sources = [path.resolve() for path in args.images]
+    if output in sources:
+        raise SystemExit("refusing to overwrite a source image")
+    if output.exists() and not args.force:
+        raise SystemExit(f"output exists: {output} (use --force to replace it)")
+
+    images = [path.read_bytes() for path in args.images]
+    sizes = {len(image) for image in images}
+    if len(sizes) != 1:
+        raise SystemExit("all source images must have the same size")
+    if args.block_size <= 0:
+        raise SystemExit("block size must be positive")
+    minimum = args.minimum or (len(images) // 2 + 1)
+    if minimum < 2 or minimum > len(images):
+        raise SystemExit("minimum must be between 2 and the number of images")
+
+    size = len(images[0])
+    result = bytearray()
+    confidence: Counter[int] = Counter()
+    failures = []
+    for offset in range(0, size, args.block_size):
+        variants = Counter(
+            image[offset : offset + args.block_size] for image in images
+        )
+        ranked = variants.most_common(2)
+        selected, votes = ranked[0]
+        runner_up = ranked[1][1] if len(ranked) > 1 else 0
+        if votes < minimum or votes == runner_up:
+            failures.append(
+                {
+                    "offset": offset,
+                    "best_votes": votes,
+                    "runner_up_votes": runner_up,
+                    "variants": len(variants),
+                }
+            )
+            continue
+        confidence[votes] += 1
+        result.extend(selected)
+
+    if failures:
+        first = failures[0]
+        raise SystemExit(
+            f"no consensus for {len(failures)} block(s); first at "
+            f"0x{first['offset']:x} with {first['best_votes']}/{len(images)} votes"
+        )
+
+    output.parent.mkdir(parents=True, exist_ok=True)
+    output.write_bytes(result)
+    manifest_path = args.manifest or Path(str(args.output) + ".manifest.json")
+    manifest = {
+        "format": 1,
+        "method": "exact-block-majority",
+        "block_size": args.block_size,
+        "minimum_votes": minimum,
+        "sources": [
+            {"path": str(path), "size": len(data), "sha256": sha256(data)}
+            for path, data in zip(args.images, images)
+        ],
+        "output": {"path": str(args.output), "size": len(result), "sha256": sha256(result)},
+        "blocks_by_vote_count": {
+            str(votes): count for votes, count in sorted(confidence.items())
+        },
+    }
+    manifest_path.parent.mkdir(parents=True, exist_ok=True)
+    manifest_path.write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8")
+    print(f"Wrote {args.output} ({manifest['output']['sha256']})")
+    print(f"Consensus: every block has at least {minimum}/{len(images)} exact votes")
+    print(f"Manifest: {manifest_path}")
+    return 0
+
+
 def normalize_hex(value: str) -> str:
     return value.lower().replace("0x", "").replace("_", "").replace(" ", "")
 
@@ -253,6 +327,17 @@ def build_parser() -> argparse.ArgumentParser:
     compare_parser.add_argument("images", nargs="+", type=Path)
     compare_parser.set_defaults(func=command_compare)
 
+    consensus_parser = subparsers.add_parser(
+        "consensus", help="derive an image from exact block majorities"
+    )
+    consensus_parser.add_argument("output", type=Path)
+    consensus_parser.add_argument("images", nargs="+", type=Path)
+    consensus_parser.add_argument("--block-size", type=int, default=4096)
+    consensus_parser.add_argument("--minimum", type=int)
+    consensus_parser.add_argument("--manifest", type=Path)
+    consensus_parser.add_argument("--force", action="store_true", help="replace an existing output")
+    consensus_parser.set_defaults(func=command_consensus)
+
     identify_parser = subparsers.add_parser("identify", help="look up a measured JEDEC ID")
     identify_parser.add_argument("jedec_id", help="hex bytes, for example 9d0046")
     identify_parser.set_defaults(func=command_identify)
@@ -278,6 +363,8 @@ def main(argv: Iterable[str] | None = None) -> int:
     args = parser.parse_args(argv)
     if args.command == "compare" and len(args.images) < 2:
         parser.error("compare requires at least two images")
+    if args.command == "consensus" and len(args.images) < 3:
+        parser.error("consensus requires at least three images")
     return int(args.func(args))
 
 

@@ -59,6 +59,25 @@ class FirmwareToolTests(unittest.TestCase):
             self.assertNotEqual(rejected.returncode, 0)
             self.assertIn("guard failed", rejected.stderr)
 
+    def test_consensus_uses_exact_block_majority(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            inputs = []
+            for index, data in enumerate((b"AABB", b"AABB", b"AACC"), start=1):
+                path = root / f"read-{index}.bin"
+                path.write_bytes(data)
+                inputs.append(path)
+            output = root / "consensus.bin"
+
+            result = self.run_tool(
+                "consensus", output, *inputs, "--block-size", 2
+            )
+            self.assertEqual(result.returncode, 0, result.stderr)
+            self.assertEqual(output.read_bytes(), b"AABB")
+            manifest = json.loads(Path(str(output) + ".manifest.json").read_text())
+            self.assertEqual(manifest["minimum_votes"], 2)
+            self.assertEqual(manifest["blocks_by_vote_count"], {"2": 1, "3": 1})
+
     def test_inspect_json(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             image = Path(directory) / "image.bin"

@@ -39,6 +39,10 @@ Krav: Python 3.10 eller senare.
 # Kontrollera att tre separata läsningar är identiska.
 python3 tools/fwtool.py compare dumps/read-1.bin dumps/read-2.bin dumps/read-3.bin
 
+# Vid instabil läsning: skapa endast en lokal analyskopia från exakt
+# 4-KiB-blockmajoritet. Detta ersätter inte en verifierad rådump.
+python3 tools/fwtool.py consensus build/consensus.bin dumps/read-*.bin
+
 # Inspektera storlek, hash, entropi, strängar och tomma områden.
 python3 tools/fwtool.py inspect dumps/read-1.bin
 
@@ -52,6 +56,9 @@ python3 tools/fwtool.py patch dumps/read-1.bin build/modified.bin \
 
 `patch` ändrar aldrig källfilen. Varje patch kräver både förväntade gamla byte
 och nya byte, och skapar en JSON-manifestfil med SHA-256 för källa och resultat.
+`consensus` kräver strikt majoritet för varje block och skapar också ett
+manifest, men resultatet får inte användas för återställningsskrivning förrän
+det har verifierats mot en stabil programmerare.
 
 ## Hårdvaruflöde
 
