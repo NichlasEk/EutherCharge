@@ -77,7 +77,8 @@ Tre läsningar med TL866A och `minipro` blev byte-identiska och är därför
 projektets referens. Ett korrekt chip-ID ensamt bevisar inte en korrekt dump.
 
 Se [docs/hardware.md](docs/hardware.md) och
-[docs/research-log.md](docs/research-log.md) innan kretsen ansluts.
+[docs/research-log.md](docs/research-log.md) innan kretsen ansluts. Den första
+verifierade statiska kartan finns i [docs/firmware-map.md](docs/firmware-map.md).
 
 ## Exempel med flashrom
 
