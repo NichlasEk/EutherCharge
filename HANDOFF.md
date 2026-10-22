@@ -1,4 +1,80 @@
-# EutherCharge handoff — 2026-10-18
+# EutherCharge handoff — uppdaterad 2026-10-22
+
+## Paus inför nästa arbetspass — H-6CS
+
+Användaren fortsätter tidigast nästa dag eller lördag. Inga fler hårdvarutester
+ska startas under pausen. Vid handoffkontrollen körde varken socket_meter eller
+dumpcap. Detta bevisar inte att sockeln är spänningslös; USB kan kopplas ur för
+förvaring. Originalchipet ska ligga utanför programmeraren tills kopplingen är klar.
+
+### Ny information från användaren
+
+- Adaptern är en **rak SOP16→DIP16 med 16 ben**, kopplad ben-till-ben.
+- Den får plats i MiniPro men omfördelar inga signaler och reglerar ingen matning.
+- Planen är att behålla den som chipbärare och bygga en **mellanadapter**, exempelvis
+  på experimentkort med DIP16-sockel. Ingen mellanadapter är ännu byggd eller ritad.
+- Användaren har även en GQ-4x4, men inget verifierat stöd för kandidatkretsarna där.
+
+### Matning och pinstatus — blanda inte ihop chipben och ZIF-positioner
+
+| Chipben | Uppmätt på laddarkortet | Kandidatens experimentella läsläge |
+| --- | --- | --- |
+| 1 | VDD, normalt +5 V | Cirka 3 V VDD |
+| 16 | GND | Gemensam jord |
+| 4 | Knappingång | 5 V VPP **endast enligt PMC131/PMS131-hypotesen** |
+| 13 | Resistorväg till kontakt | Klocka enligt samma hypotes |
+| 14 | Resistor-/kondensatornät till kontakt | Data från programmeraren enligt hypotesen |
+| 3 | Externt oanslutet på kortet | Data från MCU enligt hypotesen |
+
+Ingen kandidat är identifierad. Tidigare 24-benskorrigering gäller LCD-drivern;
+den nu bekräftade raka MCU-adaptern har 16 ben. Inget godkänt chip→ZIF-schema finns.
+
+För läsprofilen ska VPP vara stabila 5 V under läsningen, inte pulsas bitvis.
+EasyPDK-sekvensen slår på VPP först, sedan VDD; vid avslut VDD av före VPP.
+Klockpulserna går på en separat signalledning. Regulatorns start och urladdning
+måste därför ingå i adapterverifieringen.
+
+TL866 kan ge två spänningar, men dess dokumenterade VPP-skena börjar vid cirka
+9,8 V. Föreslagen lösning utan separat nätaggregat: VCC cirka 3 V och VPP cirka
+9,8 V genom en **5-V-regulator på mellanadaptern**, exempelvis en lämplig 78L05.
+Detta är en oprövad konstruktion, inte ett färdigt inkopplingsråd. En regulator
+ersätter inte krav på rätt signalnivåer, sekvensering, strömbegränsning och
+verifierad avstängning. Anslut aldrig råa 9,8 V till kandidatens 5-V-VPP-ben.
+
+### Börja här nästa gång
+
+1. Kontrollera aktuell Git/USB-status och läs forskningsloggen. Upprepa inte
+   tidigare felande D6-test: varje D6 måste följas av läsning av sitt sjubytes svar.
+2. Rita och granska mellanadaptern: exakt ZIF-placering, signalomfördelning,
+   regulator med rätt kapselpinout/kondensatorer samt på/av-förlopp. Fastställ
+   vilka komponenter användaren faktiskt har innan en bygglista låses.
+3. Verifiera utan originalchip: kontinuitet, 3 V och 5 V samtidigt, GPIO-nivåer,
+   avstängning och urladdning. Testa därefter lässekvens på en känd krets innan
+   originalet övervägs. Fortsätt MCU-identifieringen parallellt med dessa steg.
+
+Skrivskyddsupplåsning, erase, programmering och EasyPDK:s WRITE-baserade ID-probe
+ingår inte. Läsning av originalet är fortfarande ett framtida steg, inte redo nu.
+
+### Kod, verifiering och lokala artefakter
+
+- Pushat till `origin/main`: `a4cdb22` (H-6CS-verktyg och D6-fix),
+  `12573d2` (digital pinhantering och tomsockeltest). 24 Python-tester passerade.
+- `tools/h6cs_pdk.py`: enbart offline-lässekvens och dumpjämförelse; ingen USB-backend.
+- `tools/h6cs_socket_meter.c`: stock TL866A 03.2.86-tester för tom sockel.
+  `--voltage-cycle` läser båda D6-svaren; `--logic-test` kontrollerar digitala pinnar.
+  Inget av dessa läser en MCU. Normal firmwarestatus kontrolleras före pin-kommandon.
+- `docs/h6cs-tl866-research.md`: källor, mätningar, felspår och verifieringsgränser.
+- Privata USB-fångster i `dumps/h6cs-usb/`, särskilt
+  `voltage-cycle-050.pcapng` (fel) och `voltage-cycle-fixed-053.pcapng` (rättad).
+  De innehåller enhetsidentitet och ska inte pushas. dumpfiler är Git-ignorerade.
+- Byggd testbinär och minipro-objekt i `/tmp/h6cs-minipro-check.BbSOkT/`.
+  Upstream EasyPDK i `/tmp/h6cs-easypdk-software/`; firmwareanalys i
+  `/tmp/h6cs-protocol-review/`. Dessa kataloger kan försvinna vid omstart.
+  Källorna som behövs för vårt eget arbete finns i repot; detaljer om upstream
+  revisioner och byggning finns i forskningsloggen.
+- USB-buss/enhetsnummer ändras vid återanslutning: använd inte sparade nummer
+  50/53 blint i fångstfilter. usbmon-åtkomst och USB-enhetens rättigheter är olika.
+  Linux timeout vid enumeration är inte ett vanligt användarbehörighetsfel.
 
 ## Nytt separat spår — H-6CS, 2026-10-22
 
