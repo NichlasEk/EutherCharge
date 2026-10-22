@@ -15,12 +15,17 @@ fungerande informationsfråga efteråt. Fix verifierad över USB i en cykel;
 fysisk avstängning efter denna cykel är inte uppmätt. Timer är ingen hårdvarubrytare.
 USB-fångster, identitetsuppgifter och firmwarefiler ligger lokalt i ignorerade dumps/.
 
-23 Python-tester passerar. Padauk-läsaren är fortfarande en offline-prototyp.
+24 Python-tester passerar. Padauk-läsaren är fortfarande en offline-prototyp.
+Nytt --logic-test: alla åtta digitala kombinationer på ZIF3/13/14 lästes tillbaka
+korrekt på tom TL866-sockel utan VCC/VPP-drivare. Dessa är testpinnar, inte en
+godkänd adapterkoppling. Signalnivåer och MCU-kommunikation återstår att verifiera.
 EasyPDK:s OTP-identifiering, även före read, skickar WRITE 0x7; använd inte detta
 på originalet som antaget ren läsning. Endast experimentella PMC131/PMS131-profiler.
 Nästa gräns: separat verifierad 3-V/5-V-matning, adapter, signalnivåer/timing och
 läsprov på känd krets. VPP 9,8 V får inte ersätta profilens 5 V. GQ-4x4 finns som
 reserv, men stöd/protokoll för dessa kandidater är inte verifierat.
+Extern strömkälla är inte fastställd som nödvändig: en 5-V-regulator på adaptern
+från TL866:s 9,8-V-skena är ett möjligt alternativ som ännu inte är verifierat.
 
 ## Läs detta först
 

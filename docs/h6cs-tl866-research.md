@@ -347,3 +347,42 @@ Helper exited 0; a separate post-test information query also identified TL866A
 firmware and successful operation of the fix in one previously failing cycle.
 Physical voltage levels/off-state were not measured; yellow-indicator report
 is pending. This is not MCU identification or validation of the read protocol.
+
+## Digital transport progress and rail options (2026-10-22)
+
+Added `--empty-socket --logic-test`. It resets pin drivers, makes all forty
+logic pins inputs, preloads low, then exercises all eight level combinations
+on ZIF3/13/14 and samples them with D2. VCC/VPP drivers remain disabled: no D1
+or D6 is sent. D4/D5 use permuted pin indices (2/24/25), whereas D2 reports
+pins in natural order. It releases all logic pins to inputs and attempts D0/04
+cleanup even on a mismatch. ZIF numbers are diagnostic choices, NOT an approved
+adapter map; a future target data-input pin must not be driven this way.
+
+On connected TL866A 03.2.86, device 53, all eight patterns matched; release and
+shutdown transfers succeeded. This is actual programmer self-readback evidence,
+not a measured GPIO voltage, edge timing, target communication or firmware dump.
+The simulator additionally rejects wrong readback, short response and reported
+overcurrent. Whole Python suite now has 24 tests.
+
+User asked whether external power is necessary. Answer: not established. TL866
+has two rails but documented VPP selector values start around 9.8 V; the known
+candidate profile needs simultaneous 3 V and 5 V. Open-TL866's selector map and
+radiomanV schematic do not establish a stock software-only 5 V VPP setting.
+VIO settings are logic levels, not a validated substitute MCU power supply.
+
+A possible adapter-powered solution is a fixed 5 V regulator from TL866's
+9.8 V VPP output, keeping its VCC output near 3 V. For example ST's L78L05
+supports this input/output range; this is a circuit proposal only, not approved
+wiring or a validated rail implementation. Need load, tolerance, capacitors,
+power-up/down and discharge checks before original-target use. Direct 9.8 V
+to the target's 5 V programming-mode pin remains prohibited by this profile.
+
+Sources:
+- https://github.com/radiomanV/TL866/blob/master/docs/TL866.pdf
+- https://github.com/JohnDMcMaster/open-tl866/blob/58f889638992d6a06a94e842fa8efa0a52c407a4/firmware/io.h
+- https://www.st.com/resource/en/datasheet/l78l.pdf
+
+Reviewed upstream OTP2_2 read framing again: the existing offline 32-bit READ
+frame, 12-bit addresses and 14-bit sampled words match the relevant routines.
+No target-facing USB read backend has been enabled; rails/adapter/identity and
+known-chip validation still separate the successful transport tests from that.

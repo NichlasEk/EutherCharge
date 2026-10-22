@@ -31,6 +31,7 @@ void minipro_close(minipro_handle_t *);
 #include <signal.h>
 #include <string.h>
 static int calls, last_opcode;
+static uint8_t output[47];
 static int val(const char *name) { const char *s=getenv(name); return s ? atoi(s) : 0; }
 minipro_handle_t *minipro_open(uint8_t v) {
     (void)v; puts("FAKE OPEN");
@@ -41,6 +42,7 @@ minipro_handle_t *minipro_open(uint8_t v) {
 void minipro_close(minipro_handle_t *h) { (void)h; puts("FAKE CLOSE"); }
 int msg_send(void *h, uint8_t *b, size_t n) {
     (void)h; last_opcode=b[0]; printf("FAKE SEND %02X %zu\\n",b[0],n);
+    if (b[0]==0xD5 && n==47) memcpy(output,b,47);
     return ++calls == val("FAIL_SEND");
 }
 int libusb_bulk_transfer(void *h, unsigned char ep, unsigned char *b,
@@ -48,6 +50,10 @@ int libusb_bulk_transfer(void *h, unsigned char ep, unsigned char *b,
     (void)h; (void)ep; (void)timeout; puts("FAKE READ"); memset(b,0,n);
     *received=val("SHORT_REPLY") ? 1 : last_opcode==0xD6 ? 7 : 47;
     if (last_opcode==0xD6) b[0]=val("BAD_OPCODE") ? 0 : 0xD6;
+    if (last_opcode==0xD2) {
+        b[9]=output[9]; b[19]=output[31]; b[20]=output[32];
+        if (val("BAD_READBACK")) b[19]^=1;
+    }
     if (val("OVERCURRENT")) b[1]=1;
     return val("FAIL_READ") ? -7 : 0;
 }
@@ -125,6 +131,18 @@ int usleep(unsigned int n) { (void)n; if (!val("NO_ALARM")) raise(SIGALRM); retu
             self.assertEqual(p.stdout.count("FAKE SEND D6"), 1)
             sends = [s for s in p.stdout.splitlines() if s.startswith("FAKE SEND")]
             self.assertEqual(sends[-2:], ["FAKE SEND D0 10", "FAKE SEND 04 4"])
+
+    def test_logic_test_uses_no_supply_commands_and_detects_mismatch(self):
+        for env, expected in (({}, 0), ({"BAD_READBACK": "1"}, 1),
+                              ({"SHORT_REPLY": "1"}, 1), ({"OVERCURRENT": "1"}, 1)):
+            p = self.run_meter(["--empty-socket", "--logic-test"], NO_ALARM="1", **env)
+            self.assertEqual(p.returncode, expected)
+            self.assertNotIn("FAKE SEND D1", p.stdout)
+            self.assertNotIn("FAKE SEND D6", p.stdout)
+            sends = [s for s in p.stdout.splitlines() if s.startswith("FAKE SEND")]
+            self.assertEqual(sends[-3:], ["FAKE SEND D4 47", "FAKE SEND D0 10", "FAKE SEND 04 4"])
+            if not expected:
+                self.assertEqual(p.stdout.count("FAKE READ"), 8)
 
 
 if __name__ == "__main__":

@@ -46,17 +46,50 @@ static int select_voltage(minipro_handle_t *h, uint8_t data[9], const char *stag
     }
     return 0;
 }
+static int logic_test(minipro_handle_t *h) {
+    /* Empty-socket self-readback only, NOT a target adapter pin assignment.
+     * D4/D5 order differs from D2: ZIF3/13/14 -> indices 2/24/25. */
+    const unsigned pins[] = {3, 13, 14}, indices[] = {2, 24, 25};
+    uint8_t dir[47] = {0xD4}, out[47] = {0xD5}, query[10] = {0xD2}, reply[64];
+    int rc = 1;
+    memset(dir + 7, 1, 40);
+    if (send_command(h,dir,sizeof dir,"logic all inputs")) goto done;
+    if (send_command(h,out,sizeof out,"logic initial low")) goto done;
+    for (unsigned i = 0; i < 3; ++i) dir[7 + indices[i]] = 0;
+    if (stop || send_command(h,dir,sizeof dir,"logic outputs 3/13/14")) goto done;
+    for (unsigned pattern = 0; pattern < 8; ++pattern) {
+        if (stop) goto done;
+        for (unsigned i = 0; i < 3; ++i) out[7 + indices[i]] = (pattern >> i) & 1;
+        if (send_command(h,out,sizeof out,"logic pattern")) goto done;
+        usleep(1000);
+        if (stop || send_command(h,query,sizeof query,"logic sample") || read_status(h,reply)) goto done;
+        if (reply[1]) { fprintf(stderr,"Logic status fault.\n"); goto done; }
+        for (unsigned i = 0; i < 3; ++i) {
+            if (reply[6 + pins[i]] != ((pattern >> i) & 1)) {
+                fprintf(stderr,"Logic mismatch: pattern=%u ZIF%u got=%u\n", pattern, pins[i], reply[6 + pins[i]]);
+                goto done;
+            }
+        }
+        fprintf(stderr,"Logic pattern %u matched ZIF3/13/14.\n",pattern);
+    }
+    rc = 0;
+done:
+    memset(dir + 7, 1, 40);
+    if (send_command(h,dir,sizeof dir,"logic release all inputs")) rc = 1;
+    return rc;
+}
 int main(int argc, char **argv) {
     /* D6 is reverse-engineered, not a calibrated voltage API.
      * https://gist.github.com/radiomanV/69ef14c704325bfa58339f2ae73a900f
      * Code 0 is only a candidate for the lowest VCC setting; measure it.
      */
     int cycle = argc == 3 && !strcmp(argv[2], "--voltage-cycle");
+    int logic = argc == 3 && !strcmp(argv[2], "--logic-test");
     int no_poll = argc == 3 && !strcmp(argv[2], "--vcc-code-0-no-poll");
     int after = no_poll || (argc == 3 && !strcmp(argv[2], "--vcc-code-0-after-routing"));
     int vcc0 = cycle || after || (argc == 3 && !strcmp(argv[2], "--vcc-code-0"));
-    if ((argc != 2 && !vcc0) || strcmp(argv[1], "--empty-socket")) {
-        puts("No USB access. Usage: socket_meter --empty-socket [--vcc-code-0 | --vcc-code-0-after-routing | --vcc-code-0-no-poll | --voltage-cycle]\n"
+    if ((argc != 2 && !vcc0 && !logic) || strcmp(argv[1], "--empty-socket")) {
+        puts("No USB access. Usage: socket_meter --empty-socket [--vcc-code-0 | --vcc-code-0-after-routing | --vcc-code-0-no-poll | --voltage-cycle | --logic-test]\n"
              "ZIF 1=VCC, ZIF 40=VPP, ZIF 16=GND. Timer attempts shutdown; NOT a guaranteed cutoff.\n"
              "Default: measured 4.47V / 9.8V. --vcc-code-0: experimental VCC only, VPP disabled.");
         return 2;
@@ -80,9 +113,10 @@ int main(int argc, char **argv) {
     /* Firmware selection and socket routing are separate operations. */
     uint8_t select[9] = {0xD6,0,0,0,0,0,0,1,0};
     if (vcc0) { latch[8] = 2; latch[12] = 0; }
-    alarm(cycle ? 10 : no_poll ? 45 : 120);
+    alarm((cycle || logic) ? 10 : no_poll ? 45 : 120);
     if (send_command(h,reset,sizeof reset,"initial reset")) goto cleanup;
     if (stop) goto cleanup;
+    if (logic) { rc = logic_test(h); goto cleanup; }
     if (cycle) {
         /* Only previously exercised settings. VPP remains disconnected.
          * D1 baseline followed by D6 code0, twice; no D2 polling. */
