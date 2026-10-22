@@ -1,5 +1,27 @@
 # EutherCharge handoff — 2026-10-18
 
+## Nytt separat spår — H-6CS, 2026-10-22
+
+HC-XS6-kort med okänd SOP16-MCU och 24-bens LCD-driver. Se
+`docs/h6cs-tl866-research.md`, `tools/h6cs_pdk.py` och `tools/h6cs_socket_meter.c`.
+Ingen MCU har identifierats eller dumpats; ingen programmerarfirmware har ändrats.
+Originalkretsen har legat utanför TL866 under samtliga tester. KW520-status nedan kvarstår.
+
+TL866A 03.2.86: tom sockel uppmätt till 4,47 V VCC och 9,8 V VPP;
+D6 VCC-kod 0 efter D1 gav 3,1 V. Tidigare USB-låsningar kunde reproduceras.
+Firmwareanalys visade att D6 returnerar sju byte som testverktyget inte läste.
+Rättad cykel på enhet 53 gav båda svaren d6000000560201, lyckade D0/04 och
+fungerande informationsfråga efteråt. Fix verifierad över USB i en cykel;
+fysisk avstängning efter denna cykel är inte uppmätt. Timer är ingen hårdvarubrytare.
+USB-fångster, identitetsuppgifter och firmwarefiler ligger lokalt i ignorerade dumps/.
+
+23 Python-tester passerar. Padauk-läsaren är fortfarande en offline-prototyp.
+EasyPDK:s OTP-identifiering, även före read, skickar WRITE 0x7; använd inte detta
+på originalet som antaget ren läsning. Endast experimentella PMC131/PMS131-profiler.
+Nästa gräns: separat verifierad 3-V/5-V-matning, adapter, signalnivåer/timing och
+läsprov på känd krets. VPP 9,8 V får inte ersätta profilens 5 V. GQ-4x4 finns som
+reserv, men stöd/protokoll för dessa kandidater är inte verifierat.
+
 ## Läs detta först
 
 EutherCharge modifierar den externa SPI-flashen i en KONNWEI KW520. Den första
