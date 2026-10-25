@@ -49,3 +49,22 @@ all prescaler ratios, configuration/runtime gating, reset stop, all base periods
 and prescaler reassignment. The85-test combined suite passed before two additional
 watchdog tests were added; all8watchdog tests then passed. Existing original-ROM
 regressions pass with the default unconfigured watchdog. No hardware accessed.
+
+## Interactive experiments
+
+The NY8 UI now exposes a separate watchdog panel. Form edits are drafts; only
+“Starta om med dessa antaganden” validates and applies them to a new run. Regular
+Reset preserves the active assumptions, while loading a ROM, the accelerated lab
+shortcut and the display-only test create a fresh unconfigured watchdog. The
+status line always reports active settings, not uncommitted form values.
+
+A requested watchdog reset disables Run/Step/Burst. The CPU also refuses further
+steps after its debug halt text is cleared, so the GUI cannot accidentally bypass
+the missing reset sequence. Explicit experiment restart is required. Invalid input
+leaves the existing CPU and its elapsed state unchanged. Snapshots export actual
+watchdog configuration and reset-request state.
+
+`tests/h6cs-watchdog-ui.cjs` verifies draft/apply separation, timeout controls,
+exported settings, invalid-input preservation, reset and profile visibility in
+Firefox. The deliberately low1000Hz test clock is a fast timeout-injection case,
+not a physical clock hypothesis. Ten watchdog tests now cover the model/UI helper.

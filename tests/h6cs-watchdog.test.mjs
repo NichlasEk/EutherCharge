@@ -12,3 +12,12 @@ test('All base periods use rational instruction time without rounding millisecon
 test('T0MD assignment clears shared prescale history without clearing watchdog base interval',()=>{
  const c=cpu();c.t0md=8;c.watchdog.advance(c,3600);assert.equal(c.watchdog.prescaler,1);const credit=c.watchdog.credit;c.a=0;c.rom[0]=3;c.step();assert.equal(c.watchdog.prescaler,0);assert.equal(c.watchdog.credit,credit+1000000);
 });
+import {restartWatchdogExperiment,watchdogStatus} from '../emulator/watchdog-experiment.mjs';
+test('Reset request cannot be bypassed by clearing the debug halt message',()=>{
+ const c=cpu('reset');c.watchdog.advance(c,3500);const pc=c.pc;c.halted='';assert.equal(c.step(),false);assert.equal(c.pc,pc);assert.match(c.halted,/reset/);
+});
+test('Experiment restart validates first and only explicit restart changes configuration',()=>{
+ const c=cpu();c.run(10);const steps=c.steps;assert.throws(()=>restartWatchdogExperiment(c,{enabled:true}));assert.equal(c.steps,steps);
+ const config={enabled:true,action:'reset',baseUs:15000,instructionHz:2000000};restartWatchdogExperiment(c,config);assert.equal(c.steps,0);assert.deepEqual(c.watchdog.config,config);assert.match(watchdogStatus(c),/TESTANTAGANDE/);
+ restartWatchdogExperiment(c,null);assert.equal(c.watchdog.config,null);assert.match(watchdogStatus(c),/Ej konfigurerad/);
+});

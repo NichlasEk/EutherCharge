@@ -55,6 +55,7 @@ export class NY8 {
  push(v){if(this.stack.length>=8)throw Error('Stack overflow (8 nivåer)');this.stack.push(v);}
  pop(){if(!this.stack.length)throw Error('Stack underflow');return this.stack.pop();}
  step(){
+  if(this.watchdog.resetRequested){this.halted='WDT-timeout: reset begärd; resetförloppet är ännu inte modellerat';return false;}
   if(this.halted)return false;
   const pc=this.pc,w=this.rom[pc],d=decode(w,pc),n=d.name,rr=w&127,bit=(w>>7)&7;
   this.next=(pc+1)&2047;let cachedOperand;

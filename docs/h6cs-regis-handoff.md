@@ -29,7 +29,7 @@ Four-million-step verified-ISA run:5,415,542 cycles,1,348 Timer0 IRQs,18,307 ADC
 conversions,81,150 carry instructions, no halt. Strict20,000-step run also no halt.
 First LCD RAM frame at step1,484,052/cycle2,009,983 for default clocked stimuli.
 
-Tests:all75Node tests pass (51core plus16GPIO plus4timing plus4interrupt), including state-gate and full-ROM scenarios.
+Tests:all89Node tests pass (including SDK config and watchdog tests), including state-gate and full-ROM scenarios.
 Two Python static decoder tests and Firefox UI pass. See
 `tests/h6cs-emulator.test.mjs` for the full suite. Do not rerun
 hardware/probe tests while working on emulation.
@@ -156,3 +156,18 @@ steps without timeout. Neither identifies the physical clock. Eight focused test
 pass; combined85-test run passed before final two tests were added. See
 `docs/h6cs-watchdog-model.md`. Next useful UI work is exposing explicit assumptions
 without making them the default or representing them as recovered config.
+
+## Watchdog UI continuation
+
+Separate watchdog panel offers explicit clock/base/action assumptions, applied
+only through simulation restart. Status/export reflect active settings, not drafts.
+Regular Reset preserves active assumptions; ROM load/lab/display shortcuts create
+unconfigured watchdog state. CPU and UI both prevent resuming a pending watchdog
+reset by merely clearing the debugger halt message. Invalid input preserves state.
+Local server had exited; confirmed no process/listener, then restarted on8766.
+New Firefox watchdog test and existing full UI regression are the verification
+commands. See watchdog model document for scope and remaining reset limitations.
+
+Watchdog UI verification completed: all89Node tests and both Firefox suites pass.
+Screenshot `artifacts/h6cs-emulator/watchdog-timeout.png` inspected; active versus
+draft clock and reset-stop state are visible. Scoped work ready for continuation.
