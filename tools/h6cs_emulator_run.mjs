@@ -37,6 +37,6 @@ console.log(JSON.stringify({schema:1,romSha256:hash(bytes),physicalCaptureSha256
  comparison:{scope:'Complete startup command bits only; not timing or full charger behavior',reference,generated,matches},
  strict:{steps:strict.steps,pc:strict.pc,halted:strict.halted},
  scenario:{clock:"instruction index, not physical time",actions,applied},
- experimental:{budget,steps:cpu.steps,cycles:cpu.cycles,halted:cpu.halted,timerMode:cpu.timerMode,t0md:cpu.t0md,interrupts:cpu.interrupts,overflows:cpu.timerOverflows,carryOps:cpu.carryOps,adc:cpu.adc,adcMode,adcConversions:cpu.adcPeripheral.conversions,firstRamWrite,events,eventLimit:1000,finalState:cpu.r[0x3e],lcdRam:[...cpu.lcd.ram]},
- limitations:[adcMode==='instant'?'Instant ADC':'ADC sample latched at START; no analog settling or 256us bias model','Reset X values seeded zero','No interrupt-entry latency','No external Timer0 clock','No battery physics','No hardware accessed']},null,2));
+ experimental:{budget,steps:cpu.steps,cycles:cpu.cycles,halted:cpu.halted,timerMode:cpu.timerMode,t0md:cpu.t0md,interrupts:cpu.interrupts,overflows:cpu.timerOverflows,carryOps:cpu.carryOps,adc:cpu.adc,adcMode,adcConversions:cpu.adcPeripheral.conversions,timer1:cpu.timer1.snapshot(cpu),firstRamWrite,events,eventLimit:1000,finalState:cpu.r[0x3e],lcdRam:[...cpu.lcd.ram]},
+ limitations:[adcMode==='instant'?'Instant ADC':'ADC sample latched at START; no analog settling or 256us bias model','Reset X values seeded zero','No interrupt-entry latency','No external Timer0 clock','Timer1/PWM instruction model; external clock, PS1CV, buzzer and comparator mux unmodeled','No battery physics','No hardware accessed']},null,2));
 if(!matches||cpu.halted)process.exitCode=1;

@@ -242,3 +242,21 @@ The GUI's **Tillstånd & villkor** panel shows the current numeric state, tested
 routine conditions, filtered raw values, reference, event counters and flags.
 It is read-only commentary on the executing ROM, not a second charging controller.
 Unknown states remain labeled as incompletely mapped. No physical units are inferred.
+
+## Additional routine boundaries verified in emulator
+
+States0/1/3/6/8 now have original-ROM tests. State0 clears PA6/7 and proceeds only
+when R4F=0. State1 clears R4D and selects2. State3 requires R27:R26≥28800 to select8;
+state6 requires R25:R24≥3600. State8 selects9 at7200, but mode2 and processed ADC3
+below1301 can select1 later in the same call, overriding timeout.
+
+Routine035A subtracts10 from nonzero ADC3 input (clamped at0) and qualifies R4E.bit0
+after four calls with original input≥35. Lower input clears qualification. Two
+zero calls set R4F.bit0;20 nonzero calls recover. The recovery-completion call
+returns before subtracting10 and clears qualification. These are numeric code
+semantics, not established physical battery-presence thresholds.
+
+`firmware/reference/feedback.hpp` independently expresses only the ADC filters
+and this qualification routine in portable C++17. Differential testing compares
+20,051 updates, including internal counters and sums, with executed original code.
+This is an offline reference, with no GPIO or power-stage implementation.

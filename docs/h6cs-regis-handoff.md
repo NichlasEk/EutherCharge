@@ -1,6 +1,6 @@
 # System Regis continuation — 2026-10-25
 
-Goal remains active: verified digital twin, then open ESP32-C3 implementation.
+Goal remains active: verified digital twin, then an open replacement implementation; MCU choice is now open.
 No hardware has been accessed in this development session. Original dump hash
 remains4b8f241e38f60983267cf0f2de480d9c93e3d9766aefab901aef6e2afb615784.
 Do not assume NY8A054E identity: its ADC register map contradicts the firmware;
@@ -29,22 +29,31 @@ Four-million-step verified-ISA run:5,415,542 cycles,1,348 Timer0 IRQs,18,307 ADC
 conversions,81,150 carry instructions, no halt. Strict20,000-step run also no halt.
 First LCD RAM frame at step1,484,052/cycle2,009,983 for default clocked stimuli.
 
-Tests:all42Node tests pass, including state-gate and full-ROM scenarios.
+Tests:all51Node tests pass, including state-gate and full-ROM scenarios.
 Two Python static decoder tests and Firefox UI pass. See
 `tests/h6cs-emulator.test.mjs` for the full suite. Do not rerun
 hardware/probe tests while working on emulation.
 
 Next useful software work:
-1. Extend tested state graph beyond2/4/5; `docs/h6cs-firmware-functional-map.md`
-   now has exact numeric gating and ADC2 high-condition latch behavior.
-2. ADC4 aggregation and state5/7/9 boundaries are now tested; finish R4E.bit0
-   logic and states0/1/3/6/8. State5 timeout can be overwritten by a same-call
-   low-feedback event; preserve this ordering in reference work.
-3. Model remaining peripherals from primary documentation. No watchdog, DAA or
-   SLEEP behavior is claimed. Electrical GPIO, actual oscillator/configuration,
-   analog reference scaling and interrupt-entry timing remain unresolved.
-4. ESP32-C3 architecture is in `docs/euthercharge-esp32c3-architecture.md`; no
-   deployable power-stage implementation or physical pin assignment exists.
+1. Prioritize emulator fidelity over port implementation, per latest user steering.
+   Numeric state handlers0–9 and R4E.bit0 qualification now have routine-level tests;
+   whole-loop scenario coverage and physical meanings remain incomplete.
+2. Timer1/PWM now runs from original SFUN writes and has a live waveform panel.
+   See `docs/h6cs-timer1-model.md` for source, conventions and limitations.
+3. Resolve peripheral gaps: GPIO electrical mux/direction, watchdog, DAA/SLEEP,
+   oscillator/configuration, analog scaling and interrupt-entry timing. External
+   Timer1 edges, PS1CV, buzzer/comparator mux remain unimplemented.
+4. Obtain a physical LCD RAM/PWM reference only after separately approved hardware
+   work. Current measured comparison remains the48startup bits.
+5. MCU selection and5V adaptation are open. The ESP32-C3 architecture document
+   now records this. Portable feedback code is an offline differential reference,
+   not deployable charging control.
+
+Latest run: `artifacts/h6cs-emulator/regis-timer1.json`,4million instructions,
+5,415,542 modeled cycles,21,149 Timer1 underflows, no halt, LCD48bits match.
+Firefox verifies the new PWM panel as well as previous UI flows. The C++ reference
+matches20,051 ROM-driven filter/condition updates, including internal accumulators.
+Run `node tests/h6cs-feedback-differential.mjs` with the private ROM available.
 
 SDK research (private temporary tools; no installer execution):
 - NYASM archive `/tmp/h6cs-nyasm-2.80.zip`, extracted `/tmp/h6cs-nyasm/app`.

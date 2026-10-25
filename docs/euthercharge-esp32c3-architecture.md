@@ -1,5 +1,14 @@
 # ESP32-C3 replacement architecture — design, not a hardware release
 
+## Current priority and MCU choice
+
+User steering (2026-10-25): emulator fidelity comes before further port work.
+ESP32-C3 is a candidate, not a requirement; it was initially available on hand.
+A different MCU, including a native 5V device with a separate BLE controller, is
+permitted. No replacement has been selected. Supply, input thresholds, output
+levels and ADC scaling must be resolved for the chosen part and actual board.
+The portable boundaries below remain applicable regardless of MCU family.
+
 The original NY8 ROM/emulator remains the behavioral reference. The replacement
 will be a new open implementation, not binary emulation on ESP32-C3. Firmware
 state numbers and raw thresholds are not yet sufficient to reproduce safe charging.

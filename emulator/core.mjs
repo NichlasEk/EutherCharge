@@ -1,3 +1,4 @@
+import {Timer1} from './timer1.mjs';
 import {ClockedADC} from './adc.mjs';
 import {RULES} from './opcodes.mjs';
 export const hex=(v,n=2)=>v.toString(16).toUpperCase().padStart(n,'0');
@@ -33,11 +34,11 @@ export class LCD {
 }
 export class NY8 {
  constructor(rom){this.rom=rom;this.reset();}
- reset(){this.r=new Uint8Array(128);this.b1=new Uint8Array(32);this.f=new Uint8Array(16);this.s=new Uint8Array(32);// NY8B062D candidate reset values; unspecified X bits and RAM are seeded zero.
+ reset(){this.r=new Uint8Array(128);this.b1=new Uint8Array(32);this.f=new Uint8Array(16);this.s=new Uint8Array(32);this.s[2]=0x3f;this.timer1=new Timer1();// NY8B062D candidate reset values; unspecified X bits and RAM are seeded zero.
  this.f[5]=255;this.f[6]=63;this.f[9]=255;this.f[15]=0x1d;
  this.r[3]=24;this.r[8]=0x98;this.r[9]=63;this.r[11]=255;this.r[12]=63;this.r[16]=32;this.r[19]=3;this.r[20]=10;this.adcMode="instant";this.adcPeripheral=new ClockedADC();this.a=0;this.pc=0;this.stack=[];this.steps=0;this.gie=false;this.t0md=0x3f;this.cycles=0;this.timerMode="synthetic";this.timerOverflows=0;this.interrupts=0;this.timerPhase=0;this.timerDivider=32;this.timerEnabled=false;this.adc=[0,1500,2500,500,300];this.pressed=false;this.halted='';this.lcd=new LCD();this.trace=[];this.breakpoint=null;this.carryOps=0;}
  key(i){i&=127;if(i===0){i=this.r[4]&127;if(!i)return null;}return i;}
- read(i){i=this.key(i);if(i===null)return 0;if(i>=32&&i<64&&(this.r[3]&64))return this.b1[i-32];if(i===2)return this.pc&255;if(i===5)return (this.r[5]&~32)|(this.pressed?0:32);return this.r[i];}
+ read(i){i=this.key(i);if(i===null)return 0;if(i>=32&&i<64&&(this.r[3]&64))return this.b1[i-32];if(i===2)return this.pc&255;if(i===0x19)return (this.r[i]&207)|((this.timer1.count>>8&3)<<4);if(i===6){const level=this.timer1.level(this);return level===null?this.r[6]:(this.r[6]&247)|(level<<3);}if(i===5)return (this.r[5]&~32)|(this.pressed?0:32);return this.r[i];}
  write(i,v){i=this.key(i);if(i===null)return;v&=255;if(i>=32&&i<64&&(this.r[3]&64)){this.b1[i-32]=v;return;}
   const pa=this.r[5],pb=this.r[6];
   if(i===2)this.next=((this.r[10]&7)<<8)|v;
@@ -108,8 +109,8 @@ export class NY8 {
     case 'DISI':this.gie=false;break;
     case 'IOST':this.f[w&15]=this.a;break;
     case 'IOSTR':this.a=(w&15)===15?(this.f[15]&127)|(this.gie?128:0):this.f[w&15];break;
-    case 'SFUN':this.s[w&31]=this.a;break;
-    case 'SFUNR':this.a=this.s[w&31];break;
+    case 'SFUN':this.timer1.write(this,w&31,this.a);break;
+    case 'SFUNR':this.a=(w&31)===0?this.timer1.count&255:this.s[w&31];break;
     case 'T0MD':this.t0md=this.a;if(!(this.a&8))this.timerPhase=0;break;
     case 'T0MDR':this.a=this.t0md;break;
     case 'TABLEA':{let data=this.rom[((this.s[7]&7)<<8)|this.a];this.a=data&255;this.s[8]=(data>>8)&63;break;}
@@ -120,9 +121,9 @@ export class NY8 {
    const skipped=['BTRSS','BTRSC','INCRSZ','DECRSZ'].includes(n)&&this.next===pc+2;
    const elapsed=n==='INT'?3:branch||skipped?2:1;
    this.pc=this.next&2047;this.steps++;this.cycles+=elapsed;
-   this.advanceTimer(elapsed);
+   this.advanceTimer(elapsed);this.timer1.advance(this,elapsed);
    if(this.adcMode==='clocked')this.adcPeripheral.advance(this,elapsed);
-   if(this.gie&&((this.r[14]&this.r[15]&1)||(this.adcMode==='clocked'&&(this.r[17]&192)===192))){this.gie=false;this.push(this.pc);this.pc=8;this.interrupts++;}
+   if(this.gie&&((this.r[14]&this.r[15]&9)||(this.adcMode==='clocked'&&(this.r[17]&192)===192))){this.gie=false;this.push(this.pc);this.pc=8;this.interrupts++;}
    this.trace.push({pc,w,text:d.text});if(this.trace.length>100)this.trace.shift();
    return true;
   }catch(e){this.halted=e.message;return false;}
@@ -141,7 +142,7 @@ export class NY8 {
   }
  }
  run(count){let done=0;for(;done<count;done++){if(this.breakpoint!==null&&this.pc===this.breakpoint){this.halted='Brytpunkt '+hex(this.pc,3);break;}if(!this.step())break;}return done;}
- snapshot(){return {pc:this.pc,a:this.a,steps:this.steps,cycles:this.cycles,timerMode:this.timerMode,timerOverflows:this.timerOverflows,interrupts:this.interrupts,r:[...this.r],bank1:[...this.b1],f:[...this.f],s:[...this.s],stack:[...this.stack],adc:[...this.adc],adcMode:this.adcMode,adcConversions:this.adcPeripheral.conversions,lcd:{ram:[...this.lcd.ram],commands:[...this.lcd.commands]},carryOps:this.carryOps,timerEnabled:this.timerEnabled,timerDivider:this.timerDivider,halted:this.halted};}
+ snapshot(){return {pc:this.pc,a:this.a,steps:this.steps,cycles:this.cycles,timerMode:this.timerMode,timerOverflows:this.timerOverflows,interrupts:this.interrupts,r:[...this.r],bank1:[...this.b1],f:[...this.f],s:[...this.s],stack:[...this.stack],adc:[...this.adc],adcMode:this.adcMode,adcConversions:this.adcPeripheral.conversions,lcd:{ram:[...this.lcd.ram],commands:[...this.lcd.commands]},carryOps:this.carryOps,timer1:this.timer1.snapshot(this),timerEnabled:this.timerEnabled,timerDivider:this.timerDivider,halted:this.halted};}
 }
 export const PROFILES={ny8:{label:'Nyquest NY8 · originalkod',voltage:'5 V',execution:true},avr:{label:'AVR · portningsmodell',voltage:'5 V (modell)',execution:false},stm32:{label:'STM32 · portningsmodell',voltage:'3,3 V (nivåanpassning krävs)',execution:false}};
 export class Plant {

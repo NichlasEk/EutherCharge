@@ -1,5 +1,11 @@
 // Read-only explanation of tested firmware routines, not a second controller.
 const rules={
+  0:'R4F måste vara noll för att gå till 1. PA6 och PA7 nollställs.',
+  1:'R4D nollställs och tillståndet blir 2.',
+  3:'Räknare R27:R26 ≥ 28800 leder till 8.',
+  6:'Räknare R25:R24 ≥ 3600 leder till 8.',
+  8:'Räknare R25:R24 ≥ 7200 väljer 9. Läge 2 och ADC3-baserat R31:R30 < 1301 väljer därefter 1, även om timeout inträffade.',
+
   2:'R4D.bit0 och R4E.bit0 måste båda vara satta: läge 0–2 går till 4, läge 3 går till 3.',
   4:'Två färdiga ADC4-mätfönster (R4D.bit1) leder till 5. Händelseflaggan förbrukas vid varje anrop.',
   5:'Återkoppling under referensen i 5 mätfönster leder till 6 om räknare R27:R26 ≥ 60, annars 7. Värde < 20 leder direkt till 7 vid nytt mätfönster. Timeout kan välja 8 men skrivas över till 7 i samma anrop.',

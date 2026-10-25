@@ -60,7 +60,9 @@ No full electrical timing or post-startup display trace match is claimed.
 
 This is a partial NY8 model, not a cycle-exact digital twin. Exact chip identity,
 oscillator configuration, interrupt-entry latency/priority, complete reset state,
-WDT, GPIO electrical behavior, PWM waveform and analog calibration remain open.
+Timer1/PWM now has an instruction-clock waveform model and live trace; physical
+waveform validation remains open. WDT, GPIO electrical behavior and analog
+calibration remain open. See `docs/h6cs-timer1-model.md` for model limitations.
 SLEEP and DAA still stop rather than guessing behavior. CLRWDT updates status
 flags but has no watchdog timebase. Stack overflow stops instead of wrapping.
 Modeled interrupts are Timer0 and clocked ADC completion. CPU speed is not elapsed
@@ -80,7 +82,7 @@ python tests/test_h6cs_ny8_static.py
 PLAYWRIGHT_MODULE=/path/to/playwright-core FIREFOX_EXECUTABLE=/path/to/firefox node tests/h6cs-emulator-ui.cjs
 ```
 
-42Node tests pass with the local dump, plus Python static-analysis and Firefox UI
+51Node tests pass with the local dump, plus Python static-analysis and Firefox UI
 tests. Private-ROM cases skip when the dump is absent. Browser tests require the
 local server and private dump. Reports/screenshots remain in ignored artifacts/.
 `tools/h6cs_emulator_run.mjs` compares capture bits and replays external ADC/button

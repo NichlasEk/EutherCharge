@@ -202,3 +202,67 @@ test('Private original: state7 persistence and timeout; state9 mode2 restart bou
   assert.equal(c.r[0x3e],mode===2&&feedback===1300?1:9);
  }
 });
+test('Private original: state0 fault gating and state1 clears flags before state2',{skip:!rom},()=>{
+ for(const faults of [0,1,2,3,255]){const c=new NY8(rom);c.r[0x4f]=faults;routine(c,0x677);assert.equal(c.r[0x3e],faults?0:1);assert.equal(c.r[5]&192,0);}
+ const c=new NY8(rom);c.r[0x3e]=1;c.r[0x4d]=255;routine(c,0x693);assert.equal(c.r[0x3e],2);assert.equal(c.r[0x4d],0);
+});
+test('Private original: state3/6 timer boundaries and state8 restart overrides timeout',{skip:!rom},()=>{
+ for(const [state,pc,address,limit]of [[3,0x669,0x26,28800],[6,0x65b,0x24,3600]])for(const value of [limit-1,limit]){
+  const c=new NY8(rom);c.r[0x3e]=state;word(c,address,value);routine(c,pc);assert.equal(c.r[0x3e],value===limit?8:state);
+ }
+ for(const counter of [7199,7200])for(const mode of [0,2])for(const value of [1300,1301]){
+  const c=new NY8(rom);c.r[0x3e]=8;c.r[0x4b]=mode;word(c,0x24,counter);word(c,0x30,value);routine(c,0x629);
+  assert.equal(c.r[0x3e],mode===2&&value===1300?1:counter===7200?9:8);
+ }
+});
+test('Private original: ADC3 condition needs four qualifying windows and clears immediately below35',{skip:!rom},()=>{
+ for(const input of [0,10,11,34,35,65535]){
+  const c=new NY8(rom);for(let i=0;i<4;i++){word(c,0x30,input);routine(c,0x35a);if(i<3)assert.equal(c.r[0x4e]&1,0);}
+  assert.equal(c.r[0x4e]&1,input>=35?1:0);assert.equal(c.r[0x30]|c.r[0x31]<<8,input>=11?input-10:0);
+  word(c,0x30,34);routine(c,0x35a);assert.equal(c.r[0x4e]&1,0);
+ }
+});
+test('Private original: zero-input fault requires two windows and20 nonzero windows to recover',{skip:!rom},()=>{
+ const c=new NY8(rom);routine(c,0x35a);assert.equal(c.r[0x4f]&1,0);routine(c,0x35a);assert.equal(c.r[0x4f]&1,1);
+ for(let i=0;i<19;i++){word(c,0x30,35);routine(c,0x35a);assert.equal(c.r[0x4f]&1,1);}
+ word(c,0x30,35);routine(c,0x35a);assert.equal(c.r[0x4f]&1,0);assert.equal(c.r[0x4e]&1,0);assert.equal(c.r[0x30],35);
+ for(let i=0;i<4;i++){word(c,0x30,35);routine(c,0x35a);}assert.equal(c.r[0x4e]&1,1);
+});
+function t1write(c,index,value){c.timer1.write(c,index,value);}
+function t1advance(c,cycles){c.cycles+=cycles;c.timer1.advance(c,cycles);}
+test('Timer1 figure17: reload, continuous1023 and one-shot stop after zero',()=>{
+ for(const [control,next,stopped]of [[3,0x66,false],[1,1023,false],[5,1023,true]]){
+  const c=program();t1write(c,0,0x66);t1write(c,2,8);t1write(c,1,control);
+  t1advance(c,0x66);assert.equal(c.timer1.count,0);assert.equal(c.r[15]&8,0);
+  t1advance(c,1);assert.equal(c.timer1.count,next);assert.equal(c.timer1.done,stopped);assert.equal(c.r[15]&8,8);
+ }
+});
+test('Timer1 reload and PWM duty latch at underflow; current reads differ from reload',()=>{
+ const c=program();c.r[0x19]=0x11;t1write(c,0,3);t1write(c,3,1);t1write(c,2,8);t1write(c,1,0x83);
+ t1advance(c,4);assert.equal(c.timer1.count,255);assert.equal(c.read(0x19)&48,0);assert.equal(c.timer1.duty,0);
+ c.r[0x19]=0;t1write(c,0,7);t1write(c,3,2);assert.equal(c.timer1.count,255);
+ t1advance(c,256);assert.equal(c.timer1.count,7);assert.equal(c.timer1.duty,2);
+});
+test('PWM1 duty counts active ticks and polarity; PB3 overrides input direction',()=>{
+ const c=program();t1write(c,0,7);t1write(c,3,3);t1write(c,2,8);t1write(c,1,0x83);t1advance(c,8);
+ let active=0;for(let i=0;i<8;i++){active+=c.timer1.level(c);assert.equal(c.read(6)>>3&1,c.timer1.level(c));t1advance(c,1);}
+ assert.equal(active,3);const level=c.timer1.level(c);t1write(c,1,0xc3);assert.equal(c.timer1.level(c),1-level);
+ t1write(c,3,0);t1advance(c,8);assert.equal(c.timer1.level(c),1);t1write(c,1,3);assert.equal(c.timer1.level(c),null);
+});
+test('Timer1 prescaling, external-clock gating and interrupt dispatch',()=>{
+ const c=program(0);t1write(c,0,1);t1write(c,2,0);t1write(c,1,3);t1advance(c,1);assert.equal(c.timer1.count,1);
+ t1advance(c,1);assert.equal(c.timer1.count,0);t1write(c,2,40);t1advance(c,100);assert.equal(c.timer1.count,0);
+ t1write(c,2,8);c.r[14]=8;c.gie=true;c.step();assert.equal(c.pc,8);assert.equal(c.gie,false);assert.equal(c.timer1.underflows,1);
+});
+
+test('Private original: PWM initialization produces256-cycle periods with30 active ticks',{skip:!rom},()=>{
+ const c=new NY8(rom);routine(c,0x6ce);
+ assert.equal(c.s[1],0x83);assert.equal(c.s[2],8);
+ // Continue only the peripheral after executing the actual initialization routine.
+ for(let n=0;n<1024;n++){c.cycles++;c.timer1.advance(c,1);}
+ const t=c.timer1.snapshot(c);assert.equal(t.frameTicks,256);assert.equal(t.activeDuty,30);
+ const edges=t.edges.filter(e=>e.level!==null);
+ const rises=edges.filter(e=>e.level===1);assert.ok(rises.length>=3);
+ assert.equal(rises[2].cycle-rises[1].cycle,256);
+ for(const rise of rises){const fall=edges.find(e=>e.cycle>rise.cycle&&e.level===0);if(fall)assert.equal(fall.cycle-rise.cycle,30);}
+});
