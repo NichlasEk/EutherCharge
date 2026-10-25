@@ -63,3 +63,29 @@ field positions by executing the actual register helper in isolation.
 Next: identify the SDK file envelope/config-version and device configuration size,
 then determine whether any existing saved capture contains a matching separate
 block. No further hardware acquisition is authorized by this offline work.
+
+## Full block size and decoded option verification
+
+The embedded `mask` resource identifies NY8B062D with config_size_word=0x10:
+16little-endian words,32bytes. Its standard conversion context reports version3.
+`tools/h6cs_sdk_config_decode_probe.cs` loads the real model through MaskRomLoader,
+then invokes the actual NY8B062D reader on32synthetic combinations. Every read
+succeeds. This validates meanings as well as field positions:
+
+- WDT field0/1: disabled/enabled.
+- Event field0/1: interrupt/reset.
+- Time-base field0/1/2/3:250/60/3.5/15ms.
+- Read-source field0/1: output register/pin.
+
+The standalone decoder accepts exactly32bytes and explicit config version3;
+unsupported versions and ROM-sized input are rejected. It decodes only these
+verified fields, not oscillator frequency or every configuration option. It does
+not locate or authenticate a config block inside a firmware container, nor infer
+physical programming addresses. It is not connected to automatic ROM loading.
+
+Compile the decode probe with mcs and run it using the same isolated command as
+above, substituting decode.exe and passing /sdk. Its synthetic output is captured
+in `tests/fixtures/h6cs/sdk-config-decoded.json`; all32cases match the JS decoder.
+Four SDK-config tests now pass. No original configuration block has been located;
+a filename search of the charger readout/probe directories found no config/CB/HEX
+candidate. This is not an exhaustive content-level proof of absence.

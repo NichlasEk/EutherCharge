@@ -135,3 +135,12 @@ addresses and must not be applied to the ROM tail. Next resolve full config-bloc
 size/envelope/version via manufacturer library before searching saved artifacts.
 Temporary full IL: `/tmp/h6cs-nyquest-core-full.il`; binary hash in layout document.
 No vendor code/binaries or original dump contents committed.
+
+## Full SDK config-block continuation
+
+Manufacturer embedded profile and actual reader establish32-byte NY8B062D config
+blocks under SDK context version3. All32synthetic combinations validate WDT enable,
+reset/interrupt, period and GPIO read-source meanings. Independent strict decoder
+and fixture added; all4SDK-config tests pass (CPU/UI untouched). Original values
+and physical config readback remain unknown. See SDK-layout document and new
+`tools/h6cs_sdk_config_decode_probe.cs`. No automatic emulator config selection.

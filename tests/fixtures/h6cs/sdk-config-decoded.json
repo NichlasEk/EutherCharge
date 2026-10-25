@@ -1,0 +1,232 @@
+{
+  "sdkCoreSha256": "41f71c7c1db0ab9ab651c9f192ec5c9f93f382bfbe2594770d0363d92f102eaf",
+  "device": "NY8B062D",
+  "sizeWords": 16,
+  "configVersion": 3,
+  "cases": [
+    {
+      "bits": 0,
+      "Wdt": "DISABLE",
+      "WdtEvent": "Interrupt",
+      "WdtTimeBase": "Ms250",
+      "ReadIoSource": "FromRegister"
+    },
+    {
+      "bits": 1,
+      "Wdt": "ENABLE",
+      "WdtEvent": "Interrupt",
+      "WdtTimeBase": "Ms250",
+      "ReadIoSource": "FromRegister"
+    },
+    {
+      "bits": 2,
+      "Wdt": "DISABLE",
+      "WdtEvent": "Reset",
+      "WdtTimeBase": "Ms250",
+      "ReadIoSource": "FromRegister"
+    },
+    {
+      "bits": 3,
+      "Wdt": "ENABLE",
+      "WdtEvent": "Reset",
+      "WdtTimeBase": "Ms250",
+      "ReadIoSource": "FromRegister"
+    },
+    {
+      "bits": 4,
+      "Wdt": "DISABLE",
+      "WdtEvent": "Interrupt",
+      "WdtTimeBase": "Ms60",
+      "ReadIoSource": "FromRegister"
+    },
+    {
+      "bits": 5,
+      "Wdt": "ENABLE",
+      "WdtEvent": "Interrupt",
+      "WdtTimeBase": "Ms60",
+      "ReadIoSource": "FromRegister"
+    },
+    {
+      "bits": 6,
+      "Wdt": "DISABLE",
+      "WdtEvent": "Reset",
+      "WdtTimeBase": "Ms60",
+      "ReadIoSource": "FromRegister"
+    },
+    {
+      "bits": 7,
+      "Wdt": "ENABLE",
+      "WdtEvent": "Reset",
+      "WdtTimeBase": "Ms60",
+      "ReadIoSource": "FromRegister"
+    },
+    {
+      "bits": 8,
+      "Wdt": "DISABLE",
+      "WdtEvent": "Interrupt",
+      "WdtTimeBase": "Ms3_5",
+      "ReadIoSource": "FromRegister"
+    },
+    {
+      "bits": 9,
+      "Wdt": "ENABLE",
+      "WdtEvent": "Interrupt",
+      "WdtTimeBase": "Ms3_5",
+      "ReadIoSource": "FromRegister"
+    },
+    {
+      "bits": 10,
+      "Wdt": "DISABLE",
+      "WdtEvent": "Reset",
+      "WdtTimeBase": "Ms3_5",
+      "ReadIoSource": "FromRegister"
+    },
+    {
+      "bits": 11,
+      "Wdt": "ENABLE",
+      "WdtEvent": "Reset",
+      "WdtTimeBase": "Ms3_5",
+      "ReadIoSource": "FromRegister"
+    },
+    {
+      "bits": 12,
+      "Wdt": "DISABLE",
+      "WdtEvent": "Interrupt",
+      "WdtTimeBase": "Ms15",
+      "ReadIoSource": "FromRegister"
+    },
+    {
+      "bits": 13,
+      "Wdt": "ENABLE",
+      "WdtEvent": "Interrupt",
+      "WdtTimeBase": "Ms15",
+      "ReadIoSource": "FromRegister"
+    },
+    {
+      "bits": 14,
+      "Wdt": "DISABLE",
+      "WdtEvent": "Reset",
+      "WdtTimeBase": "Ms15",
+      "ReadIoSource": "FromRegister"
+    },
+    {
+      "bits": 15,
+      "Wdt": "ENABLE",
+      "WdtEvent": "Reset",
+      "WdtTimeBase": "Ms15",
+      "ReadIoSource": "FromRegister"
+    },
+    {
+      "bits": 16,
+      "Wdt": "DISABLE",
+      "WdtEvent": "Interrupt",
+      "WdtTimeBase": "Ms250",
+      "ReadIoSource": "FromPin"
+    },
+    {
+      "bits": 17,
+      "Wdt": "ENABLE",
+      "WdtEvent": "Interrupt",
+      "WdtTimeBase": "Ms250",
+      "ReadIoSource": "FromPin"
+    },
+    {
+      "bits": 18,
+      "Wdt": "DISABLE",
+      "WdtEvent": "Reset",
+      "WdtTimeBase": "Ms250",
+      "ReadIoSource": "FromPin"
+    },
+    {
+      "bits": 19,
+      "Wdt": "ENABLE",
+      "WdtEvent": "Reset",
+      "WdtTimeBase": "Ms250",
+      "ReadIoSource": "FromPin"
+    },
+    {
+      "bits": 20,
+      "Wdt": "DISABLE",
+      "WdtEvent": "Interrupt",
+      "WdtTimeBase": "Ms60",
+      "ReadIoSource": "FromPin"
+    },
+    {
+      "bits": 21,
+      "Wdt": "ENABLE",
+      "WdtEvent": "Interrupt",
+      "WdtTimeBase": "Ms60",
+      "ReadIoSource": "FromPin"
+    },
+    {
+      "bits": 22,
+      "Wdt": "DISABLE",
+      "WdtEvent": "Reset",
+      "WdtTimeBase": "Ms60",
+      "ReadIoSource": "FromPin"
+    },
+    {
+      "bits": 23,
+      "Wdt": "ENABLE",
+      "WdtEvent": "Reset",
+      "WdtTimeBase": "Ms60",
+      "ReadIoSource": "FromPin"
+    },
+    {
+      "bits": 24,
+      "Wdt": "DISABLE",
+      "WdtEvent": "Interrupt",
+      "WdtTimeBase": "Ms3_5",
+      "ReadIoSource": "FromPin"
+    },
+    {
+      "bits": 25,
+      "Wdt": "ENABLE",
+      "WdtEvent": "Interrupt",
+      "WdtTimeBase": "Ms3_5",
+      "ReadIoSource": "FromPin"
+    },
+    {
+      "bits": 26,
+      "Wdt": "DISABLE",
+      "WdtEvent": "Reset",
+      "WdtTimeBase": "Ms3_5",
+      "ReadIoSource": "FromPin"
+    },
+    {
+      "bits": 27,
+      "Wdt": "ENABLE",
+      "WdtEvent": "Reset",
+      "WdtTimeBase": "Ms3_5",
+      "ReadIoSource": "FromPin"
+    },
+    {
+      "bits": 28,
+      "Wdt": "DISABLE",
+      "WdtEvent": "Interrupt",
+      "WdtTimeBase": "Ms15",
+      "ReadIoSource": "FromPin"
+    },
+    {
+      "bits": 29,
+      "Wdt": "ENABLE",
+      "WdtEvent": "Interrupt",
+      "WdtTimeBase": "Ms15",
+      "ReadIoSource": "FromPin"
+    },
+    {
+      "bits": 30,
+      "Wdt": "DISABLE",
+      "WdtEvent": "Reset",
+      "WdtTimeBase": "Ms15",
+      "ReadIoSource": "FromPin"
+    },
+    {
+      "bits": 31,
+      "Wdt": "ENABLE",
+      "WdtEvent": "Reset",
+      "WdtTimeBase": "Ms15",
+      "ReadIoSource": "FromPin"
+    }
+  ]
+}
