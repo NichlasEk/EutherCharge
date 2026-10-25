@@ -124,7 +124,10 @@ export class NY8 {
    const skipped=['BTRSS','BTRSC','INCRSZ','DECRSZ'].includes(n)&&this.next===pc+2;
    const elapsed=n==='INT'?3:branch||skipped?2:1;
    this.pc=this.next&2047;this.steps++;this.cycles+=elapsed;
-   this.advanceTimer(elapsed);this.timer1.advance(this,elapsed);
+   this.advanceTimer(elapsed);
+   // NY8B062D §3.6: assigning Prescaler0 to Timer0 clears it after T0MD.
+   if(n==='T0MD'&&!(this.t0md&8))this.timerPhase=0;
+   this.timer1.advance(this,elapsed);
    if(this.adcMode==='clocked')this.adcPeripheral.advance(this,elapsed);
    this.gpio.syncLCD(this);
    if(this.gie&&((this.r[14]&this.r[15]&143)||(this.adcMode==='clocked'&&(this.r[17]&192)===192))){this.gie=false;this.push(this.pc);this.pc=8;this.interrupts++;}

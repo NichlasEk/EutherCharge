@@ -29,7 +29,7 @@ Four-million-step verified-ISA run:5,415,542 cycles,1,348 Timer0 IRQs,18,307 ADC
 conversions,81,150 carry instructions, no halt. Strict20,000-step run also no halt.
 First LCD RAM frame at step1,484,052/cycle2,009,983 for default clocked stimuli.
 
-Tests:all67Node tests pass (51core plus16GPIO), including state-gate and full-ROM scenarios.
+Tests:all71Node tests pass (51core plus16GPIO plus4timing), including state-gate and full-ROM scenarios.
 Two Python static decoder tests and Firefox UI pass. See
 `tests/h6cs-emulator.test.mjs` for the full suite. Do not rerun
 hardware/probe tests while working on emulation.
@@ -101,3 +101,13 @@ edges observed but no GPIO IRQ dispatched. Existing state/LCD/PWM behavior remai
 unchanged. Next prioritize original-used gaps (instruction timing, watchdog/config,
 ADC calibration and longer state scenarios); GPIO IRQs were a completeness gap,
 not an observed original-firmware blocker. No hardware operations performed.
+
+## Timing audit continuation
+
+T0MD now leaves Prescaler0 cleared after the assignment instruction, as documented.
+Original feedback-state5 execution is unchanged because it configures Timer0 while
+disabled. `tools/h6cs_timing_audit.mjs` inventories actual opcode use, PCL writes and
+CLRWDT gaps. PCL state dispatch at01A1 and CLRWDT both execute5,082times in4million
+steps. PCL extra-cycle behavior is unresolved; retain current1cycle MOVAR pending
+better evidence. WDTEN is set, making watchdog/configuration analysis a useful next
+step. See `docs/h6cs-timing-audit.md`. No hardware accessed.
