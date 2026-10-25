@@ -91,3 +91,10 @@ scenarios without RAM injection; see `docs/h6cs-emulator.md`.
 The read-only **Tillstånd & villkor** panel explains tested state gates and shows
 filtered raw values, counters and flags. It does not assign unverified charging
 phase names or physical units.
+
+GPIO alternatives are now selectable: previous latch approximation, resolved pins
+with output-latch reads, or resolved pins with pin-level reads. RD_OPT is unknown;
+these are hypotheses. Unknown pin masks are shown instead of claiming calibrated
+levels. See `docs/h6cs-gpio-model.md`; run `node --test tests/h6cs-gpio.test.mjs`
+for six additional tests. The headless runner accepts GPIO mode after the optional
+scenario argument (`-` means no scenario).

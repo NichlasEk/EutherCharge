@@ -29,7 +29,7 @@ Four-million-step verified-ISA run:5,415,542 cycles,1,348 Timer0 IRQs,18,307 ADC
 conversions,81,150 carry instructions, no halt. Strict20,000-step run also no halt.
 First LCD RAM frame at step1,484,052/cycle2,009,983 for default clocked stimuli.
 
-Tests:all51Node tests pass, including state-gate and full-ROM scenarios.
+Tests:all57Node tests pass (51core plus6GPIO), including state-gate and full-ROM scenarios.
 Two Python static decoder tests and Firefox UI pass. See
 `tests/h6cs-emulator.test.mjs` for the full suite. Do not rerun
 hardware/probe tests while working on emulation.
@@ -67,3 +67,15 @@ SDK research (private temporary tools; no installer execution):
 
 Continuation added read-only UI state inspection,42Node tests and state5/7/9
 regressions. Firefox also verifies current-state highlighting and profile hiding.
+
+## GPIO continuation
+
+GPIO models `legacy`, `latch` and `pad` are available in the UI and headless runner.
+`docs/h6cs-gpio-model.md` records source, explicit uncertainty masks, tests and
+four-million-step comparison. Both RD_OPT hypotheses reach state5 with identical
+state transitions and LCD startup bits for the feedback-state5 fixture. Do not
+infer a verified fuse setting from this agreement. Legacy remains the default;
+GPIO electrical thresholds and physical calibration remain unresolved.
+Next useful work: propagate uncertainty to actual consumed input bits / branch
+sensitivity, extend GPIO interrupts and cover button/full-loop scenarios under both
+read-source choices. Preserve numerical-state versus physical-phase distinction.
