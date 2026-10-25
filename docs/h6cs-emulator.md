@@ -14,13 +14,13 @@ AVR/STM32 profiles are separate illustrative behavioral models, not CPU emulator
 Timer0 can use a synthetic lab clock or instruction cycles with the candidate's
 T0MD prescaler. ADC can return instant lab samples or use a clocked12-bit
 conversion model with EOC polling and completion interrupts. The accelerated lab
-button deliberately selects synthetic timing. ADCAR/SBCAR opcodes remain explicitly
-opt-in until independently verified. NY8A054E is not an established chip identity;
+button deliberately selects synthetic timing. ADCAR/SBCAR encodings now have independent NYASM2.80 assembler evidence and
+run without an opt-in. NY8A054E is not an established chip identity;
 the observed ADC block instead supports a B062D-like peripheral model.
 
 ## Verification
 
-- `node --test tests/h6cs-emulator.test.mjs`:31 tests, including exhaustive CMPAR
+- `node --test tests/h6cs-emulator.test.mjs`:34 tests, including exhaustive CMPAR
   flags, clock/ADC examples, private-ROM startup, conversion table, mode settings,
   complete main-loop MODE cycling, and display writes from reset.
 - `python tests/test_h6cs_ny8_static.py`: dynamic short-branch analysis regression.

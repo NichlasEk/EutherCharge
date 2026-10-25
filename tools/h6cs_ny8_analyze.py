@@ -15,6 +15,8 @@ def rules_from_sleigh(text):
             lo,hi=fields[field];m=((1<<(hi-lo+1))-1)<<lo
             mask|=m;value|=int(number)<<lo
         rules.append((mask,value,name,operands.strip()))
+    # Independently assembled NY8B062D GPR fixtures: tests/fixtures/h6cs/nyasm-carry.json.
+    rules.extend([(0xff00,0x3400,'ADCAR','RReg,DestAR'),(0xff00,0x3500,'SBCAR','RReg,DestAR')])
     return sorted(rules,key=lambda r:r[0].bit_count(),reverse=True)
 
 def decode(w,pc,rules):
@@ -59,7 +61,7 @@ def analyze(raw,rules):
             if n!='CALLA':continue
         if n in ('BTRSC','BTRSS','INCRSZ','DECRSZ'):todo.append(pc+2)
         todo.append(pc+1)
-    report=dict(sha256=hashlib.sha256(raw).hexdigest(),word_count=len(words),zero_words=words.count(0),nonzero_words=len(words)-words.count(0),unique_words=len(set(words)),zero_runs=sorted(runs,key=lambda r:-r['length']),recognized_words=sum(x['name']!='UNKNOWN' for x in ins),unknown=[dict(address=i,word=words[i]) for i,x in enumerate(ins) if x['name']=='UNKNOWN'],instruction_counts=dict(collections.Counter(x['name'] for x in ins)),direct_branches=branches,statically_reachable_words=len(seen),reachable_unknown=[p for p in sorted(seen) if ins[p]['name']=='UNKNOWN'],unresolved_dynamic_branches=sorted(dynamic),reset=ins[0],interrupt_vector_8=ins[8],limitations=['Opcode model from related NY8A054E; no exact MCU ID','Reachability is an overapproximation of conditionals and incomplete at computed branches','Recognized opcodes alone do not prove code: tables may also decode'])
+    report=dict(sha256=hashlib.sha256(raw).hexdigest(),word_count=len(words),zero_words=words.count(0),nonzero_words=len(words)-words.count(0),unique_words=len(set(words)),zero_runs=sorted(runs,key=lambda r:-r['length']),recognized_words=sum(x['name']!='UNKNOWN' for x in ins),unknown=[dict(address=i,word=words[i]) for i,x in enumerate(ins) if x['name']=='UNKNOWN'],instruction_counts=dict(collections.Counter(x['name'] for x in ins)),direct_branches=branches,statically_reachable_words=len(seen),reachable_unknown=[p for p in sorted(seen) if ins[p]['name']=='UNKNOWN'],unresolved_dynamic_branches=sorted(dynamic),reset=ins[0],interrupt_vector_8=ins[8],limitations=['Related NY8 opcode model plus manufacturer-verified carry encodings; no exact MCU ID','Reachability is an overapproximation of conditionals and incomplete at computed branches','Recognized opcodes alone do not prove code: tables may also decode'])
     return words,ins,seen,report
 
 def main():

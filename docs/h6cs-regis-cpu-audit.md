@@ -1,5 +1,8 @@
 # System Regis: CPU and startup audit (2026-10-25)
 
+Current: ADCAR/SBCAR encodings are manufacturer-assembler verified; see the final
+verification section. Earlier stop/opt-in notes below preserve the audit baseline.
+
 ## Identity is not established by a successful read protocol
 
 The recovered 2048-word image is reproducible. The chip model is still unknown.
@@ -126,3 +129,75 @@ The MODE fixture produces stable0→1→2→3→0 through actual firmware execut
 instruction trace also exposes the intermediate value4 between INCR at05E7 and
 CLRR at05EB before wraparound; that is an implementation detail, not a fifth user
 mode. Scenario indices are reproducible execution positions, not calibrated time.
+
+## Independent manufacturer assembler verification — current status
+
+The earlier inferred-carry limitation is now resolved for instruction encoding.
+NYASM2.80(Build251121.00), invoked for NY8B062D, generated3537 for
+`SBCAR 0x37,0`, exactly the original strict-mode stop word. It generated3420/34A0
+for ADCAR R20 with accumulator/register destination and3537/35B7 for SBCAR R37.
+All96 general-purpose register operands, both destinations and both instructions
+were assembled without diagnostics:384 independent golden encodings. They support
+masks FF00/3400 and FF00/3500. Arithmetic and Z/DC/C semantics remain grounded in
+manufacturer instruction descriptions and are exhaustively regression-tested for
+all byte pairs and both carry inputs. No opcode opt-in is needed anymore.
+
+`tests/fixtures/h6cs/nyasm-carry.json` contains only words generated from our own
+synthetic source, not charger firmware. `tools/h6cs_nyasm_fixture.py --source PATH`
+generates that source; `--listing PATH` verifies the resulting listing and emits
+its SHA256 plus cases. SDK software is not committed or redistributed.
+
+Source: [AT Win's published Nyquest tooling](https://www.atwin-tech.com/download/edownload.html),
+NYIDE5.90 bundle, member `NYASM 2.80 [Build 251121.00].zip`.
+Archive SHA256:8044754429fb013fa9376566a595ec9901e60c416746461e61c8dd4729946a22.
+`nyas.exe` SHA256:31a59fb0b090da7ad6fc7419cad6c5ffe2fa1ee2f2c48ae519de22b0c5109698.
+`Nyquest.Assembly.dll` SHA256:aabbd7c4dadd753682204a836150fd000d6519b228a26512fec6ca57195dbd30.
+
+The bundle member was retrieved with verified TLS and checked against its ZIP CRC.
+The server omitted an intermediate certificate; that intermediate was independently
+verified against the system trust store before use in a temporary CA bundle. No
+system trust settings were changed. Innoextract PR210 at376a13e unpacked the installer
+without executing it (older local and PR202 extractors did not handle this package).
+Mono ran `nyas.exe -p NY8B062D -l --human-read-error carry-gpr.asm` inside bubblewrap
+with no network, private `/dev`, and only SDK/test files exposed. No programmer,
+original dump or target hardware was available to the assembler.
+
+Reproduction pattern after obtaining/extracting the SDK:
+
+```sh
+python tools/h6cs_nyasm_fixture.py --source /path/to/sdk/app/carry-gpr.asm
+# Run only nyas.exe, not NYIDE or a writer. An isolated Mono command was used:
+bwrap --unshare-net --ro-bind /usr /usr --ro-bind /etc /etc \
+  --symlink usr/bin /bin --symlink usr/lib /lib --symlink usr/lib /lib64 \
+  --dev /dev --proc /proc --tmpfs /tmp --bind /path/to/sdk/app /work \
+  --chdir /work --setenv HOME /tmp \
+  /usr/bin/mono /work/nyas.exe -p NY8B062D -l --human-read-error carry-gpr.asm
+python tools/h6cs_nyasm_fixture.py --listing /path/to/sdk/app/carry-gpr.lst
+```
+
+This confirms encodings on the selected assembler target, not the physical chip's
+model. It also does not fill gaps in ADC electrical behavior, WDT, GPIO or timing.
+The fresh `regis-run-verified-isa.json` records continued execution beyond the old
+strict-mode stop, with the physical48-bit LCD comparison still passing.
+
+## Feedback-input exploration
+
+Nine reset runs,4million instructions each, clocked ADC and instruction Timer0,
+ADC1=1500/ADC4=300, no button or RAM injection, gave:
+
+| ADC2 raw / ADC3 raw |0|2048|4095|
+|---|---|---|---|
+|0|state0|state5|state5|
+|2048|state0|state0|state0|
+|4095|state0|state0|state0|
+
+The state5 cases passed0→1→2→4→5; other cases passed0→1→2→0.
+`tests/fixtures/h6cs/feedback-state5.json` preserves one discriminating input case.
+It is a regression target for modeled firmware, not a physical charging recipe.
+No raw ADC value is labeled volts or amps. Reports are under ignored
+`artifacts/h6cs-emulator/sweep/` with input hashes and events.
+
+A scan of20 existing `*lcd*.json` captures found45 command frames and no complete
+RAM-write candidate. Therefore there is no available measured post-startup glass
+trace to claim as a match; acquiring one would require separately approved hardware
+work. Further software work can still map state transitions and missing peripherals.

@@ -1,0 +1,2312 @@
+{
+  "tool": "NYASM 2.80 Build251121.00",
+  "processor": "NY8B062D",
+  "archiveSha256": "8044754429fb013fa9376566a595ec9901e60c416746461e61c8dd4729946a22",
+  "listingSha256": "0846c86c018a20efb3c517beaf86ddb1e0aad80e5f666509706f9ee79be334fd",
+  "cases": [
+    {
+      "name": "ADCAR",
+      "register": 32,
+      "destination": 0,
+      "word": 13344
+    },
+    {
+      "name": "ADCAR",
+      "register": 32,
+      "destination": 1,
+      "word": 13472
+    },
+    {
+      "name": "ADCAR",
+      "register": 33,
+      "destination": 0,
+      "word": 13345
+    },
+    {
+      "name": "ADCAR",
+      "register": 33,
+      "destination": 1,
+      "word": 13473
+    },
+    {
+      "name": "ADCAR",
+      "register": 34,
+      "destination": 0,
+      "word": 13346
+    },
+    {
+      "name": "ADCAR",
+      "register": 34,
+      "destination": 1,
+      "word": 13474
+    },
+    {
+      "name": "ADCAR",
+      "register": 35,
+      "destination": 0,
+      "word": 13347
+    },
+    {
+      "name": "ADCAR",
+      "register": 35,
+      "destination": 1,
+      "word": 13475
+    },
+    {
+      "name": "ADCAR",
+      "register": 36,
+      "destination": 0,
+      "word": 13348
+    },
+    {
+      "name": "ADCAR",
+      "register": 36,
+      "destination": 1,
+      "word": 13476
+    },
+    {
+      "name": "ADCAR",
+      "register": 37,
+      "destination": 0,
+      "word": 13349
+    },
+    {
+      "name": "ADCAR",
+      "register": 37,
+      "destination": 1,
+      "word": 13477
+    },
+    {
+      "name": "ADCAR",
+      "register": 38,
+      "destination": 0,
+      "word": 13350
+    },
+    {
+      "name": "ADCAR",
+      "register": 38,
+      "destination": 1,
+      "word": 13478
+    },
+    {
+      "name": "ADCAR",
+      "register": 39,
+      "destination": 0,
+      "word": 13351
+    },
+    {
+      "name": "ADCAR",
+      "register": 39,
+      "destination": 1,
+      "word": 13479
+    },
+    {
+      "name": "ADCAR",
+      "register": 40,
+      "destination": 0,
+      "word": 13352
+    },
+    {
+      "name": "ADCAR",
+      "register": 40,
+      "destination": 1,
+      "word": 13480
+    },
+    {
+      "name": "ADCAR",
+      "register": 41,
+      "destination": 0,
+      "word": 13353
+    },
+    {
+      "name": "ADCAR",
+      "register": 41,
+      "destination": 1,
+      "word": 13481
+    },
+    {
+      "name": "ADCAR",
+      "register": 42,
+      "destination": 0,
+      "word": 13354
+    },
+    {
+      "name": "ADCAR",
+      "register": 42,
+      "destination": 1,
+      "word": 13482
+    },
+    {
+      "name": "ADCAR",
+      "register": 43,
+      "destination": 0,
+      "word": 13355
+    },
+    {
+      "name": "ADCAR",
+      "register": 43,
+      "destination": 1,
+      "word": 13483
+    },
+    {
+      "name": "ADCAR",
+      "register": 44,
+      "destination": 0,
+      "word": 13356
+    },
+    {
+      "name": "ADCAR",
+      "register": 44,
+      "destination": 1,
+      "word": 13484
+    },
+    {
+      "name": "ADCAR",
+      "register": 45,
+      "destination": 0,
+      "word": 13357
+    },
+    {
+      "name": "ADCAR",
+      "register": 45,
+      "destination": 1,
+      "word": 13485
+    },
+    {
+      "name": "ADCAR",
+      "register": 46,
+      "destination": 0,
+      "word": 13358
+    },
+    {
+      "name": "ADCAR",
+      "register": 46,
+      "destination": 1,
+      "word": 13486
+    },
+    {
+      "name": "ADCAR",
+      "register": 47,
+      "destination": 0,
+      "word": 13359
+    },
+    {
+      "name": "ADCAR",
+      "register": 47,
+      "destination": 1,
+      "word": 13487
+    },
+    {
+      "name": "ADCAR",
+      "register": 48,
+      "destination": 0,
+      "word": 13360
+    },
+    {
+      "name": "ADCAR",
+      "register": 48,
+      "destination": 1,
+      "word": 13488
+    },
+    {
+      "name": "ADCAR",
+      "register": 49,
+      "destination": 0,
+      "word": 13361
+    },
+    {
+      "name": "ADCAR",
+      "register": 49,
+      "destination": 1,
+      "word": 13489
+    },
+    {
+      "name": "ADCAR",
+      "register": 50,
+      "destination": 0,
+      "word": 13362
+    },
+    {
+      "name": "ADCAR",
+      "register": 50,
+      "destination": 1,
+      "word": 13490
+    },
+    {
+      "name": "ADCAR",
+      "register": 51,
+      "destination": 0,
+      "word": 13363
+    },
+    {
+      "name": "ADCAR",
+      "register": 51,
+      "destination": 1,
+      "word": 13491
+    },
+    {
+      "name": "ADCAR",
+      "register": 52,
+      "destination": 0,
+      "word": 13364
+    },
+    {
+      "name": "ADCAR",
+      "register": 52,
+      "destination": 1,
+      "word": 13492
+    },
+    {
+      "name": "ADCAR",
+      "register": 53,
+      "destination": 0,
+      "word": 13365
+    },
+    {
+      "name": "ADCAR",
+      "register": 53,
+      "destination": 1,
+      "word": 13493
+    },
+    {
+      "name": "ADCAR",
+      "register": 54,
+      "destination": 0,
+      "word": 13366
+    },
+    {
+      "name": "ADCAR",
+      "register": 54,
+      "destination": 1,
+      "word": 13494
+    },
+    {
+      "name": "ADCAR",
+      "register": 55,
+      "destination": 0,
+      "word": 13367
+    },
+    {
+      "name": "ADCAR",
+      "register": 55,
+      "destination": 1,
+      "word": 13495
+    },
+    {
+      "name": "ADCAR",
+      "register": 56,
+      "destination": 0,
+      "word": 13368
+    },
+    {
+      "name": "ADCAR",
+      "register": 56,
+      "destination": 1,
+      "word": 13496
+    },
+    {
+      "name": "ADCAR",
+      "register": 57,
+      "destination": 0,
+      "word": 13369
+    },
+    {
+      "name": "ADCAR",
+      "register": 57,
+      "destination": 1,
+      "word": 13497
+    },
+    {
+      "name": "ADCAR",
+      "register": 58,
+      "destination": 0,
+      "word": 13370
+    },
+    {
+      "name": "ADCAR",
+      "register": 58,
+      "destination": 1,
+      "word": 13498
+    },
+    {
+      "name": "ADCAR",
+      "register": 59,
+      "destination": 0,
+      "word": 13371
+    },
+    {
+      "name": "ADCAR",
+      "register": 59,
+      "destination": 1,
+      "word": 13499
+    },
+    {
+      "name": "ADCAR",
+      "register": 60,
+      "destination": 0,
+      "word": 13372
+    },
+    {
+      "name": "ADCAR",
+      "register": 60,
+      "destination": 1,
+      "word": 13500
+    },
+    {
+      "name": "ADCAR",
+      "register": 61,
+      "destination": 0,
+      "word": 13373
+    },
+    {
+      "name": "ADCAR",
+      "register": 61,
+      "destination": 1,
+      "word": 13501
+    },
+    {
+      "name": "ADCAR",
+      "register": 62,
+      "destination": 0,
+      "word": 13374
+    },
+    {
+      "name": "ADCAR",
+      "register": 62,
+      "destination": 1,
+      "word": 13502
+    },
+    {
+      "name": "ADCAR",
+      "register": 63,
+      "destination": 0,
+      "word": 13375
+    },
+    {
+      "name": "ADCAR",
+      "register": 63,
+      "destination": 1,
+      "word": 13503
+    },
+    {
+      "name": "ADCAR",
+      "register": 64,
+      "destination": 0,
+      "word": 13376
+    },
+    {
+      "name": "ADCAR",
+      "register": 64,
+      "destination": 1,
+      "word": 13504
+    },
+    {
+      "name": "ADCAR",
+      "register": 65,
+      "destination": 0,
+      "word": 13377
+    },
+    {
+      "name": "ADCAR",
+      "register": 65,
+      "destination": 1,
+      "word": 13505
+    },
+    {
+      "name": "ADCAR",
+      "register": 66,
+      "destination": 0,
+      "word": 13378
+    },
+    {
+      "name": "ADCAR",
+      "register": 66,
+      "destination": 1,
+      "word": 13506
+    },
+    {
+      "name": "ADCAR",
+      "register": 67,
+      "destination": 0,
+      "word": 13379
+    },
+    {
+      "name": "ADCAR",
+      "register": 67,
+      "destination": 1,
+      "word": 13507
+    },
+    {
+      "name": "ADCAR",
+      "register": 68,
+      "destination": 0,
+      "word": 13380
+    },
+    {
+      "name": "ADCAR",
+      "register": 68,
+      "destination": 1,
+      "word": 13508
+    },
+    {
+      "name": "ADCAR",
+      "register": 69,
+      "destination": 0,
+      "word": 13381
+    },
+    {
+      "name": "ADCAR",
+      "register": 69,
+      "destination": 1,
+      "word": 13509
+    },
+    {
+      "name": "ADCAR",
+      "register": 70,
+      "destination": 0,
+      "word": 13382
+    },
+    {
+      "name": "ADCAR",
+      "register": 70,
+      "destination": 1,
+      "word": 13510
+    },
+    {
+      "name": "ADCAR",
+      "register": 71,
+      "destination": 0,
+      "word": 13383
+    },
+    {
+      "name": "ADCAR",
+      "register": 71,
+      "destination": 1,
+      "word": 13511
+    },
+    {
+      "name": "ADCAR",
+      "register": 72,
+      "destination": 0,
+      "word": 13384
+    },
+    {
+      "name": "ADCAR",
+      "register": 72,
+      "destination": 1,
+      "word": 13512
+    },
+    {
+      "name": "ADCAR",
+      "register": 73,
+      "destination": 0,
+      "word": 13385
+    },
+    {
+      "name": "ADCAR",
+      "register": 73,
+      "destination": 1,
+      "word": 13513
+    },
+    {
+      "name": "ADCAR",
+      "register": 74,
+      "destination": 0,
+      "word": 13386
+    },
+    {
+      "name": "ADCAR",
+      "register": 74,
+      "destination": 1,
+      "word": 13514
+    },
+    {
+      "name": "ADCAR",
+      "register": 75,
+      "destination": 0,
+      "word": 13387
+    },
+    {
+      "name": "ADCAR",
+      "register": 75,
+      "destination": 1,
+      "word": 13515
+    },
+    {
+      "name": "ADCAR",
+      "register": 76,
+      "destination": 0,
+      "word": 13388
+    },
+    {
+      "name": "ADCAR",
+      "register": 76,
+      "destination": 1,
+      "word": 13516
+    },
+    {
+      "name": "ADCAR",
+      "register": 77,
+      "destination": 0,
+      "word": 13389
+    },
+    {
+      "name": "ADCAR",
+      "register": 77,
+      "destination": 1,
+      "word": 13517
+    },
+    {
+      "name": "ADCAR",
+      "register": 78,
+      "destination": 0,
+      "word": 13390
+    },
+    {
+      "name": "ADCAR",
+      "register": 78,
+      "destination": 1,
+      "word": 13518
+    },
+    {
+      "name": "ADCAR",
+      "register": 79,
+      "destination": 0,
+      "word": 13391
+    },
+    {
+      "name": "ADCAR",
+      "register": 79,
+      "destination": 1,
+      "word": 13519
+    },
+    {
+      "name": "ADCAR",
+      "register": 80,
+      "destination": 0,
+      "word": 13392
+    },
+    {
+      "name": "ADCAR",
+      "register": 80,
+      "destination": 1,
+      "word": 13520
+    },
+    {
+      "name": "ADCAR",
+      "register": 81,
+      "destination": 0,
+      "word": 13393
+    },
+    {
+      "name": "ADCAR",
+      "register": 81,
+      "destination": 1,
+      "word": 13521
+    },
+    {
+      "name": "ADCAR",
+      "register": 82,
+      "destination": 0,
+      "word": 13394
+    },
+    {
+      "name": "ADCAR",
+      "register": 82,
+      "destination": 1,
+      "word": 13522
+    },
+    {
+      "name": "ADCAR",
+      "register": 83,
+      "destination": 0,
+      "word": 13395
+    },
+    {
+      "name": "ADCAR",
+      "register": 83,
+      "destination": 1,
+      "word": 13523
+    },
+    {
+      "name": "ADCAR",
+      "register": 84,
+      "destination": 0,
+      "word": 13396
+    },
+    {
+      "name": "ADCAR",
+      "register": 84,
+      "destination": 1,
+      "word": 13524
+    },
+    {
+      "name": "ADCAR",
+      "register": 85,
+      "destination": 0,
+      "word": 13397
+    },
+    {
+      "name": "ADCAR",
+      "register": 85,
+      "destination": 1,
+      "word": 13525
+    },
+    {
+      "name": "ADCAR",
+      "register": 86,
+      "destination": 0,
+      "word": 13398
+    },
+    {
+      "name": "ADCAR",
+      "register": 86,
+      "destination": 1,
+      "word": 13526
+    },
+    {
+      "name": "ADCAR",
+      "register": 87,
+      "destination": 0,
+      "word": 13399
+    },
+    {
+      "name": "ADCAR",
+      "register": 87,
+      "destination": 1,
+      "word": 13527
+    },
+    {
+      "name": "ADCAR",
+      "register": 88,
+      "destination": 0,
+      "word": 13400
+    },
+    {
+      "name": "ADCAR",
+      "register": 88,
+      "destination": 1,
+      "word": 13528
+    },
+    {
+      "name": "ADCAR",
+      "register": 89,
+      "destination": 0,
+      "word": 13401
+    },
+    {
+      "name": "ADCAR",
+      "register": 89,
+      "destination": 1,
+      "word": 13529
+    },
+    {
+      "name": "ADCAR",
+      "register": 90,
+      "destination": 0,
+      "word": 13402
+    },
+    {
+      "name": "ADCAR",
+      "register": 90,
+      "destination": 1,
+      "word": 13530
+    },
+    {
+      "name": "ADCAR",
+      "register": 91,
+      "destination": 0,
+      "word": 13403
+    },
+    {
+      "name": "ADCAR",
+      "register": 91,
+      "destination": 1,
+      "word": 13531
+    },
+    {
+      "name": "ADCAR",
+      "register": 92,
+      "destination": 0,
+      "word": 13404
+    },
+    {
+      "name": "ADCAR",
+      "register": 92,
+      "destination": 1,
+      "word": 13532
+    },
+    {
+      "name": "ADCAR",
+      "register": 93,
+      "destination": 0,
+      "word": 13405
+    },
+    {
+      "name": "ADCAR",
+      "register": 93,
+      "destination": 1,
+      "word": 13533
+    },
+    {
+      "name": "ADCAR",
+      "register": 94,
+      "destination": 0,
+      "word": 13406
+    },
+    {
+      "name": "ADCAR",
+      "register": 94,
+      "destination": 1,
+      "word": 13534
+    },
+    {
+      "name": "ADCAR",
+      "register": 95,
+      "destination": 0,
+      "word": 13407
+    },
+    {
+      "name": "ADCAR",
+      "register": 95,
+      "destination": 1,
+      "word": 13535
+    },
+    {
+      "name": "ADCAR",
+      "register": 96,
+      "destination": 0,
+      "word": 13408
+    },
+    {
+      "name": "ADCAR",
+      "register": 96,
+      "destination": 1,
+      "word": 13536
+    },
+    {
+      "name": "ADCAR",
+      "register": 97,
+      "destination": 0,
+      "word": 13409
+    },
+    {
+      "name": "ADCAR",
+      "register": 97,
+      "destination": 1,
+      "word": 13537
+    },
+    {
+      "name": "ADCAR",
+      "register": 98,
+      "destination": 0,
+      "word": 13410
+    },
+    {
+      "name": "ADCAR",
+      "register": 98,
+      "destination": 1,
+      "word": 13538
+    },
+    {
+      "name": "ADCAR",
+      "register": 99,
+      "destination": 0,
+      "word": 13411
+    },
+    {
+      "name": "ADCAR",
+      "register": 99,
+      "destination": 1,
+      "word": 13539
+    },
+    {
+      "name": "ADCAR",
+      "register": 100,
+      "destination": 0,
+      "word": 13412
+    },
+    {
+      "name": "ADCAR",
+      "register": 100,
+      "destination": 1,
+      "word": 13540
+    },
+    {
+      "name": "ADCAR",
+      "register": 101,
+      "destination": 0,
+      "word": 13413
+    },
+    {
+      "name": "ADCAR",
+      "register": 101,
+      "destination": 1,
+      "word": 13541
+    },
+    {
+      "name": "ADCAR",
+      "register": 102,
+      "destination": 0,
+      "word": 13414
+    },
+    {
+      "name": "ADCAR",
+      "register": 102,
+      "destination": 1,
+      "word": 13542
+    },
+    {
+      "name": "ADCAR",
+      "register": 103,
+      "destination": 0,
+      "word": 13415
+    },
+    {
+      "name": "ADCAR",
+      "register": 103,
+      "destination": 1,
+      "word": 13543
+    },
+    {
+      "name": "ADCAR",
+      "register": 104,
+      "destination": 0,
+      "word": 13416
+    },
+    {
+      "name": "ADCAR",
+      "register": 104,
+      "destination": 1,
+      "word": 13544
+    },
+    {
+      "name": "ADCAR",
+      "register": 105,
+      "destination": 0,
+      "word": 13417
+    },
+    {
+      "name": "ADCAR",
+      "register": 105,
+      "destination": 1,
+      "word": 13545
+    },
+    {
+      "name": "ADCAR",
+      "register": 106,
+      "destination": 0,
+      "word": 13418
+    },
+    {
+      "name": "ADCAR",
+      "register": 106,
+      "destination": 1,
+      "word": 13546
+    },
+    {
+      "name": "ADCAR",
+      "register": 107,
+      "destination": 0,
+      "word": 13419
+    },
+    {
+      "name": "ADCAR",
+      "register": 107,
+      "destination": 1,
+      "word": 13547
+    },
+    {
+      "name": "ADCAR",
+      "register": 108,
+      "destination": 0,
+      "word": 13420
+    },
+    {
+      "name": "ADCAR",
+      "register": 108,
+      "destination": 1,
+      "word": 13548
+    },
+    {
+      "name": "ADCAR",
+      "register": 109,
+      "destination": 0,
+      "word": 13421
+    },
+    {
+      "name": "ADCAR",
+      "register": 109,
+      "destination": 1,
+      "word": 13549
+    },
+    {
+      "name": "ADCAR",
+      "register": 110,
+      "destination": 0,
+      "word": 13422
+    },
+    {
+      "name": "ADCAR",
+      "register": 110,
+      "destination": 1,
+      "word": 13550
+    },
+    {
+      "name": "ADCAR",
+      "register": 111,
+      "destination": 0,
+      "word": 13423
+    },
+    {
+      "name": "ADCAR",
+      "register": 111,
+      "destination": 1,
+      "word": 13551
+    },
+    {
+      "name": "ADCAR",
+      "register": 112,
+      "destination": 0,
+      "word": 13424
+    },
+    {
+      "name": "ADCAR",
+      "register": 112,
+      "destination": 1,
+      "word": 13552
+    },
+    {
+      "name": "ADCAR",
+      "register": 113,
+      "destination": 0,
+      "word": 13425
+    },
+    {
+      "name": "ADCAR",
+      "register": 113,
+      "destination": 1,
+      "word": 13553
+    },
+    {
+      "name": "ADCAR",
+      "register": 114,
+      "destination": 0,
+      "word": 13426
+    },
+    {
+      "name": "ADCAR",
+      "register": 114,
+      "destination": 1,
+      "word": 13554
+    },
+    {
+      "name": "ADCAR",
+      "register": 115,
+      "destination": 0,
+      "word": 13427
+    },
+    {
+      "name": "ADCAR",
+      "register": 115,
+      "destination": 1,
+      "word": 13555
+    },
+    {
+      "name": "ADCAR",
+      "register": 116,
+      "destination": 0,
+      "word": 13428
+    },
+    {
+      "name": "ADCAR",
+      "register": 116,
+      "destination": 1,
+      "word": 13556
+    },
+    {
+      "name": "ADCAR",
+      "register": 117,
+      "destination": 0,
+      "word": 13429
+    },
+    {
+      "name": "ADCAR",
+      "register": 117,
+      "destination": 1,
+      "word": 13557
+    },
+    {
+      "name": "ADCAR",
+      "register": 118,
+      "destination": 0,
+      "word": 13430
+    },
+    {
+      "name": "ADCAR",
+      "register": 118,
+      "destination": 1,
+      "word": 13558
+    },
+    {
+      "name": "ADCAR",
+      "register": 119,
+      "destination": 0,
+      "word": 13431
+    },
+    {
+      "name": "ADCAR",
+      "register": 119,
+      "destination": 1,
+      "word": 13559
+    },
+    {
+      "name": "ADCAR",
+      "register": 120,
+      "destination": 0,
+      "word": 13432
+    },
+    {
+      "name": "ADCAR",
+      "register": 120,
+      "destination": 1,
+      "word": 13560
+    },
+    {
+      "name": "ADCAR",
+      "register": 121,
+      "destination": 0,
+      "word": 13433
+    },
+    {
+      "name": "ADCAR",
+      "register": 121,
+      "destination": 1,
+      "word": 13561
+    },
+    {
+      "name": "ADCAR",
+      "register": 122,
+      "destination": 0,
+      "word": 13434
+    },
+    {
+      "name": "ADCAR",
+      "register": 122,
+      "destination": 1,
+      "word": 13562
+    },
+    {
+      "name": "ADCAR",
+      "register": 123,
+      "destination": 0,
+      "word": 13435
+    },
+    {
+      "name": "ADCAR",
+      "register": 123,
+      "destination": 1,
+      "word": 13563
+    },
+    {
+      "name": "ADCAR",
+      "register": 124,
+      "destination": 0,
+      "word": 13436
+    },
+    {
+      "name": "ADCAR",
+      "register": 124,
+      "destination": 1,
+      "word": 13564
+    },
+    {
+      "name": "ADCAR",
+      "register": 125,
+      "destination": 0,
+      "word": 13437
+    },
+    {
+      "name": "ADCAR",
+      "register": 125,
+      "destination": 1,
+      "word": 13565
+    },
+    {
+      "name": "ADCAR",
+      "register": 126,
+      "destination": 0,
+      "word": 13438
+    },
+    {
+      "name": "ADCAR",
+      "register": 126,
+      "destination": 1,
+      "word": 13566
+    },
+    {
+      "name": "ADCAR",
+      "register": 127,
+      "destination": 0,
+      "word": 13439
+    },
+    {
+      "name": "ADCAR",
+      "register": 127,
+      "destination": 1,
+      "word": 13567
+    },
+    {
+      "name": "SBCAR",
+      "register": 32,
+      "destination": 0,
+      "word": 13600
+    },
+    {
+      "name": "SBCAR",
+      "register": 32,
+      "destination": 1,
+      "word": 13728
+    },
+    {
+      "name": "SBCAR",
+      "register": 33,
+      "destination": 0,
+      "word": 13601
+    },
+    {
+      "name": "SBCAR",
+      "register": 33,
+      "destination": 1,
+      "word": 13729
+    },
+    {
+      "name": "SBCAR",
+      "register": 34,
+      "destination": 0,
+      "word": 13602
+    },
+    {
+      "name": "SBCAR",
+      "register": 34,
+      "destination": 1,
+      "word": 13730
+    },
+    {
+      "name": "SBCAR",
+      "register": 35,
+      "destination": 0,
+      "word": 13603
+    },
+    {
+      "name": "SBCAR",
+      "register": 35,
+      "destination": 1,
+      "word": 13731
+    },
+    {
+      "name": "SBCAR",
+      "register": 36,
+      "destination": 0,
+      "word": 13604
+    },
+    {
+      "name": "SBCAR",
+      "register": 36,
+      "destination": 1,
+      "word": 13732
+    },
+    {
+      "name": "SBCAR",
+      "register": 37,
+      "destination": 0,
+      "word": 13605
+    },
+    {
+      "name": "SBCAR",
+      "register": 37,
+      "destination": 1,
+      "word": 13733
+    },
+    {
+      "name": "SBCAR",
+      "register": 38,
+      "destination": 0,
+      "word": 13606
+    },
+    {
+      "name": "SBCAR",
+      "register": 38,
+      "destination": 1,
+      "word": 13734
+    },
+    {
+      "name": "SBCAR",
+      "register": 39,
+      "destination": 0,
+      "word": 13607
+    },
+    {
+      "name": "SBCAR",
+      "register": 39,
+      "destination": 1,
+      "word": 13735
+    },
+    {
+      "name": "SBCAR",
+      "register": 40,
+      "destination": 0,
+      "word": 13608
+    },
+    {
+      "name": "SBCAR",
+      "register": 40,
+      "destination": 1,
+      "word": 13736
+    },
+    {
+      "name": "SBCAR",
+      "register": 41,
+      "destination": 0,
+      "word": 13609
+    },
+    {
+      "name": "SBCAR",
+      "register": 41,
+      "destination": 1,
+      "word": 13737
+    },
+    {
+      "name": "SBCAR",
+      "register": 42,
+      "destination": 0,
+      "word": 13610
+    },
+    {
+      "name": "SBCAR",
+      "register": 42,
+      "destination": 1,
+      "word": 13738
+    },
+    {
+      "name": "SBCAR",
+      "register": 43,
+      "destination": 0,
+      "word": 13611
+    },
+    {
+      "name": "SBCAR",
+      "register": 43,
+      "destination": 1,
+      "word": 13739
+    },
+    {
+      "name": "SBCAR",
+      "register": 44,
+      "destination": 0,
+      "word": 13612
+    },
+    {
+      "name": "SBCAR",
+      "register": 44,
+      "destination": 1,
+      "word": 13740
+    },
+    {
+      "name": "SBCAR",
+      "register": 45,
+      "destination": 0,
+      "word": 13613
+    },
+    {
+      "name": "SBCAR",
+      "register": 45,
+      "destination": 1,
+      "word": 13741
+    },
+    {
+      "name": "SBCAR",
+      "register": 46,
+      "destination": 0,
+      "word": 13614
+    },
+    {
+      "name": "SBCAR",
+      "register": 46,
+      "destination": 1,
+      "word": 13742
+    },
+    {
+      "name": "SBCAR",
+      "register": 47,
+      "destination": 0,
+      "word": 13615
+    },
+    {
+      "name": "SBCAR",
+      "register": 47,
+      "destination": 1,
+      "word": 13743
+    },
+    {
+      "name": "SBCAR",
+      "register": 48,
+      "destination": 0,
+      "word": 13616
+    },
+    {
+      "name": "SBCAR",
+      "register": 48,
+      "destination": 1,
+      "word": 13744
+    },
+    {
+      "name": "SBCAR",
+      "register": 49,
+      "destination": 0,
+      "word": 13617
+    },
+    {
+      "name": "SBCAR",
+      "register": 49,
+      "destination": 1,
+      "word": 13745
+    },
+    {
+      "name": "SBCAR",
+      "register": 50,
+      "destination": 0,
+      "word": 13618
+    },
+    {
+      "name": "SBCAR",
+      "register": 50,
+      "destination": 1,
+      "word": 13746
+    },
+    {
+      "name": "SBCAR",
+      "register": 51,
+      "destination": 0,
+      "word": 13619
+    },
+    {
+      "name": "SBCAR",
+      "register": 51,
+      "destination": 1,
+      "word": 13747
+    },
+    {
+      "name": "SBCAR",
+      "register": 52,
+      "destination": 0,
+      "word": 13620
+    },
+    {
+      "name": "SBCAR",
+      "register": 52,
+      "destination": 1,
+      "word": 13748
+    },
+    {
+      "name": "SBCAR",
+      "register": 53,
+      "destination": 0,
+      "word": 13621
+    },
+    {
+      "name": "SBCAR",
+      "register": 53,
+      "destination": 1,
+      "word": 13749
+    },
+    {
+      "name": "SBCAR",
+      "register": 54,
+      "destination": 0,
+      "word": 13622
+    },
+    {
+      "name": "SBCAR",
+      "register": 54,
+      "destination": 1,
+      "word": 13750
+    },
+    {
+      "name": "SBCAR",
+      "register": 55,
+      "destination": 0,
+      "word": 13623
+    },
+    {
+      "name": "SBCAR",
+      "register": 55,
+      "destination": 1,
+      "word": 13751
+    },
+    {
+      "name": "SBCAR",
+      "register": 56,
+      "destination": 0,
+      "word": 13624
+    },
+    {
+      "name": "SBCAR",
+      "register": 56,
+      "destination": 1,
+      "word": 13752
+    },
+    {
+      "name": "SBCAR",
+      "register": 57,
+      "destination": 0,
+      "word": 13625
+    },
+    {
+      "name": "SBCAR",
+      "register": 57,
+      "destination": 1,
+      "word": 13753
+    },
+    {
+      "name": "SBCAR",
+      "register": 58,
+      "destination": 0,
+      "word": 13626
+    },
+    {
+      "name": "SBCAR",
+      "register": 58,
+      "destination": 1,
+      "word": 13754
+    },
+    {
+      "name": "SBCAR",
+      "register": 59,
+      "destination": 0,
+      "word": 13627
+    },
+    {
+      "name": "SBCAR",
+      "register": 59,
+      "destination": 1,
+      "word": 13755
+    },
+    {
+      "name": "SBCAR",
+      "register": 60,
+      "destination": 0,
+      "word": 13628
+    },
+    {
+      "name": "SBCAR",
+      "register": 60,
+      "destination": 1,
+      "word": 13756
+    },
+    {
+      "name": "SBCAR",
+      "register": 61,
+      "destination": 0,
+      "word": 13629
+    },
+    {
+      "name": "SBCAR",
+      "register": 61,
+      "destination": 1,
+      "word": 13757
+    },
+    {
+      "name": "SBCAR",
+      "register": 62,
+      "destination": 0,
+      "word": 13630
+    },
+    {
+      "name": "SBCAR",
+      "register": 62,
+      "destination": 1,
+      "word": 13758
+    },
+    {
+      "name": "SBCAR",
+      "register": 63,
+      "destination": 0,
+      "word": 13631
+    },
+    {
+      "name": "SBCAR",
+      "register": 63,
+      "destination": 1,
+      "word": 13759
+    },
+    {
+      "name": "SBCAR",
+      "register": 64,
+      "destination": 0,
+      "word": 13632
+    },
+    {
+      "name": "SBCAR",
+      "register": 64,
+      "destination": 1,
+      "word": 13760
+    },
+    {
+      "name": "SBCAR",
+      "register": 65,
+      "destination": 0,
+      "word": 13633
+    },
+    {
+      "name": "SBCAR",
+      "register": 65,
+      "destination": 1,
+      "word": 13761
+    },
+    {
+      "name": "SBCAR",
+      "register": 66,
+      "destination": 0,
+      "word": 13634
+    },
+    {
+      "name": "SBCAR",
+      "register": 66,
+      "destination": 1,
+      "word": 13762
+    },
+    {
+      "name": "SBCAR",
+      "register": 67,
+      "destination": 0,
+      "word": 13635
+    },
+    {
+      "name": "SBCAR",
+      "register": 67,
+      "destination": 1,
+      "word": 13763
+    },
+    {
+      "name": "SBCAR",
+      "register": 68,
+      "destination": 0,
+      "word": 13636
+    },
+    {
+      "name": "SBCAR",
+      "register": 68,
+      "destination": 1,
+      "word": 13764
+    },
+    {
+      "name": "SBCAR",
+      "register": 69,
+      "destination": 0,
+      "word": 13637
+    },
+    {
+      "name": "SBCAR",
+      "register": 69,
+      "destination": 1,
+      "word": 13765
+    },
+    {
+      "name": "SBCAR",
+      "register": 70,
+      "destination": 0,
+      "word": 13638
+    },
+    {
+      "name": "SBCAR",
+      "register": 70,
+      "destination": 1,
+      "word": 13766
+    },
+    {
+      "name": "SBCAR",
+      "register": 71,
+      "destination": 0,
+      "word": 13639
+    },
+    {
+      "name": "SBCAR",
+      "register": 71,
+      "destination": 1,
+      "word": 13767
+    },
+    {
+      "name": "SBCAR",
+      "register": 72,
+      "destination": 0,
+      "word": 13640
+    },
+    {
+      "name": "SBCAR",
+      "register": 72,
+      "destination": 1,
+      "word": 13768
+    },
+    {
+      "name": "SBCAR",
+      "register": 73,
+      "destination": 0,
+      "word": 13641
+    },
+    {
+      "name": "SBCAR",
+      "register": 73,
+      "destination": 1,
+      "word": 13769
+    },
+    {
+      "name": "SBCAR",
+      "register": 74,
+      "destination": 0,
+      "word": 13642
+    },
+    {
+      "name": "SBCAR",
+      "register": 74,
+      "destination": 1,
+      "word": 13770
+    },
+    {
+      "name": "SBCAR",
+      "register": 75,
+      "destination": 0,
+      "word": 13643
+    },
+    {
+      "name": "SBCAR",
+      "register": 75,
+      "destination": 1,
+      "word": 13771
+    },
+    {
+      "name": "SBCAR",
+      "register": 76,
+      "destination": 0,
+      "word": 13644
+    },
+    {
+      "name": "SBCAR",
+      "register": 76,
+      "destination": 1,
+      "word": 13772
+    },
+    {
+      "name": "SBCAR",
+      "register": 77,
+      "destination": 0,
+      "word": 13645
+    },
+    {
+      "name": "SBCAR",
+      "register": 77,
+      "destination": 1,
+      "word": 13773
+    },
+    {
+      "name": "SBCAR",
+      "register": 78,
+      "destination": 0,
+      "word": 13646
+    },
+    {
+      "name": "SBCAR",
+      "register": 78,
+      "destination": 1,
+      "word": 13774
+    },
+    {
+      "name": "SBCAR",
+      "register": 79,
+      "destination": 0,
+      "word": 13647
+    },
+    {
+      "name": "SBCAR",
+      "register": 79,
+      "destination": 1,
+      "word": 13775
+    },
+    {
+      "name": "SBCAR",
+      "register": 80,
+      "destination": 0,
+      "word": 13648
+    },
+    {
+      "name": "SBCAR",
+      "register": 80,
+      "destination": 1,
+      "word": 13776
+    },
+    {
+      "name": "SBCAR",
+      "register": 81,
+      "destination": 0,
+      "word": 13649
+    },
+    {
+      "name": "SBCAR",
+      "register": 81,
+      "destination": 1,
+      "word": 13777
+    },
+    {
+      "name": "SBCAR",
+      "register": 82,
+      "destination": 0,
+      "word": 13650
+    },
+    {
+      "name": "SBCAR",
+      "register": 82,
+      "destination": 1,
+      "word": 13778
+    },
+    {
+      "name": "SBCAR",
+      "register": 83,
+      "destination": 0,
+      "word": 13651
+    },
+    {
+      "name": "SBCAR",
+      "register": 83,
+      "destination": 1,
+      "word": 13779
+    },
+    {
+      "name": "SBCAR",
+      "register": 84,
+      "destination": 0,
+      "word": 13652
+    },
+    {
+      "name": "SBCAR",
+      "register": 84,
+      "destination": 1,
+      "word": 13780
+    },
+    {
+      "name": "SBCAR",
+      "register": 85,
+      "destination": 0,
+      "word": 13653
+    },
+    {
+      "name": "SBCAR",
+      "register": 85,
+      "destination": 1,
+      "word": 13781
+    },
+    {
+      "name": "SBCAR",
+      "register": 86,
+      "destination": 0,
+      "word": 13654
+    },
+    {
+      "name": "SBCAR",
+      "register": 86,
+      "destination": 1,
+      "word": 13782
+    },
+    {
+      "name": "SBCAR",
+      "register": 87,
+      "destination": 0,
+      "word": 13655
+    },
+    {
+      "name": "SBCAR",
+      "register": 87,
+      "destination": 1,
+      "word": 13783
+    },
+    {
+      "name": "SBCAR",
+      "register": 88,
+      "destination": 0,
+      "word": 13656
+    },
+    {
+      "name": "SBCAR",
+      "register": 88,
+      "destination": 1,
+      "word": 13784
+    },
+    {
+      "name": "SBCAR",
+      "register": 89,
+      "destination": 0,
+      "word": 13657
+    },
+    {
+      "name": "SBCAR",
+      "register": 89,
+      "destination": 1,
+      "word": 13785
+    },
+    {
+      "name": "SBCAR",
+      "register": 90,
+      "destination": 0,
+      "word": 13658
+    },
+    {
+      "name": "SBCAR",
+      "register": 90,
+      "destination": 1,
+      "word": 13786
+    },
+    {
+      "name": "SBCAR",
+      "register": 91,
+      "destination": 0,
+      "word": 13659
+    },
+    {
+      "name": "SBCAR",
+      "register": 91,
+      "destination": 1,
+      "word": 13787
+    },
+    {
+      "name": "SBCAR",
+      "register": 92,
+      "destination": 0,
+      "word": 13660
+    },
+    {
+      "name": "SBCAR",
+      "register": 92,
+      "destination": 1,
+      "word": 13788
+    },
+    {
+      "name": "SBCAR",
+      "register": 93,
+      "destination": 0,
+      "word": 13661
+    },
+    {
+      "name": "SBCAR",
+      "register": 93,
+      "destination": 1,
+      "word": 13789
+    },
+    {
+      "name": "SBCAR",
+      "register": 94,
+      "destination": 0,
+      "word": 13662
+    },
+    {
+      "name": "SBCAR",
+      "register": 94,
+      "destination": 1,
+      "word": 13790
+    },
+    {
+      "name": "SBCAR",
+      "register": 95,
+      "destination": 0,
+      "word": 13663
+    },
+    {
+      "name": "SBCAR",
+      "register": 95,
+      "destination": 1,
+      "word": 13791
+    },
+    {
+      "name": "SBCAR",
+      "register": 96,
+      "destination": 0,
+      "word": 13664
+    },
+    {
+      "name": "SBCAR",
+      "register": 96,
+      "destination": 1,
+      "word": 13792
+    },
+    {
+      "name": "SBCAR",
+      "register": 97,
+      "destination": 0,
+      "word": 13665
+    },
+    {
+      "name": "SBCAR",
+      "register": 97,
+      "destination": 1,
+      "word": 13793
+    },
+    {
+      "name": "SBCAR",
+      "register": 98,
+      "destination": 0,
+      "word": 13666
+    },
+    {
+      "name": "SBCAR",
+      "register": 98,
+      "destination": 1,
+      "word": 13794
+    },
+    {
+      "name": "SBCAR",
+      "register": 99,
+      "destination": 0,
+      "word": 13667
+    },
+    {
+      "name": "SBCAR",
+      "register": 99,
+      "destination": 1,
+      "word": 13795
+    },
+    {
+      "name": "SBCAR",
+      "register": 100,
+      "destination": 0,
+      "word": 13668
+    },
+    {
+      "name": "SBCAR",
+      "register": 100,
+      "destination": 1,
+      "word": 13796
+    },
+    {
+      "name": "SBCAR",
+      "register": 101,
+      "destination": 0,
+      "word": 13669
+    },
+    {
+      "name": "SBCAR",
+      "register": 101,
+      "destination": 1,
+      "word": 13797
+    },
+    {
+      "name": "SBCAR",
+      "register": 102,
+      "destination": 0,
+      "word": 13670
+    },
+    {
+      "name": "SBCAR",
+      "register": 102,
+      "destination": 1,
+      "word": 13798
+    },
+    {
+      "name": "SBCAR",
+      "register": 103,
+      "destination": 0,
+      "word": 13671
+    },
+    {
+      "name": "SBCAR",
+      "register": 103,
+      "destination": 1,
+      "word": 13799
+    },
+    {
+      "name": "SBCAR",
+      "register": 104,
+      "destination": 0,
+      "word": 13672
+    },
+    {
+      "name": "SBCAR",
+      "register": 104,
+      "destination": 1,
+      "word": 13800
+    },
+    {
+      "name": "SBCAR",
+      "register": 105,
+      "destination": 0,
+      "word": 13673
+    },
+    {
+      "name": "SBCAR",
+      "register": 105,
+      "destination": 1,
+      "word": 13801
+    },
+    {
+      "name": "SBCAR",
+      "register": 106,
+      "destination": 0,
+      "word": 13674
+    },
+    {
+      "name": "SBCAR",
+      "register": 106,
+      "destination": 1,
+      "word": 13802
+    },
+    {
+      "name": "SBCAR",
+      "register": 107,
+      "destination": 0,
+      "word": 13675
+    },
+    {
+      "name": "SBCAR",
+      "register": 107,
+      "destination": 1,
+      "word": 13803
+    },
+    {
+      "name": "SBCAR",
+      "register": 108,
+      "destination": 0,
+      "word": 13676
+    },
+    {
+      "name": "SBCAR",
+      "register": 108,
+      "destination": 1,
+      "word": 13804
+    },
+    {
+      "name": "SBCAR",
+      "register": 109,
+      "destination": 0,
+      "word": 13677
+    },
+    {
+      "name": "SBCAR",
+      "register": 109,
+      "destination": 1,
+      "word": 13805
+    },
+    {
+      "name": "SBCAR",
+      "register": 110,
+      "destination": 0,
+      "word": 13678
+    },
+    {
+      "name": "SBCAR",
+      "register": 110,
+      "destination": 1,
+      "word": 13806
+    },
+    {
+      "name": "SBCAR",
+      "register": 111,
+      "destination": 0,
+      "word": 13679
+    },
+    {
+      "name": "SBCAR",
+      "register": 111,
+      "destination": 1,
+      "word": 13807
+    },
+    {
+      "name": "SBCAR",
+      "register": 112,
+      "destination": 0,
+      "word": 13680
+    },
+    {
+      "name": "SBCAR",
+      "register": 112,
+      "destination": 1,
+      "word": 13808
+    },
+    {
+      "name": "SBCAR",
+      "register": 113,
+      "destination": 0,
+      "word": 13681
+    },
+    {
+      "name": "SBCAR",
+      "register": 113,
+      "destination": 1,
+      "word": 13809
+    },
+    {
+      "name": "SBCAR",
+      "register": 114,
+      "destination": 0,
+      "word": 13682
+    },
+    {
+      "name": "SBCAR",
+      "register": 114,
+      "destination": 1,
+      "word": 13810
+    },
+    {
+      "name": "SBCAR",
+      "register": 115,
+      "destination": 0,
+      "word": 13683
+    },
+    {
+      "name": "SBCAR",
+      "register": 115,
+      "destination": 1,
+      "word": 13811
+    },
+    {
+      "name": "SBCAR",
+      "register": 116,
+      "destination": 0,
+      "word": 13684
+    },
+    {
+      "name": "SBCAR",
+      "register": 116,
+      "destination": 1,
+      "word": 13812
+    },
+    {
+      "name": "SBCAR",
+      "register": 117,
+      "destination": 0,
+      "word": 13685
+    },
+    {
+      "name": "SBCAR",
+      "register": 117,
+      "destination": 1,
+      "word": 13813
+    },
+    {
+      "name": "SBCAR",
+      "register": 118,
+      "destination": 0,
+      "word": 13686
+    },
+    {
+      "name": "SBCAR",
+      "register": 118,
+      "destination": 1,
+      "word": 13814
+    },
+    {
+      "name": "SBCAR",
+      "register": 119,
+      "destination": 0,
+      "word": 13687
+    },
+    {
+      "name": "SBCAR",
+      "register": 119,
+      "destination": 1,
+      "word": 13815
+    },
+    {
+      "name": "SBCAR",
+      "register": 120,
+      "destination": 0,
+      "word": 13688
+    },
+    {
+      "name": "SBCAR",
+      "register": 120,
+      "destination": 1,
+      "word": 13816
+    },
+    {
+      "name": "SBCAR",
+      "register": 121,
+      "destination": 0,
+      "word": 13689
+    },
+    {
+      "name": "SBCAR",
+      "register": 121,
+      "destination": 1,
+      "word": 13817
+    },
+    {
+      "name": "SBCAR",
+      "register": 122,
+      "destination": 0,
+      "word": 13690
+    },
+    {
+      "name": "SBCAR",
+      "register": 122,
+      "destination": 1,
+      "word": 13818
+    },
+    {
+      "name": "SBCAR",
+      "register": 123,
+      "destination": 0,
+      "word": 13691
+    },
+    {
+      "name": "SBCAR",
+      "register": 123,
+      "destination": 1,
+      "word": 13819
+    },
+    {
+      "name": "SBCAR",
+      "register": 124,
+      "destination": 0,
+      "word": 13692
+    },
+    {
+      "name": "SBCAR",
+      "register": 124,
+      "destination": 1,
+      "word": 13820
+    },
+    {
+      "name": "SBCAR",
+      "register": 125,
+      "destination": 0,
+      "word": 13693
+    },
+    {
+      "name": "SBCAR",
+      "register": 125,
+      "destination": 1,
+      "word": 13821
+    },
+    {
+      "name": "SBCAR",
+      "register": 126,
+      "destination": 0,
+      "word": 13694
+    },
+    {
+      "name": "SBCAR",
+      "register": 126,
+      "destination": 1,
+      "word": 13822
+    },
+    {
+      "name": "SBCAR",
+      "register": 127,
+      "destination": 0,
+      "word": 13695
+    },
+    {
+      "name": "SBCAR",
+      "register": 127,
+      "destination": 1,
+      "word": 13823
+    }
+  ]
+}

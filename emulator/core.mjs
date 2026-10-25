@@ -1,7 +1,7 @@
 import {ClockedADC} from './adc.mjs';
 import {RULES} from './opcodes.mjs';
 export const hex=(v,n=2)=>v.toString(16).toUpperCase().padStart(n,'0');
-export function decode(w,pc=0,experimental=false){
+export function decode(w,pc=0){
  for(const [mask,value,name,ops] of RULES) if((w&mask)===value){
   let target=null;
   if(ops.includes('addr11'))target=w&2047;
@@ -10,7 +10,6 @@ export function decode(w,pc=0,experimental=false){
   let arg=target!==null?'0x'+hex(target,3):ops.includes('imm8')?'0x'+hex(w&255):ops.includes('RReg')?'R'+hex(w&127)+(ops.includes('DestAR')?(w&128?',R':',A'):'')+(ops.includes('bs')?','+((w>>7)&7):''):ops.includes('FReg')?'F'+hex(w&15):ops.includes('SReg')?'S'+hex(w&31):'';
   return {name,target,text:name+' '+arg};
  }
- if(experimental && [0x34,0x35].includes(w>>8))return {name:w>>8===0x34?'ADCAR?':'SBCAR?',target:null,text:(w>>8===0x34?'ADCAR? ':'SBCAR? ')+'R'+hex(w&127)};
  return {name:'UNKNOWN',text:'.word '+hex(w,4)};
 }
 export function parseROM(buffer){
@@ -36,7 +35,7 @@ export class NY8 {
  constructor(rom){this.rom=rom;this.reset();}
  reset(){this.r=new Uint8Array(128);this.b1=new Uint8Array(32);this.f=new Uint8Array(16);this.s=new Uint8Array(32);// NY8B062D candidate reset values; unspecified X bits and RAM are seeded zero.
  this.f[5]=255;this.f[6]=63;this.f[9]=255;this.f[15]=0x1d;
- this.r[3]=24;this.r[8]=0x98;this.r[9]=63;this.r[11]=255;this.r[12]=63;this.r[16]=32;this.r[19]=3;this.r[20]=10;this.adcMode="instant";this.adcPeripheral=new ClockedADC();this.a=0;this.pc=0;this.stack=[];this.steps=0;this.gie=false;this.t0md=0x3f;this.cycles=0;this.timerMode="synthetic";this.timerOverflows=0;this.interrupts=0;this.timerPhase=0;this.timerDivider=32;this.timerEnabled=false;this.adc=[0,1500,2500,500,300];this.pressed=false;this.experimental=false;this.halted='';this.lcd=new LCD();this.trace=[];this.breakpoint=null;this.assumedOps=0;}
+ this.r[3]=24;this.r[8]=0x98;this.r[9]=63;this.r[11]=255;this.r[12]=63;this.r[16]=32;this.r[19]=3;this.r[20]=10;this.adcMode="instant";this.adcPeripheral=new ClockedADC();this.a=0;this.pc=0;this.stack=[];this.steps=0;this.gie=false;this.t0md=0x3f;this.cycles=0;this.timerMode="synthetic";this.timerOverflows=0;this.interrupts=0;this.timerPhase=0;this.timerDivider=32;this.timerEnabled=false;this.adc=[0,1500,2500,500,300];this.pressed=false;this.halted='';this.lcd=new LCD();this.trace=[];this.breakpoint=null;this.carryOps=0;}
  key(i){i&=127;if(i===0){i=this.r[4]&127;if(!i)return null;}return i;}
  read(i){i=this.key(i);if(i===null)return 0;if(i>=32&&i<64&&(this.r[3]&64))return this.b1[i-32];if(i===2)return this.pc&255;if(i===5)return (this.r[5]&~32)|(this.pressed?0:32);return this.r[i];}
  write(i,v){i=this.key(i);if(i===null)return;v&=255;if(i>=32&&i<64&&(this.r[3]&64)){this.b1[i-32]=v;return;}
@@ -54,7 +53,7 @@ export class NY8 {
  pop(){if(!this.stack.length)throw Error('Stack underflow');return this.stack.pop();}
  step(){
   if(this.halted)return false;
-  const pc=this.pc,w=this.rom[pc],d=decode(w,pc,this.experimental),n=d.name,rr=w&127,bit=(w>>7)&7;
+  const pc=this.pc,w=this.rom[pc],d=decode(w,pc),n=d.name,rr=w&127,bit=(w>>7)&7;
   this.next=(pc+1)&2047;const val=this.read(rr);const carry=this.r[3]&1;
   const dest=v=>{if(w&128)this.write(rr,v);else this.a=v&255;};
   const add=(x,y,c=0)=>{const v=x+y+c;this.flag(0,v>255);this.flag(1,(x&15)+(y&15)+c>15);this.z(v);return v&255;};
@@ -78,8 +77,8 @@ export class NY8 {
     case 'DECRSZ':dest(val-1);if(((val-1)&255)===0)this.next++;break;
     case 'ADDAR':dest(add(val,this.a));break;
     case 'SUBAR':dest(sub(val,this.a));break;
-    case 'ADCAR?':this.assumedOps++;dest(add(val,this.a,carry));break;
-    case 'SBCAR?':this.assumedOps++;dest(sub(val,this.a,1-carry));break;
+    case 'ADCAR':this.carryOps++;dest(add(val,this.a,carry));break;
+    case 'SBCAR':this.carryOps++;dest(sub(val,this.a,1-carry));break;
     case 'ADDIA':this.a=add(w&255,this.a);break;
     case 'SUBIA':this.a=sub(w&255,this.a);break;
     case 'ADCIA':this.a=add(w&255,this.a,carry);break;
@@ -142,7 +141,7 @@ export class NY8 {
   }
  }
  run(count){let done=0;for(;done<count;done++){if(this.breakpoint!==null&&this.pc===this.breakpoint){this.halted='Brytpunkt '+hex(this.pc,3);break;}if(!this.step())break;}return done;}
- snapshot(){return {pc:this.pc,a:this.a,steps:this.steps,cycles:this.cycles,timerMode:this.timerMode,timerOverflows:this.timerOverflows,interrupts:this.interrupts,r:[...this.r],bank1:[...this.b1],f:[...this.f],s:[...this.s],stack:[...this.stack],adc:[...this.adc],adcMode:this.adcMode,adcConversions:this.adcPeripheral.conversions,lcd:{ram:[...this.lcd.ram],commands:[...this.lcd.commands]},experimental:this.experimental,assumedOps:this.assumedOps,timerEnabled:this.timerEnabled,timerDivider:this.timerDivider,halted:this.halted};}
+ snapshot(){return {pc:this.pc,a:this.a,steps:this.steps,cycles:this.cycles,timerMode:this.timerMode,timerOverflows:this.timerOverflows,interrupts:this.interrupts,r:[...this.r],bank1:[...this.b1],f:[...this.f],s:[...this.s],stack:[...this.stack],adc:[...this.adc],adcMode:this.adcMode,adcConversions:this.adcPeripheral.conversions,lcd:{ram:[...this.lcd.ram],commands:[...this.lcd.commands]},carryOps:this.carryOps,timerEnabled:this.timerEnabled,timerDivider:this.timerDivider,halted:this.halted};}
 }
 export const PROFILES={ny8:{label:'Nyquest NY8 · originalkod',voltage:'5 V',execution:true},avr:{label:'AVR · portningsmodell',voltage:'5 V (modell)',execution:false},stm32:{label:'STM32 · portningsmodell',voltage:'3,3 V (nivåanpassning krävs)',execution:false}};
 export class Plant {
