@@ -1,0 +1,126 @@
+import {RULES} from './opcodes.mjs';
+export const hex=(v,n=2)=>v.toString(16).toUpperCase().padStart(n,'0');
+export function decode(w,pc=0,experimental=false){
+ for(const [mask,value,name,ops] of RULES) if((w&mask)===value){
+  let target=null;
+  if(ops.includes('addr11'))target=w&2047;
+  else if(ops.includes('addr9'))target=((pc+1)&0x600)|(w&511);
+  else if(ops.includes('addr8'))target=((pc+1)&0x700)|(w&255);
+  let arg=target!==null?'0x'+hex(target,3):ops.includes('imm8')?'0x'+hex(w&255):ops.includes('RReg')?'R'+hex(w&127)+(ops.includes('DestAR')?(w&128?',R':',A'):'')+(ops.includes('bs')?','+((w>>7)&7):''):ops.includes('FReg')?'F'+hex(w&15):ops.includes('SReg')?'S'+hex(w&31):'';
+  return {name,target,text:name+' '+arg};
+ }
+ if(experimental && [0x34,0x35].includes(w>>8))return {name:w>>8===0x34?'ADCAR?':'SBCAR?',target:null,text:(w>>8===0x34?'ADCAR? ':'SBCAR? ')+'R'+hex(w&127)};
+ return {name:'UNKNOWN',text:'.word '+hex(w,4)};
+}
+export function parseROM(buffer){
+ if(buffer.byteLength!==4096)throw Error('Förväntar 4096 byte: 2048 little-endian 14-bitarsord.');
+ const v=new DataView(buffer),w=new Uint16Array(2048);
+ for(let i=0;i<2048;i++){w[i]=v.getUint16(i*2,true);if(w[i]>0x3fff)throw Error('Fel ordformat vid '+hex(i,3));}
+ return w;
+}
+export class LCD {
+ constructor(){this.ram=new Uint8Array(32);this.commands=[];this.frames=[];this.bits=null;this.enabled=false;}
+ edge(pa,pb,oldpa,oldpb){
+  if((oldpa&1)&&!(pa&1))this.bits='';
+  if(this.bits!==null&&!(pa&1)&&!(oldpb&32)&&(pb&32))this.bits+=String((pb>>4)&1);
+  if(!(oldpa&1)&&(pa&1)&&this.bits!==null){this.consume(this.bits);this.bits=null;}
+ }
+ consume(bits){
+  this.frames.push(bits);if(this.frames.length>80)this.frames.shift();
+  if(bits.startsWith('100')&&(bits.length-3)%9===0){for(let i=3;i+9<=bits.length;i+=9){let cmd=parseInt(bits.slice(i,i+8),2);this.commands.push(cmd);if(this.commands.length>64)this.commands.shift();if(cmd===3)this.enabled=true;if(cmd===2)this.enabled=false;}}
+  else if(bits.startsWith('101')&&bits.length>=13){let addr=parseInt(bits.slice(3,9),2);for(let i=9;i+4<=bits.length;i+=4){if(addr<32)this.ram[addr]=parseInt(bits.slice(i,i+4).split('').reverse().join(''),2);addr++;}}
+ }
+}
+export class NY8 {
+ constructor(rom){this.rom=rom;this.reset();}
+ reset(){this.r=new Uint8Array(128);this.b1=new Uint8Array(32);this.f=new Uint8Array(16);this.s=new Uint8Array(32);this.f[5]=this.f[6]=255;this.r[3]=24;this.r[16]=32;this.a=0;this.pc=0;this.stack=[];this.steps=0;this.gie=false;this.t0md=0;this.timerPhase=0;this.timerDivider=32;this.timerEnabled=false;this.adc=[0,1500,2500,500,300];this.pressed=false;this.experimental=false;this.halted='';this.lcd=new LCD();this.trace=[];this.breakpoint=null;this.assumedOps=0;}
+ key(i){i&=127;if(i===0){i=this.r[4]&127;if(!i)return null;}return i;}
+ read(i){i=this.key(i);if(i===null)return 0;if(i>=32&&i<64&&(this.r[3]&64))return this.b1[i-32];if(i===2)return this.pc&255;if(i===5)return (this.r[5]&~32)|(this.pressed?0:32);return this.r[i];}
+ write(i,v){i=this.key(i);if(i===null)return;v&=255;if(i>=32&&i<64&&(this.r[3]&64)){this.b1[i-32]=v;return;}
+  const pa=this.r[5],pb=this.r[6];
+  if(i===2)this.next=((this.r[10]&7)<<8)|v;
+  if(i===16){const channel=v&15;this.r[i]=(v&~64)|32;if(v&64){const sample=this.adc[channel]??0;this.r[18]=sample>>4;this.r[17]=(this.r[17]&240)|(sample&15);}return;}
+  this.r[i]=v;if(i===5||i===6)this.lcd.edge(this.r[5],this.r[6],pa,pb);
+ }
+ flag(bit,v){this.r[3]=(this.r[3]&~(1<<bit))|(v?1<<bit:0);}
+ z(v){this.flag(2,(v&255)===0);}
+ push(v){if(this.stack.length>=8)throw Error('Stack overflow (8 nivåer)');this.stack.push(v);}
+ pop(){if(!this.stack.length)throw Error('Stack underflow');return this.stack.pop();}
+ step(){
+  if(this.halted)return false;
+  const pc=this.pc,w=this.rom[pc],d=decode(w,pc,this.experimental),n=d.name,rr=w&127,bit=(w>>7)&7;
+  this.next=(pc+1)&2047;const val=this.read(rr);const carry=this.r[3]&1;
+  const dest=v=>{if(w&128)this.write(rr,v);else this.a=v&255;};
+  const add=(x,y,c=0)=>{const v=x+y+c;this.flag(0,v>255);this.flag(1,(x&15)+(y&15)+c>15);this.z(v);return v&255;};
+  const sub=(x,y,borrow=0)=>{const v=x-y-borrow;this.flag(0,v>=0);this.flag(1,(x&15)>=(y&15)+borrow);this.z(v);return v&255;};
+  try{
+   switch(n){
+    case 'NOP':case 'CLRWDT':break;
+    case 'MOVIA':this.a=w&255;break;
+    case 'MOVAR':this.write(rr,this.a);break;
+    case 'MOVR':this.z(val);dest(val);break;
+    case 'CLRA':this.a=0;this.z(0);break;
+    case 'CLRR':this.write(rr,0);this.z(0);break;
+    case 'BSR':this.write(rr,val|(1<<bit));break;
+    case 'BCR':this.write(rr,val&~(1<<bit));break;
+    case 'BTRSS':if(val&(1<<bit))this.next++;break;
+    case 'BTRSC':if(!(val&(1<<bit)))this.next++;break;
+    case 'INCR':this.z(val+1);dest(val+1);break;
+    case 'DECR':this.z(val-1);dest(val-1);break;
+    case 'INCRSZ':dest(val+1);if(((val+1)&255)===0)this.next++;break;
+    case 'DECRSZ':dest(val-1);if(((val-1)&255)===0)this.next++;break;
+    case 'ADDAR':dest(add(val,this.a));break;
+    case 'SUBAR':dest(sub(val,this.a));break;
+    case 'ADCAR?':this.assumedOps++;dest(add(val,this.a,carry));break;
+    case 'SBCAR?':this.assumedOps++;dest(sub(val,this.a,1-carry));break;
+    case 'ADDIA':this.a=add(w&255,this.a);break;
+    case 'SUBIA':this.a=sub(w&255,this.a);break;
+    case 'ADCIA':this.a=add(w&255,this.a,carry);break;
+    case 'SBCIA':this.a=sub(w&255,this.a,1-carry);break;
+    case 'CMPAR':sub(val,this.a);break;
+    case 'ANDAR':{let v=val&this.a;dest(v);this.z(v);break;}
+    case 'IORAR':{let v=val|this.a;dest(v);this.z(v);break;}
+    case 'XORAR':{let v=val^this.a;dest(v);this.z(v);break;}
+    case 'ANDIA':this.a&=w&255;this.z(this.a);break;
+    case 'IORIA':this.a|=w&255;this.z(this.a);break;
+    case 'XORIA':this.a^=w&255;this.z(this.a);break;
+    case 'COMR':dest(val^255);this.z(val^255);break;
+    case 'SWAPR':dest(((val<<4)|(val>>4))&255);break;
+    case 'RLR':this.flag(0,val&128);dest((val<<1)|carry);break;
+    case 'RRR':this.flag(0,val&1);dest((val>>1)|(carry<<7));break;
+    case 'LCALL':case 'CALL':this.push(this.next);this.next=d.target;break;
+    case 'LGOTO':case 'GOTO':this.next=d.target;break;
+    case 'CALLA':this.push(this.next);this.next=((this.s[7]&7)<<8)|this.a;break;
+    case 'GOTOA':this.next=((this.s[7]&7)<<8)|this.a;break;
+    case 'RETIA':this.a=w&255;this.next=this.pop();break;
+    case 'RETIE':this.gie=true;this.next=this.pop();break;
+    case 'RET':this.next=this.pop();break;
+    case 'INT':this.push(this.next);this.next=1;break;
+    case 'ENI':this.gie=true;break;
+    case 'DISI':this.gie=false;break;
+    case 'IOST':this.f[w&15]=this.a;break;
+    case 'IOSTR':this.a=this.f[w&15];break;
+    case 'SFUN':this.s[w&31]=this.a;break;
+    case 'SFUNR':this.a=this.s[w&31];break;
+    case 'T0MD':this.t0md=this.a;break;
+    case 'T0MDR':this.a=this.t0md;break;
+    case 'TABLEA':{let data=this.rom[((this.s[7]&7)<<8)|this.a];this.a=data&255;this.s[8]=(data>>8)&63;break;}
+    case 'SLEEP':throw Error('SLEEP: wake-upmodell saknas');
+    default:throw Error('Ej verifierad instruktion '+hex(w,4)+' vid '+hex(pc,3));
+   }
+   this.pc=this.next&2047;this.steps++;
+   if(this.timerEnabled&&(this.f[15]&1)&&++this.timerPhase>=this.timerDivider){this.timerPhase=0;this.r[1]=(this.r[1]+1)&255;if(!this.r[1])this.r[15]|=1;}
+   if(this.gie&&(this.r[14]&this.r[15]&1)){this.gie=false;this.push(this.pc);this.pc=8;}
+   this.trace.push({pc,w,text:d.text});if(this.trace.length>100)this.trace.shift();
+   return true;
+  }catch(e){this.halted=e.message;return false;}
+ }
+ run(count){let done=0;for(;done<count;done++){if(this.breakpoint!==null&&this.pc===this.breakpoint){this.halted='Brytpunkt '+hex(this.pc,3);break;}if(!this.step())break;}return done;}
+ snapshot(){return {pc:this.pc,a:this.a,steps:this.steps,r:[...this.r],bank1:[...this.b1],f:[...this.f],s:[...this.s],stack:[...this.stack],adc:[...this.adc],lcd:{ram:[...this.lcd.ram],commands:[...this.lcd.commands]},experimental:this.experimental,assumedOps:this.assumedOps,timerEnabled:this.timerEnabled,timerDivider:this.timerDivider,halted:this.halted};}
+}
+export const PROFILES={ny8:{label:'Nyquest NY8 · originalkod',voltage:'5 V',execution:true},avr:{label:'AVR · portningsmodell',voltage:'5 V (modell)',execution:false},stm32:{label:'STM32 · portningsmodell',voltage:'3,3 V (nivåanpassning krävs)',execution:false}};
+export class Plant {
+ constructor(){this.voltage=12.2;this.temperature=22;this.target=14.4;this.currentLimit=3;this.connected=true;this.fault=false;this.fan=false;this.current=0;this.state='VILA';this.soc=50;}
+ tick(dt){if(!this.connected){this.current=0;this.state='FRÅNKOPPLAD';}else if(this.fault||this.temperature>=50){this.current=0;this.state='STOPP';}else{this.current=Math.min(this.currentLimit,Math.max(0,(this.target-this.voltage)*2));this.state=this.current<0.15?'UNDERHÅLL':this.current>=this.currentLimit-.01?'KONSTANT STRÖM':'KONSTANT SPÄNNING';this.soc=Math.min(100,this.soc+this.current*dt/36);}
+ this.fan=this.current>1||this.temperature>35;}
+}
