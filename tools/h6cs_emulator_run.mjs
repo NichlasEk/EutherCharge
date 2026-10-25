@@ -4,12 +4,13 @@ import fs from 'node:fs';
 import crypto from 'node:crypto';
 import {NY8,parseROM} from '../emulator/core.mjs';
 import {validateScenario,applyStimulus} from '../emulator/scenario.mjs';
-const [romPath,capturePath,budgetText='4000000',adcMode='clocked',scenarioPath,gpioMode='legacy']=process.argv.slice(2);
+const [romPath,capturePath,budgetText='4000000',adcMode='clocked',scenarioPath,gpioMode='legacy',unknownFill='zero']=process.argv.slice(2);
 if(!['instant','clocked'].includes(adcMode))throw Error('ADC mode must be instant or clocked');
-if(!romPath||!capturePath)throw Error('Usage: node tools/h6cs_emulator_run.mjs ROM.bin LCD-capture.json [instruction-budget] [clocked|instant] [scenario.json|-] [legacy|latch|pad]');
+if(!romPath||!capturePath)throw Error('Usage: node tools/h6cs_emulator_run.mjs ROM.bin LCD-capture.json [instruction-budget] [clocked|instant] [scenario.json|-] [legacy|latch|pad] [zero|one]');
 const budget=Number(budgetText);
 if(!Number.isSafeInteger(budget)||budget<1||budget>100000000)throw Error('Budget must be 1..100000000');
 if(!['legacy','latch','pad'].includes(gpioMode))throw Error('GPIO mode must be legacy, latch or pad');
+if(!['zero','one'].includes(unknownFill))throw Error('Unknown fill must be zero or one');
 const actions=validateScenario(scenarioPath&&scenarioPath!=='-'?JSON.parse(fs.readFileSync(scenarioPath,'utf8')):[],budget);
 let actionIndex=0;const applied=[];
 const hash=b=>crypto.createHash('sha256').update(b).digest('hex');
@@ -18,10 +19,10 @@ const capture=JSON.parse(captureBytes);
 const reference=capture.frames.filter(f=>f.complete_end&&!f.trigger_boundary&&f.decode==='command_frame_candidate').map(f=>f.bits);
 if(!reference.length)throw Error('No complete physical command frames to compare');
 const rom=parseROM(bytes.buffer.slice(bytes.byteOffset,bytes.byteOffset+bytes.byteLength));
-const strict=new NY8(rom);strict.gpio.mode=gpioMode;strict.run(20000);
+const strict=new NY8(rom);strict.gpio.mode=gpioMode;strict.gpio.unknownFill=unknownFill==='one'?255:0;strict.run(20000);
 const generated=strict.lcd.frames.slice(0,reference.length);
 const matches=reference.length===generated.length&&reference.every((b,i)=>b===generated[i]);
-const cpu=new NY8(rom);cpu.gpio.mode=gpioMode;cpu.timerEnabled=true;cpu.timerMode='instruction';cpu.adcMode=adcMode;
+const cpu=new NY8(rom);cpu.gpio.mode=gpioMode;cpu.gpio.unknownFill=unknownFill==='one'?255:0;cpu.timerEnabled=true;cpu.timerMode='instruction';cpu.adcMode=adcMode;
 const events=[];let oldState=cpu.r[0x3e],oldMode=cpu.r[0x4b],oldDuty=cpu.s[3],firstRamWrite=null;
 for(let i=0;i<budget;i++){
  while(actionIndex<actions.length&&actions[actionIndex].atStep===cpu.steps){const action=actions[actionIndex++];applyStimulus(cpu,action);applied.push({...action,cycles:cpu.cycles});}

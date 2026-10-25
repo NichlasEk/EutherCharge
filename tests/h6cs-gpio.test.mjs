@@ -39,3 +39,20 @@ test('Private original: both RD_OPT hypotheses reproduce measured LCD boot',{ski
  const b=fs.readFileSync(path),rom=parseROM(b.buffer.slice(b.byteOffset,b.byteOffset+b.byteLength));
  for(const mode of ['latch','pad']){const c=new NY8(rom);c.gpio.mode=mode;c.run(20000);assert.equal(c.halted,'');assert.deepEqual(c.lcd.commands,[1,24,40,3]);assert.equal(c.gpio.port(c,'a').unknown&1,0);assert.equal(c.gpio.port(c,'b').unknown&48,0);}
 });
+test('Read evidence ignores immediate operands and writes; counts INDF once',()=>{
+ const c=cpu();c.rom.set([0x2105,0x0085,0x0285,0x0100]);c.r[4]=6;c.run(3);
+ assert.equal(c.gpio.readSummary().reads,0);c.step();const s=c.gpio.readSummary();
+ assert.equal(s.reads,1);assert.equal(s.sites[0].address,6);assert.equal(s.unknownReads,1);
+});
+test('Read evidence tracks consumed bits rather than all unknown port pins',()=>{
+ const c=cpu();c.rom.set([0x0a85,0x1805,0x1005,0x1105]);
+ c.step();assert.equal(c.gpio.readSummary().unknownReads,0); // known PA5 button
+ c.pc=1;c.step();assert.equal(c.gpio.readSummary().unknownReads,1); // BSR preserves other bits
+ c.a=32;c.step();assert.equal(c.gpio.readSummary().unknownReads,1); // AND masks unknown bits
+ c.a=223;c.step();assert.equal(c.gpio.readSummary().unknownReads,1); // OR forces unknown bits
+});
+test('Unknown fill sensitivity changes uncertain branch, not latch output reads',()=>{
+ for(const fill of [0,255]){const c=cpu();c.gpio.unknownFill=fill;c.rom[0]=0x0806;c.step();
+ assert.equal(c.pc,fill?2:1);assert.equal(c.gpio.readSummary().sites[0].kind,'direct-bit-branch');
+ c.gpio.mode='latch';c.f[6]=0;c.r[6]=0;assert.equal(c.read(6),0);}
+});

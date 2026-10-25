@@ -29,7 +29,7 @@ Four-million-step verified-ISA run:5,415,542 cycles,1,348 Timer0 IRQs,18,307 ADC
 conversions,81,150 carry instructions, no halt. Strict20,000-step run also no halt.
 First LCD RAM frame at step1,484,052/cycle2,009,983 for default clocked stimuli.
 
-Tests:all57Node tests pass (51core plus6GPIO), including state-gate and full-ROM scenarios.
+Tests:all60Node tests pass (51core plus9GPIO), including state-gate and full-ROM scenarios.
 Two Python static decoder tests and Firefox UI pass. See
 `tests/h6cs-emulator.test.mjs` for the full suite. Do not rerun
 hardware/probe tests while working on emulation.
@@ -79,3 +79,14 @@ GPIO electrical thresholds and physical calibration remain unresolved.
 Next useful work: propagate uncertainty to actual consumed input bits / branch
 sensitivity, extend GPIO interrupts and cover button/full-loop scenarios under both
 read-source choices. Preserve numerical-state versus physical-phase distinction.
+
+## GPIO read evidence continuation
+
+Added lazy actual operand reads and per-PC unknown-bit consumption, plus zero/one
+sensitivity selection in UI/headless execution. Four configurations agree for both
+feedback-state5 (4million steps) and MODE cycle (1.6million steps). Unknown reads
+are confined to port BSR/BCR in these runs; no direct bit branch consumes unknown
+bits. See `docs/h6cs-gpio-model.md` and `tools/h6cs_gpio_compare.mjs` for exact scope.
+No transitive taint proof or physical waveform verification is claimed. Next useful
+emulator work is GPIO interrupt behavior and remaining instruction/peripheral gaps;
+these tested input scenarios do not justify treating unknown inputs as identified.

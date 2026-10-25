@@ -56,7 +56,9 @@ export class NY8 {
  step(){
   if(this.halted)return false;
   const pc=this.pc,w=this.rom[pc],d=decode(w,pc),n=d.name,rr=w&127,bit=(w>>7)&7;
-  this.next=(pc+1)&2047;const val=this.read(rr);const carry=this.r[3]&1;
+  this.next=(pc+1)&2047;let cachedOperand;
+  const operand=()=>{if(cachedOperand===undefined){cachedOperand=this.read(rr);this.gpio.observeRead(this,this.key(rr),n,bit,this.a);}return cachedOperand;};
+  const carry=this.r[3]&1;
   const dest=v=>{if(w&128)this.write(rr,v);else this.a=v&255;};
   const add=(x,y,c=0)=>{const v=x+y+c;this.flag(0,v>255);this.flag(1,(x&15)+(y&15)+c>15);this.z(v);return v&255;};
   const sub=(x,y,borrow=0)=>{const v=x-y-borrow;this.flag(0,v>=0);this.flag(1,(x&15)>=(y&15)+borrow);this.z(v);return v&255;};
@@ -66,36 +68,36 @@ export class NY8 {
     case 'CLRWDT':this.r[3]|=24;break; // WDT timebase is not yet modeled.
     case 'MOVIA':this.a=w&255;break;
     case 'MOVAR':this.write(rr,this.a);break;
-    case 'MOVR':this.z(val);dest(val);break;
+    case 'MOVR':this.z(operand());dest(operand());break;
     case 'CLRA':this.a=0;this.z(0);break;
     case 'CLRR':this.write(rr,0);this.z(0);break;
-    case 'BSR':this.write(rr,val|(1<<bit));break;
-    case 'BCR':this.write(rr,val&~(1<<bit));break;
-    case 'BTRSS':if(val&(1<<bit))this.next++;break;
-    case 'BTRSC':if(!(val&(1<<bit)))this.next++;break;
-    case 'INCR':this.z(val+1);dest(val+1);break;
-    case 'DECR':this.z(val-1);dest(val-1);break;
-    case 'INCRSZ':dest(val+1);if(((val+1)&255)===0)this.next++;break;
-    case 'DECRSZ':dest(val-1);if(((val-1)&255)===0)this.next++;break;
-    case 'ADDAR':dest(add(val,this.a));break;
-    case 'SUBAR':dest(sub(val,this.a));break;
-    case 'ADCAR':this.carryOps++;dest(add(val,this.a,carry));break;
-    case 'SBCAR':this.carryOps++;dest(sub(val,this.a,1-carry));break;
+    case 'BSR':this.write(rr,operand()|(1<<bit));break;
+    case 'BCR':this.write(rr,operand()&~(1<<bit));break;
+    case 'BTRSS':if(operand()&(1<<bit))this.next++;break;
+    case 'BTRSC':if(!(operand()&(1<<bit)))this.next++;break;
+    case 'INCR':this.z(operand()+1);dest(operand()+1);break;
+    case 'DECR':this.z(operand()-1);dest(operand()-1);break;
+    case 'INCRSZ':dest(operand()+1);if(((operand()+1)&255)===0)this.next++;break;
+    case 'DECRSZ':dest(operand()-1);if(((operand()-1)&255)===0)this.next++;break;
+    case 'ADDAR':dest(add(operand(),this.a));break;
+    case 'SUBAR':dest(sub(operand(),this.a));break;
+    case 'ADCAR':this.carryOps++;dest(add(operand(),this.a,carry));break;
+    case 'SBCAR':this.carryOps++;dest(sub(operand(),this.a,1-carry));break;
     case 'ADDIA':this.a=add(w&255,this.a);break;
     case 'SUBIA':this.a=sub(w&255,this.a);break;
     case 'ADCIA':this.a=add(w&255,this.a,carry);break;
     case 'SBCIA':this.a=sub(w&255,this.a,1-carry);break;
-    case 'CMPAR':this.flag(0,val>=this.a);this.z(val-this.a);break;
-    case 'ANDAR':{let v=val&this.a;dest(v);this.z(v);break;}
-    case 'IORAR':{let v=val|this.a;dest(v);this.z(v);break;}
-    case 'XORAR':{let v=val^this.a;dest(v);this.z(v);break;}
+    case 'CMPAR':this.flag(0,operand()>=this.a);this.z(operand()-this.a);break;
+    case 'ANDAR':{let v=operand()&this.a;dest(v);this.z(v);break;}
+    case 'IORAR':{let v=operand()|this.a;dest(v);this.z(v);break;}
+    case 'XORAR':{let v=operand()^this.a;dest(v);this.z(v);break;}
     case 'ANDIA':this.a&=w&255;this.z(this.a);break;
     case 'IORIA':this.a|=w&255;this.z(this.a);break;
     case 'XORIA':this.a^=w&255;this.z(this.a);break;
-    case 'COMR':dest(val^255);this.z(val^255);break;
-    case 'SWAPR':dest(((val<<4)|(val>>4))&255);break;
-    case 'RLR':this.flag(0,val&128);dest((val<<1)|carry);break;
-    case 'RRR':this.flag(0,val&1);dest((val>>1)|(carry<<7));break;
+    case 'COMR':dest(operand()^255);this.z(operand()^255);break;
+    case 'SWAPR':dest(((operand()<<4)|(operand()>>4))&255);break;
+    case 'RLR':this.flag(0,operand()&128);dest((operand()<<1)|carry);break;
+    case 'RRR':this.flag(0,operand()&1);dest((operand()>>1)|(carry<<7));break;
     case 'LCALL':this.push(this.next);this.next=d.target;break;
     case 'CALL':this.push(this.next);this.next=((this.r[10]&7)<<8)|(w&255);break;
     case 'LGOTO':this.next=d.target;break;
