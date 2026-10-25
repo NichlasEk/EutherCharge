@@ -3,10 +3,11 @@
 import fs from 'node:fs';import crypto from 'node:crypto';
 import {NY8,parseROM,decode} from '../emulator/core.mjs';
 import {validateScenario,applyStimulus} from '../emulator/scenario.mjs';
-const [path,budgetText='4000000',scenarioPath]=process.argv.slice(2),budget=Number(budgetText);
-if(!path||!Number.isSafeInteger(budget)||budget<1||budget>100000000)throw Error('Usage: ROM instruction-budget [scenario.json]');
+const [path,budgetText='4000000',scenarioPath,watchdogConfigPath]=process.argv.slice(2),budget=Number(budgetText);
+if(!path||!Number.isSafeInteger(budget)||budget<1||budget>100000000)throw Error('Usage: ROM instruction-budget [scenario.json] [explicit-watchdog-assumptions.json]');
 const bytes=fs.readFileSync(path),cpu=new NY8(parseROM(bytes.buffer.slice(bytes.byteOffset,bytes.byteOffset+bytes.byteLength)));
 cpu.timerEnabled=true;cpu.timerMode='instruction';cpu.adcMode='clocked';cpu.gpio.mode='pad';
+if(watchdogConfigPath)cpu.watchdog.configure(JSON.parse(fs.readFileSync(watchdogConfigPath,'utf8')));
 const actions=validateScenario(scenarioPath?JSON.parse(fs.readFileSync(scenarioPath,'utf8')):[],budget);let index=0,timerWriteCount=0;
 const opcodes={},pclSites={},timerWrites=[],wdtConfigs=new Set();
 const watchdog={clears:0,firstClearCycle:null,lastClearCycle:null,maxSteadyGapCycles:0,maxSteadyGapAtStep:null};
@@ -25,5 +26,5 @@ for(let i=0;i<budget;i++){
  if(name==='T0MD'&&timerWrites.length<256)timerWrites.push({pc,step:cpu.steps,t0md:cpu.t0md,phaseBefore:phase,phaseAfter:cpu.timerPhase,timerEnabled:cpu.timerEnabled&&!!(cpu.f[15]&1)});
  wdtConfigs.add(cpu.r[8]&128);
 }
-console.log(JSON.stringify({romSha256:crypto.createHash('sha256').update(bytes).digest('hex'),budget,steps:cpu.steps,cycles:cpu.cycles,halted:cpu.halted,actions,opcodes,pclSites,timerWriteCount,timerWrites,timerWriteLimit:256,wdtEnableValues:[...wdtConfigs],watchdog,limitations:['Cycle counts are model outputs, not physical timing','Configuration words and watchdog timebase remain unknown','No hardware accessed']},null,2));
+console.log(JSON.stringify({romSha256:crypto.createHash('sha256').update(bytes).digest('hex'),budget,steps:cpu.steps,cycles:cpu.cycles,halted:cpu.halted,actions,opcodes,pclSites,timerWriteCount,timerWrites,timerWriteLimit:256,wdtEnableValues:[...wdtConfigs],watchdog,watchdogModel:cpu.watchdog.snapshot(cpu),limitations:['Cycle counts are model outputs, not physical timing','Original configuration and watchdog timebase remain unknown; any configured watchdog values are explicit test assumptions','No hardware accessed']},null,2));
 if(cpu.halted||cpu.steps!==budget)process.exitCode=1;

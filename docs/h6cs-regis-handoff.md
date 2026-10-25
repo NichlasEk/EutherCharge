@@ -144,3 +144,15 @@ reset/interrupt, period and GPIO read-source meanings. Independent strict decode
 and fixture added; all4SDK-config tests pass (CPU/UI untouched). Original values
 and physical config readback remain unknown. See SDK-layout document and new
 `tools/h6cs_sdk_config_decode_probe.cs`. No automatic emulator config selection.
+
+## Watchdog-model continuation
+
+Watchdog can now run with explicit enabled/action/baseUs/instructionHz assumptions;
+default remains unconfigured. CLRWDT, prescaler ratios/reassignment, /TO, WDTIF and
+IRQ dispatch are modeled. Reset expiry stops diagnostically; actual reset/SLEEP
+sequence remains unimplemented. No hardware or inferred config settings involved.
+Sensitivity test:3.5ms/1MHz reset timeout stops at step1,486,585;2MHz runs4million
+steps without timeout. Neither identifies the physical clock. Eight focused tests
+pass; combined85-test run passed before final two tests were added. See
+`docs/h6cs-watchdog-model.md`. Next useful UI work is exposing explicit assumptions
+without making them the default or representing them as recovered config.
