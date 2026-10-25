@@ -22,8 +22,8 @@ def decode(w,pc,rules):
         if w&mask!=val:continue
         args=[];target=None
         if 'addr11' in ops:target=w&2047
-        elif 'addr9' in ops:target=((pc+1)&0x600)|(w&511)
-        elif 'addr8' in ops:target=((pc+1)&0x700)|(w&255)
+        elif 'addr9' in ops:args=[f'PCHBUF[2:1]:0x{w&511:03X}']
+        elif 'addr8' in ops:args=[f'PCHBUF[2:0]:0x{w&255:02X}']
         if target is not None:args=[f'0x{target:03X}']
         elif 'imm8' in ops:args=[f'0x{w&255:02X}']
         elif 'RReg' in ops:
@@ -49,8 +49,11 @@ def analyze(raw,rules):
         if pc in seen or not 0<=pc<len(ins):continue
         seen.add(pc);x=ins[pc];n=x['name']
         if n in ('UNKNOWN','RET','RETIA','RETIE'):continue
-        if n in ('LGOTO','GOTO'):todo.append(x['target']);continue
-        if n in ('LCALL','CALL'):todo.append(x['target'])
+        if n in ('GOTO','CALL'):
+            dynamic.append(pc)
+            if n=='GOTO':continue
+        if n=='LGOTO':todo.append(x['target']);continue
+        if n=='LCALL':todo.append(x['target'])
         if n in ('GOTOA','CALLA') or (n=='MOVAR' and (words[pc]&127)==2):
             dynamic.append(pc)
             if n!='CALLA':continue
