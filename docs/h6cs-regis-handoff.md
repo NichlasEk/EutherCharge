@@ -29,7 +29,7 @@ Four-million-step verified-ISA run:5,415,542 cycles,1,348 Timer0 IRQs,18,307 ADC
 conversions,81,150 carry instructions, no halt. Strict20,000-step run also no halt.
 First LCD RAM frame at step1,484,052/cycle2,009,983 for default clocked stimuli.
 
-Tests:all71Node tests pass (51core plus16GPIO plus4timing), including state-gate and full-ROM scenarios.
+Tests:all75Node tests pass (51core plus16GPIO plus4timing plus4interrupt), including state-gate and full-ROM scenarios.
 Two Python static decoder tests and Firefox UI pass. See
 `tests/h6cs-emulator.test.mjs` for the full suite. Do not rerun
 hardware/probe tests while working on emulation.
@@ -111,3 +111,12 @@ CLRWDT gaps. PCL state dispatch at01A1 and CLRWDT both execute5,082times in4mill
 steps. PCL extra-cycle behavior is unresolved; retain current1cycle MOVAR pending
 better evidence. WDTEN is set, making watchdog/configuration analysis a useful next
 step. See `docs/h6cs-timing-audit.md`. No hardware accessed.
+
+## Interrupt/configuration audit continuation
+
+INT clears GIE; INTF reads obey INTE, including indirect and read-modify-write
+access. Four focused tests cover these corrections. Two original scenarios retain
+previous state/LCD/PWM results. See `docs/h6cs-interrupt-audit.md`.
+Readout metadata does not establish config-word coverage; reserved07FE/07FF words
+remain uninterpreted. SDK OldVersion/8B062D.IC is binary with no useful plaintext
+watchdog map. Do not infer WDT or oscillator settings from WDTEN alone.
