@@ -29,7 +29,7 @@ Four-million-step verified-ISA run:5,415,542 cycles,1,348 Timer0 IRQs,18,307 ADC
 conversions,81,150 carry instructions, no halt. Strict20,000-step run also no halt.
 First LCD RAM frame at step1,484,052/cycle2,009,983 for default clocked stimuli.
 
-Tests:all38Node tests pass, including state-gate and full-ROM scenarios.
+Tests:all42Node tests pass, including state-gate and full-ROM scenarios.
 Two Python static decoder tests and Firefox UI pass. See
 `tests/h6cs-emulator.test.mjs` for the full suite. Do not rerun
 hardware/probe tests while working on emulation.
@@ -37,7 +37,9 @@ hardware/probe tests while working on emulation.
 Next useful software work:
 1. Extend tested state graph beyond2/4/5; `docs/h6cs-firmware-functional-map.md`
    now has exact numeric gating and ADC2 high-condition latch behavior.
-2. Validate126-sample ADC4 aggregation, R4E.bit0 logic and state5/7/9 handlers.
+2. ADC4 aggregation and state5/7/9 boundaries are now tested; finish R4E.bit0
+   logic and states0/1/3/6/8. State5 timeout can be overwritten by a same-call
+   low-feedback event; preserve this ordering in reference work.
 3. Model remaining peripherals from primary documentation. No watchdog, DAA or
    SLEEP behavior is claimed. Electrical GPIO, actual oscillator/configuration,
    analog reference scaling and interrupt-entry timing remain unresolved.
@@ -53,3 +55,6 @@ SDK research (private temporary tools; no installer execution):
 - Archive fetched from AT Win's public NYIDE5.90 ZIP via ranged member reads;
   TLS intermediate independently verified; archive CRC checked. All hashes and
   fixture generator documented. Manufacturer binaries stay outside Git.
+
+Continuation added read-only UI state inspection,42Node tests and state5/7/9
+regressions. Firefox also verifies current-state highlighting and profile hiding.

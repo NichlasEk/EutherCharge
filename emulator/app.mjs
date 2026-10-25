@@ -1,3 +1,4 @@
+import {paintState} from './state-inspector.mjs';
 import {NY8,Plant,PROFILES,decode,parseROM,hex} from './core.mjs';
 import {buildGlass,paintGlass,glassState,displayText,indicatorMode,DIGIT_CODES} from './display.mjs';
 const $=id=>document.getElementById(id);let cpu=null,rom=null,digest='',running=false,profile='ny8';const plant=new Plant();let logs=[];
@@ -30,7 +31,7 @@ function syncPlant(){$('battery').value=plant.voltage;$('temperature').value=pla
 for(const id of ['battery','temperature','currentLimit','targetVoltage','connected','fault'])$(id).oninput=guard(()=>{plant.voltage=number('battery',0,17);plant.temperature=number('temperature',-15,80);plant.currentLimit=number('currentLimit',0,6);plant.target=number('targetVoltage',0,16);plant.connected=$('connected').checked;plant.fault=$('fault').checked;plant.tick(0);});
 $('export').onclick=guard(()=>{const state={version:1,profile,romSha256:digest,plant:{...plant},cpu:cpu?.snapshot(),note:'Inspection snapshot, no ROM contents. Not a cycle-exact replay file.'};const blob=new Blob([JSON.stringify(state,null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='euthercharge-state.json';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000);event('Tillstånd exporterades utan firmware');});
 function render(){
- const original=profile==='ny8';$('labRun').disabled=$('photoTest').disabled=!original||!cpu;$('execution').textContent=original?'NY8 · INSTRUKTIONSMODELL':'ILLUSTRATIV SYSTEMMODELL';$('supply').textContent=PROFILES[profile].voltage;
+ const original=profile==='ny8';$('stateInspector').hidden=!original||!cpu;if(original&&cpu)paintState($('stateInspector'),cpu);$('labRun').disabled=$('photoTest').disabled=!original||!cpu;$('execution').textContent=original?'NY8 · INSTRUKTIONSMODELL':'ILLUSTRATIV SYSTEMMODELL';$('supply').textContent=PROFILES[profile].voltage;
  $('originalDisplay').hidden=!original;$('modelDisplay').hidden=original;$('adcControls').hidden=!original;$('nyOptions').hidden=!original;$('plantControls').hidden=original;$('editControls').hidden=!original;$('mode').disabled=!original||!cpu;
  $('displayNote').textContent=original?'Siffrorna drivs av firmwaregenererad LCD-RAM. Ikoner och indikatorernas fysiska mappning är preliminära; utseendet följer ditt foto.':'AVR/STM32-profiler visar samma fristående systemmodell. De emulerar inte respektive processor eller originalfirmware.';
  $('outputLabel').textContent=original?'PWM1 · okänd fysisk last':'Modellens laddström';$('fan').classList.toggle('spinning',!original&&plant.fan&&running);$('fan').title=original?'Fläktutgång ännu okänd':'Illustrativ fläktstyrning';

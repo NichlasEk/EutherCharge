@@ -20,7 +20,7 @@ the observed ADC block instead supports a B062D-like peripheral model.
 
 ## Verification
 
-- `node --test tests/h6cs-emulator.test.mjs`:38 tests, including exhaustive CMPAR
+- `node --test tests/h6cs-emulator.test.mjs`:42 tests, including exhaustive CMPAR
   flags, clock/ADC examples, private-ROM startup, conversion table, mode settings,
   complete main-loop MODE cycling, and display writes from reset.
 - `python tests/test_h6cs_ny8_static.py`: dynamic short-branch analysis regression.
@@ -42,3 +42,7 @@ The hardware-backed match is startup command content only. Full electrical timin
 analog calibration, watchdog behavior, physical power regulation and exact MCU
 identity are unverified. [ESP32-C3 architecture](euthercharge-esp32c3-architecture.md)
 defines a simulation-first replacement plan; it is not deployable charger firmware.
+
+The read-only **Tillstånd & villkor** panel explains tested state gates and shows
+filtered raw values, counters and flags. It does not assign unverified charging
+phase names or physical units.

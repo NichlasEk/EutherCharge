@@ -159,3 +159,46 @@ test('Private original: state2 gating and state4 consumes two averaging-ready ev
  const c=new NY8(rom);c.r[0x3e]=4;c.r[0x4d]=2;routine(c,0x63c);assert.equal(c.r[0x3e],4);assert.equal(c.r[0x4d]&2,0);
  routine(c,0x63c);assert.equal(c.r[0x3e],4);c.r[0x4d]|=2;routine(c,0x63c);assert.equal(c.r[0x3e],5);
 });
+function word(c,address,value){c.r[address]=value&255;c.r[address+1]=value>>8;}
+test('Private original: every bounded ADC4 sample passes126-sample aggregation',{skip:!rom},()=>{
+ for(let sample=0;sample<=500;sample++){
+  const c=new NY8(rom);word(c,0x36,sample);
+  for(let n=0;n<125;n++)routine(c,0x57a);
+  assert.equal(c.r[0x4d]&2,0);routine(c,0x57a);
+  assert.equal(c.r[0x38]|c.r[0x39]<<8,Math.floor(sample*126/64));assert.equal(c.r[0x4d]&2,2);
+  assert.equal(c.r[0x7e]|c.r[0x7f]<<8,0);assert.equal(c.b1[6],0);
+ }
+});
+test('Private original: state5 low-feedback persistence selects6 or7 at counter60',{skip:!rom},()=>{
+ for(const counter of [59,60]){
+  const c=new NY8(rom);c.r[0x3e]=5;word(c,0x34,100);word(c,0x38,99);word(c,0x26,counter);
+  for(let i=0;i<4;i++){c.r[0x4d]|=2;routine(c,0x3aa);assert.equal(c.r[0x3e],5);}
+  c.r[0x4d]|=2;routine(c,0x3aa);assert.equal(c.r[0x3e],counter===60?6:7);
+ }
+ const c=new NY8(rom);c.r[0x3e]=5;word(c,0x34,100);word(c,0x38,100);c.r[0x3f]=4;c.r[0x4d]=2;
+ routine(c,0x3aa);assert.equal(c.r[0x3e],5);assert.equal(c.r[0x3f],0);
+});
+test('Private original: state5 immediate low-feedback threshold and timeout precedence',{skip:!rom},()=>{
+ for(const feedback of [19,20]){
+  const c=new NY8(rom);c.r[0x3e]=5;word(c,0x34,100);word(c,0x38,feedback);c.r[0x4d]=2;
+  routine(c,0x3aa);assert.equal(c.r[0x3e],feedback===19?7:5);
+ }
+ for(const [counter,address]of [[10800,0x24],[39600,0x26]]){
+  const c=new NY8(rom);c.r[0x3e]=5;word(c,address,counter);routine(c,0x3aa);assert.equal(c.r[0x3e],8);
+  const simultaneous=new NY8(rom);simultaneous.r[0x3e]=5;word(simultaneous,address,counter);simultaneous.r[0x4d]=2;
+  word(simultaneous,0x34,100);word(simultaneous,0x38,19);routine(simultaneous,0x3aa);
+  assert.equal(simultaneous.r[0x3e],7,'same invocation overrides timeout state8 when low-feedback event is ready');
+ }
+});
+test('Private original: state7 persistence and timeout; state9 mode2 restart boundary',{skip:!rom},()=>{
+ for(const feedback of [100,101]){
+  const c=new NY8(rom);c.r[0x3e]=7;word(c,0x34,100);word(c,0x38,feedback);
+  for(let i=0;i<5;i++){c.r[0x4d]|=2;routine(c,0x557);}
+  assert.equal(c.r[0x3e],feedback===101?4:7);
+ }
+ const c=new NY8(rom);c.r[0x3e]=7;word(c,0x24,7200);routine(c,0x557);assert.equal(c.r[0x3e],9);
+ for(const mode of [0,1,2,3])for(const feedback of [1300,1301]){
+  const c=new NY8(rom);c.r[0x3e]=9;c.r[0x4b]=mode;word(c,0x30,feedback);routine(c,0x6d8);
+  assert.equal(c.r[0x3e],mode===2&&feedback===1300?1:9);
+ }
+});

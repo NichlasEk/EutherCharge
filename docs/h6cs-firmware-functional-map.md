@@ -199,7 +199,7 @@ Physical input scales and charging-phase names remain unknown.
 |0532|Sets R4D.bit0 when R2D:R2C≥1360 OR R39:R38≥20; when neither holds, an already-set flag clears after1000 calls|The second quantity derives from ADC4; physical meaning unassigned|
 |0439 (state2)|Requires both R4E.bit0 and R4D.bit0 before mode setup: modes0/1/2→state4, mode3→state3|All16 combinations of flags and mode tested|
 |063C (state4)|Consumes R4D.bit1 events; second event transitions to state5|It counts averaging-ready events, not directly Timer0 ticks|
-|057A|Accumulates126 samples of R37:R36 and divides the sum by64 into R39:R38, then sets R4D.bit1|Read from instructions; full arithmetic sweep still outstanding|
+|057A|Accumulates126 samples of R37:R36 and divides the sum by64 into R39:R38, then sets R4D.bit1|All501 bounded constant inputs tested; see continuation below|
 
 Main-loop ADC4 processing first shifts raw input right once and caps at500.
 Main-loop lines01F1–01FA force state0 when R4F is nonzero (and clear PA6).
@@ -212,3 +212,33 @@ The nine-case ADC2/ADC3 sweep instead reaches states4and5 when ADC2=0 and ADC3 i
 2048or4095. This is a reproducible stimulus experiment, not a valid battery model.
 The fixture `tests/fixtures/h6cs/feedback-state5.json` preserves one such case.
 No simulated output is connected to hardware.
+
+## Tested ADC4 filter and states5/7/9 (System Regis continuation)
+
+Routine057A is now tested for every bounded sample0..500. It waits for126 samples,
+returns `floor(sum/64)`, raises R4D.bit1 and clears accumulator/count. The sum can
+reach63000, so this sweep also covers carries into the high accumulator byte.
+The highest constant-input output is984. This is a scaled filter, not an ordinary
+arithmetic mean or a calibrated ampere value.
+
+The following results are isolated original-routine tests; the outer main loop
+can impose other conditions. All counters below are raw values, not seconds.
+
+| State/routine | Tested transition condition |
+|---|---|
+|5 / 03AA|Five ready-window events with R39:R38 below R35:R34: goes to6 if R27:R26≥60, otherwise7. At equality, the persistence counter clears.|
+|5 / 03AA|A ready-window event with feedback<20 goes to7 immediately (subject to earlier branches in the same invocation). Boundary19/20 tested.|
+|5 / 03AA|R25:R24≥10800 or R27:R26≥39600 selects8. The routine continues after changing state: a simultaneous ready-window event with feedback19 overwrites8 with7.|
+|7 / 0557|Five ready-window events with feedback strictly above reference select4. At equality, persistence clears.|
+|7 / 0557|R25:R24≥7200 selects9. Remaining instructions still execute.|
+|9 / 06D8→0685|Mode2 and R31:R30<1301 select1; other tested modes or value1301 retain9.|
+
+The state5 timeout precedence is an observed property of the original instruction
+sequence, not yet a demonstrated charger defect. Replacing it with an early return
+in a port would change behavior. Any safety policy for the new implementation must
+make such a choice explicit instead of silently calling it equivalent to the ROM.
+
+The GUI's **Tillstånd & villkor** panel shows the current numeric state, tested
+routine conditions, filtered raw values, reference, event counters and flags.
+It is read-only commentary on the executing ROM, not a second charging controller.
+Unknown states remain labeled as incompletely mapped. No physical units are inferred.
