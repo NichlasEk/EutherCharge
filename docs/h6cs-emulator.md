@@ -1,33 +1,44 @@
 # Graphical H-6CS emulator
 
-Entry point: emulator/index.html; instructions and model limits: emulator/README.md.
-Local server: tools/serve_h6cs_emulator.py, loopback port8766. Optional private
-firmware route serves only the explicitly supplied4096-byte file. No USB access.
+Run `python tools/serve_h6cs_emulator.py --firmware <private-4096-byte-dump>` and
+open http://127.0.0.1:8766. The loopback server exposes emulator assets and only
+the explicitly supplied firmware file; there is no USB interface. See
+[emulator README](../emulator/README.md) for controls and model limits.
 
-First version offers original-ROM NY8 execution with instruction stepping,
-breakpoints, banked RAM/state editing, ADC injection, button, GPIO-derived LCD
-frames/segment RAM, optional synthetic Timer0 and explicit inferred-opcode switch.
-AVR/STM32 switches select standalone behavioral porting profiles, not instruction
-emulators; their adjustable CC/CV/fan logic is illustrative and separate from ROM.
+The NY8 model executes the original ROM with stepping, breakpoints, banked RAM
+editing, raw ADC injection, MODE button, GPIO-derived LCD frames and segment RAM.
+The face follows the supplied EAFC photo. The28.0°C display fixture deliberately
+injects state and invokes original formatting code; it is not a full startup test.
+AVR/STM32 profiles are separate illustrative behavioral models, not CPU emulators.
 
-Validation:12Node tests passed, including four private-ROM tests (LCD startup,
-1million experimental instructions, exhaustive256input lookup, four mode setups).
-Firefox GUI testing covers local loading, strict unknown halt, state/RAM edits,
-experimental mode, family profiles, injected fault, mobile layout, breakpoints
-and state download. Screenshots/logs in ignored artifacts/h6cs-emulator/.
+Timer0 can use a synthetic lab clock or instruction cycles with the candidate's
+T0MD prescaler. ADC can return instant lab samples or use a clocked12-bit
+conversion model with EOC polling and completion interrupts. The accelerated lab
+button deliberately selects synthetic timing. ADCAR/SBCAR opcodes remain explicitly
+opt-in until independently verified. NY8A054E is not an established chip identity;
+the observed ADC block instead supports a B062D-like peripheral model.
 
-Private firmware remains ignored and unchanged; no copied dump in web assets,
-no commit/push or hardware operation performed. Inspectable state export omits
-ROM contents; it is not a reloadable replay snapshot.
+## Verification
 
-## System Regis audit
+- `node --test tests/h6cs-emulator.test.mjs`:31 tests, including exhaustive CMPAR
+  flags, clock/ADC examples, private-ROM startup, conversion table, mode settings,
+  complete main-loop MODE cycling, and display writes from reset.
+- `python tests/test_h6cs_ny8_static.py`: dynamic short-branch analysis regression.
+- `tests/h6cs-emulator-ui.cjs`: Firefox integration test for loading, debugger,
+  RAM editing, timer/ADC selectors, photo display, family profiles, faults, mobile
+  layout, breakpoint and state export. Playwright/Firefox paths may be supplied
+  with PLAYWRIGHT_MODULE and FIREFOX_EXECUTABLE.
+- `tools/h6cs_emulator_run.mjs`: offline report with input hashes, direct comparison
+  of48 measured LCD command bits and generated bits, state/mode/PWM events and
+  optional replayable ADC/button scenarios. See the [CPU audit](h6cs-regis-cpu-audit.md)
+  for commands and exact evidence boundaries.
 
-See [CPU audit](h6cs-regis-cpu-audit.md) for identity evidence, flag/reset fixes,
-short-branch corrections, the optional instruction-clock Timer0, and the offline
-capture-comparison runner. The suite now contains 24 passing tests with the private
-ROM available. Baseline emulator and analysis were committed as 69762ac; earlier
-text above describes initial bring-up rather than the current versioning state.
+Private-ROM tests skip when the ignored dump is unavailable. Local artifacts,
+captures and screenshots are under ignored `artifacts/h6cs-emulator/`. Original
+firmware is neither bundled with the application nor committed. State exports omit
+ROM contents and are inspection snapshots, not reloadable replay files.
 
-Clocked12-bit ADC and main-loop MODE regression are now included; see the audit
-follow-up for exact counts. Physical calibration and exact chip identification
-remain open. ADC/T0 mode selectors are exercised in the Firefox test.
+The hardware-backed match is startup command content only. Full electrical timing,
+analog calibration, watchdog behavior, physical power regulation and exact MCU
+identity are unverified. [ESP32-C3 architecture](euthercharge-esp32c3-architecture.md)
+defines a simulation-first replacement plan; it is not deployable charger firmware.

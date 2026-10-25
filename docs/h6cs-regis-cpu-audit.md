@@ -105,3 +105,24 @@ A new regression operates MODE through the main loop and Timer0 polling, with no
 routine jumps or RAM injection. Separate presses traverse0→1→2→3→0, and holding
 continues without repeat. This validates modeled firmware button behavior, not a
 physical debounce time or verified charging-mode thresholds.
+
+## Replayable external-input scenarios
+
+The runner accepts an optional JSON scenario after its ADC mode argument:
+
+```sh
+node tools/h6cs_emulator_run.mjs \
+  dumps/h6cs-nyquest-20261025/h6cs-readout-2048x14-le16.bin \
+  dumps/h6cs-probe/nyquest-v5-post-original-lcd-20261025-01.json \
+  1300000 clocked tests/fixtures/h6cs/mode-cycle.json
+```
+
+Actions are ordered instruction indices plus raw ADC1–4 values and/or button level.
+Unknown fields, invalid samples and actions outside the execution budget are
+rejected. No scenario action changes RAM, PC or hardware. Reports include applied
+stimuli with modeled cycle counts as well as observed state/mode/duty changes.
+
+The MODE fixture produces stable0→1→2→3→0 through actual firmware execution. The
+instruction trace also exposes the intermediate value4 between INCR at05E7 and
+CLRR at05EB before wraparound; that is an implementation detail, not a fifth user
+mode. Scenario indices are reproducible execution positions, not calibrated time.

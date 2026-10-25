@@ -1,0 +1,10 @@
+[
+  {"atStep": 50000, "pressed": true},
+  {"atStep": 300000, "pressed": false},
+  {"atStep": 350000, "pressed": true},
+  {"atStep": 600000, "pressed": false},
+  {"atStep": 650000, "pressed": true},
+  {"atStep": 900000, "pressed": false},
+  {"atStep": 950000, "pressed": true},
+  {"atStep": 1200000, "pressed": false}
+]

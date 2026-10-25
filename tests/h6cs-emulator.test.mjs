@@ -96,3 +96,9 @@ test('Private original: MODE debouncing and hold suppression run through timer/m
   c.pressed=false;c.run(50000);
  }
 });
+import{validateScenario,applyStimulus}from'../emulator/scenario.mjs';
+test('External-input scenarios reject invalid ranges, time order and hidden RAM edits',()=>{
+ for(const actions of [[{atStep:10}],[{atStep:2},{atStep:1}],[{atStep:0,ram:4}],[{atStep:0,adc:{1:4096}}],[{atStep:0,pressed:1}]])assert.throws(()=>validateScenario(actions,10));
+ const c=program(),action=validateScenario([{atStep:0,pressed:true,adc:{1:2176}}],10)[0];applyStimulus(c,action);
+ assert.equal(c.pressed,true);assert.equal(c.adc[1],2176);assert.equal(c.r[75],0);
+});
