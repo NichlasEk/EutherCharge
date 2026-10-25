@@ -1,12 +1,14 @@
 // NY8B062D v1.8 §§3.1.6/7,3.3,3.5. RD_OPT is not known for the board.
 // Digital resolution only: no voltage, current, RC or analog threshold model.
 export class GPIO {
- constructor(){this.mode='legacy';this.unknownFill=0;this.readSites=new Map();this.external={a:Array(8).fill(null),b:Array(6).fill(null)};this.previous=null;}
+ constructor(){this.mode='legacy';this.unknownFill=0;this.readSites=new Map();this.external={a:Array(8).fill(null),b:Array(6).fill(null)};this.previous=null;this.irqPrevious=null;this.irqEdges={pab:0,int0:0,int1:0};this.irqEnabledSeen=0;}
+ get mode(){return this._mode;}
+ set mode(value){if(value!==this._mode){this.previous=null;this.irqPrevious=null;}this._mode=value;}
  pin(cpu,port,bit){
-  const mask=1<<bit,a=port==='a',latch=cpu.r[a?5:6],input=!!(cpu.f[a?5:6]&mask);
+  const mask=1<<bit,a=port==='a',latch=cpu.r[a?5:6];let input=!!(cpu.f[a?5:6]&mask)||(!a&&bit<2&&!!(cpu.r[24]&(16<<bit)));
   const analog=a?bit<5&&!!(cpu.r[0x16]&mask):bit<3?!!(cpu.r[0x16]&(1<<(bit+5))):!!(cpu.r[0x13]&(1<<(bit+1)));
   let drive=input?null:Number(!!(latch&mask)),source=input?'input':'gpio';
-  if(!a&&bit===3&&cpu.timer1.level(cpu)!==null){drive=cpu.timer1.level(cpu);source='pwm1';}
+  if(!a&&bit===3&&cpu.timer1.level(cpu)!==null){drive=cpu.timer1.level(cpu);source='pwm1';input=false;}
   const unsupported=!a&&((bit===3&&!!(cpu.s[15]&64))||(bit===3&&source!=='pwm1'&&!!(cpu.s[5]&128))||(bit===2&&!!(cpu.s[10]&128))||(bit===1&&!!(cpu.s[6]&128)));
   const openDrain=a?bit===5:!!(cpu.f[12]&mask);
   if(openDrain&&drive===1)drive=null;
@@ -39,7 +41,7 @@ export class GPIO {
  observeRead(cpu,address,instruction,bit,accumulator){
   if(this.mode==='legacy'||(address!==5&&address!==6))return;
   const resolved=this.port(cpu,address===5?'a':'b');let unknown=resolved.unknown;
-  if(this.mode==='latch')unknown&=cpu.f[address];
+  if(this.mode==='latch')for(let bit=0;bit<resolved.pins.length;bit++)if(!resolved.pins[bit].input)unknown&=~(1<<bit);
   const isBitTest=instruction==='BTRSS'||instruction==='BTRSC';
   const isBitWrite=instruction==='BSR'||instruction==='BCR';
   const mask=isBitTest?1<<bit:isBitWrite?255^(1<<bit):instruction==='ANDAR'?accumulator:instruction==='IORAR'?255^accumulator:255;
@@ -50,13 +52,30 @@ export class GPIO {
   entry.reads++;if(consumed){entry.unknownReads++;entry.unknownMask|=consumed;}
  }
  readSummary(){const sites=[...this.readSites.values()].map(s=>({...s}));return {scope:'Direct operand use only; no transitive RAM/flag taint tracking',reads:sites.reduce((n,s)=>n+s.reads,0),unknownReads:sites.reduce((n,s)=>n+s.unknownReads,0),sites};}
+ sampleInterrupts(cpu,a,b){
+  this.irqEnabledSeen|=cpu.r[14]&134;
+  const current=[];
+  for(const [port,resolved] of [['a',a],['b',b]])for(let bit=0;bit<resolved.pins.length;bit++){
+   const pin=resolved.pins[bit],external=port==='b'&&bit<2&&!!(cpu.r[24]&(16<<bit));
+   const edgeMode=external?(cpu.r[24]>>(bit*2))&3:0;
+   const selected=external?`ext${bit}:${edgeMode}`:pin.input&&!!(cpu.r[port==='a'?21:9]&(1<<bit))?'pab':null;
+   const now={level:pin.level,selected},old=this.irqPrevious?.[current.length];current.push(now);
+   // Arming/reconfiguration establishes a baseline, not an invented pin edge.
+   if(!selected||!old||old.selected!==selected||old.level===null||now.level===null||old.level===now.level)continue;
+   if(external){
+    const rising=now.level===1;
+    if((rising&&(edgeMode&1))||(!rising&&(edgeMode&2))){cpu.r[15]|=bit===0?4:128;this.irqEdges[bit===0?'int0':'int1']++;}
+   }else {cpu.r[15]|=2;this.irqEdges.pab++;}
+  }
+  this.irqPrevious=current;
+ }
  syncLCD(cpu){
   if(this.mode==='legacy')return;
-  const a=this.port(cpu,'a'),b=this.port(cpu,'b');
+  const a=this.port(cpu,'a'),b=this.port(cpu,'b');this.sampleInterrupts(cpu,a,b);
   const valid=!(a.unknown&1)&&!(b.unknown&48);
   if(valid&&this.previous)cpu.lcd.edge(a.value,b.value,this.previous.a,this.previous.b);
   else if(!valid)cpu.lcd.bits=null; // Never manufacture serial bits from floating pins.
   this.previous=valid?{a:a.value,b:b.value}:null;
  }
- snapshot(cpu){return {mode:this.mode,external:{a:[...this.external.a],b:[...this.external.b]},unknownFill:this.unknownFill,readEvidence:this.readSummary(),unresolvedReadConvention:'selected fill value; not an electrical prediction',a:this.port(cpu,'a'),b:this.port(cpu,'b')};}
+ snapshot(cpu){return {mode:this.mode,external:{a:[...this.external.a],b:[...this.external.b]},unknownFill:this.unknownFill,interruptEdges:{...this.irqEdges},gpioInterruptEnableBitsSeen:this.irqEnabledSeen,interruptRegisters:{awucon:cpu.r[21],bwucon:cpu.r[9],intedg:cpu.r[24],inte:cpu.r[14],intf:cpu.r[15]},readEvidence:this.readSummary(),unresolvedReadConvention:'selected fill value; not an electrical prediction',a:this.port(cpu,'a'),b:this.port(cpu,'b')};}
 }

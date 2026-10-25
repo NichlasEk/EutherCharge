@@ -25,8 +25,7 @@ Implemented digital resolution:
 Unknown digital reads default to zero; the sensitivity-test selector can instead
 fill them with one. Both are deterministic simulation conventions. The
 snapshot/UI preserve unknown masks and per-pin reasons; zero is not a predicted
-voltage. No analog thresholds, RC, drive strength, crystal/reset mux or GPIO
-interrupts are modeled. Buzzer, IR and additional PWM/comparator behavior remain
+voltage. No analog thresholds, RC, drive strength, crystal/reset mux are modeled. GPIO interrupts are described below. Buzzer, IR and additional PWM/comparator behavior remain
 incomplete. The choice of output read source under an overriding peripheral and
 IOST input setting still requires physical validation. This is not a full pad model.
 
@@ -87,3 +86,40 @@ both fill choices and read counts so the convention is visible.
 Run the9GPIO tests with `node --test tests/h6cs-gpio.test.mjs`. The headless runner
 accepts a final `zero` or `one` argument after the GPIO mode. Invoke the comparator
 with the four resulting report paths. Original firmware remains local/unchanged.
+
+## GPIO interrupts and corrected reset registers
+
+NY8B062D v1.8 sections3.1.9/20/22 and3.16.6–8 specify AWUCON resetFF,
+BWUCON reset3F, INTEDG reset05. AWUCON and INTEDG were previously seeded zero;
+they now use documented values. Exact silicon/configuration remains unconfirmed.
+
+The pin models implement selected input-change PABIF and PB0/PB1 external edge
+flags, rising/falling/both edge selection, EIS priority over port-change selection,
+INTE/GIE gating, common vector0008, and firmware-cleared sticky flags. EIS selects
+an input even if IOST requested output. PWM1 forces PB3 output and therefore must
+not generate an input-change IRQ merely because IOST still contains input.
+
+Edges are sampled at instruction boundaries before interrupt dispatch. Initial
+sampling, changed selection and unknown-to-known transitions establish a baseline;
+they do not invent a physical edge. This is an explicit model convention pending
+hardware timing validation. Reserved edge mode00 generates no edge in this model.
+Interrupt-entry latency, subinstruction glitches, electrical thresholds, SLEEP
+wake-up and GPIO interrupts in the legacy latch-only mode remain unmodeled.
+
+Tests cover masked flag capture, sticky flags, dispatch/stack/GIE, both external
+pins and all documented edge modes, selection priority, output suppression,
+unknown transitions and configuration changes. There are16GPIO tests,67total
+with the51core tests.
+
+Original-ROM evidence with the pad model: feedback-state5 (4million instructions)
+and MODE cycle (1.6million) keep INTE GPIO-enable bits clear throughout the sampled
+execution; only Timer0 interrupts are enabled. The MODE scenario observes8PAB
+edges, while the firmware continues polling PA5. Final AWUCON=FF, BWUCON=3F,
+INTEDG=05, INTE=01. Original firmware also writes INTF; its final bits must not be
+interpreted as a count of hardware-generated events. Separate edge counters are
+included in snapshots/reports.
+
+Both scenarios preserve the previous event sequence, cycle count, final LCD RAM,
+first LCD RAM-write time and final bounded PWM trace; startup48bits still match.
+Reports: `artifacts/h6cs-emulator/gpio-irq-feedback-state5.json` and
+`gpio-irq-mode-cycle.json`. No physical hardware was accessed.

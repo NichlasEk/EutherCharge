@@ -37,7 +37,7 @@ export class NY8 {
  constructor(rom){this.rom=rom;this.reset();}
  reset(){this.r=new Uint8Array(128);this.b1=new Uint8Array(32);this.f=new Uint8Array(16);this.s=new Uint8Array(32);this.s[2]=0x3f;this.timer1=new Timer1();this.gpio=new GPIO();// NY8B062D candidate reset values; unspecified X bits and RAM are seeded zero.
  this.f[5]=255;this.f[6]=63;this.f[9]=255;this.f[15]=0x1d;
- this.r[3]=24;this.r[8]=0x98;this.r[9]=63;this.r[11]=255;this.r[12]=63;this.r[16]=32;this.r[19]=3;this.r[20]=10;this.adcMode="instant";this.adcPeripheral=new ClockedADC();this.a=0;this.pc=0;this.stack=[];this.steps=0;this.gie=false;this.t0md=0x3f;this.cycles=0;this.timerMode="synthetic";this.timerOverflows=0;this.interrupts=0;this.timerPhase=0;this.timerDivider=32;this.timerEnabled=false;this.adc=[0,1500,2500,500,300];this.pressed=false;this.halted='';this.lcd=new LCD();this.trace=[];this.breakpoint=null;this.carryOps=0;}
+ this.r[3]=24;this.r[8]=0x98;this.r[9]=63;this.r[11]=255;this.r[12]=63;this.r[16]=32;this.r[19]=3;this.r[20]=10;this.r[21]=255;this.r[24]=5;this.adcMode="instant";this.adcPeripheral=new ClockedADC();this.a=0;this.pc=0;this.stack=[];this.steps=0;this.gie=false;this.t0md=0x3f;this.cycles=0;this.timerMode="synthetic";this.timerOverflows=0;this.interrupts=0;this.timerPhase=0;this.timerDivider=32;this.timerEnabled=false;this.adc=[0,1500,2500,500,300];this.pressed=false;this.halted='';this.lcd=new LCD();this.trace=[];this.breakpoint=null;this.carryOps=0;}
  key(i){i&=127;if(i===0){i=this.r[4]&127;if(!i)return null;}return i;}
  read(i){i=this.key(i);if(i===null)return 0;if(i>=32&&i<64&&(this.r[3]&64))return this.b1[i-32];if(i===2)return this.pc&255;if(i===0x19)return (this.r[i]&207)|((this.timer1.count>>8&3)<<4);if((i===5||i===6)&&this.gpio.mode!=='legacy')return this.gpio.read(this,i===5?'a':'b');if(i===6){const level=this.timer1.level(this);return level===null?this.r[6]:(this.r[6]&247)|(level<<3);}if(i===5)return (this.r[5]&~32)|(this.pressed?0:32);return this.r[i];}
  write(i,v){i=this.key(i);if(i===null)return;v&=255;if(i>=32&&i<64&&(this.r[3]&64)){this.b1[i-32]=v;return;}
@@ -126,8 +126,9 @@ export class NY8 {
    this.pc=this.next&2047;this.steps++;this.cycles+=elapsed;
    this.advanceTimer(elapsed);this.timer1.advance(this,elapsed);
    if(this.adcMode==='clocked')this.adcPeripheral.advance(this,elapsed);
-   if(this.gie&&((this.r[14]&this.r[15]&9)||(this.adcMode==='clocked'&&(this.r[17]&192)===192))){this.gie=false;this.push(this.pc);this.pc=8;this.interrupts++;}
-   this.gpio.syncLCD(this);this.trace.push({pc,w,text:d.text});if(this.trace.length>100)this.trace.shift();
+   this.gpio.syncLCD(this);
+   if(this.gie&&((this.r[14]&this.r[15]&143)||(this.adcMode==='clocked'&&(this.r[17]&192)===192))){this.gie=false;this.push(this.pc);this.pc=8;this.interrupts++;}
+   this.trace.push({pc,w,text:d.text});if(this.trace.length>100)this.trace.shift();
    return true;
   }catch(e){this.halted=e.message;return false;}
  }

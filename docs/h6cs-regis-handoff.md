@@ -29,7 +29,7 @@ Four-million-step verified-ISA run:5,415,542 cycles,1,348 Timer0 IRQs,18,307 ADC
 conversions,81,150 carry instructions, no halt. Strict20,000-step run also no halt.
 First LCD RAM frame at step1,484,052/cycle2,009,983 for default clocked stimuli.
 
-Tests:all60Node tests pass (51core plus9GPIO), including state-gate and full-ROM scenarios.
+Tests:all67Node tests pass (51core plus16GPIO), including state-gate and full-ROM scenarios.
 Two Python static decoder tests and Firefox UI pass. See
 `tests/h6cs-emulator.test.mjs` for the full suite. Do not rerun
 hardware/probe tests while working on emulation.
@@ -90,3 +90,14 @@ bits. See `docs/h6cs-gpio-model.md` and `tools/h6cs_gpio_compare.mjs` for exact 
 No transitive taint proof or physical waveform verification is claimed. Next useful
 emulator work is GPIO interrupt behavior and remaining instruction/peripheral gaps;
 these tested input scenarios do not justify treating unknown inputs as identified.
+
+## GPIO interrupt continuation
+
+Pin-mode GPIO now implements PAB/INT0/INT1 flags, edge selection, priority and
+INTE/GIE dispatch. Reset AWUCON/INTEDG corrected toFF/05. PWM output override is
+excluded from input-change detection. See GPIO model document for sampling limits.
+Original scenarios leave GPIO interrupts disabled: MODE is polled, with8button
+edges observed but no GPIO IRQ dispatched. Existing state/LCD/PWM behavior remains
+unchanged. Next prioritize original-used gaps (instruction timing, watchdog/config,
+ADC calibration and longer state scenarios); GPIO IRQs were a completeness gap,
+not an observed original-firmware blocker. No hardware operations performed.

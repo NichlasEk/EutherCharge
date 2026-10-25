@@ -56,3 +56,44 @@ test('Unknown fill sensitivity changes uncertain branch, not latch output reads'
  assert.equal(c.pc,fill?2:1);assert.equal(c.gpio.readSummary().sites[0].kind,'direct-bit-branch');
  c.gpio.mode='latch';c.f[6]=0;c.r[6]=0;assert.equal(c.read(6),0);}
 });
+test('GPIO reset registers match documented wake and external edge defaults',()=>{
+ const c=cpu();assert.equal(c.r[21],255);assert.equal(c.r[9],63);assert.equal(c.r[24],5);
+});
+test('Port-change flags latch while masked; only selected input transitions count',()=>{
+ const c=cpu();c.r[21]=32;c.r[9]=0;c.step();c.pressed=true;c.step();
+ assert.equal(c.r[15]&2,2);assert.equal(c.interrupts,0);assert.equal(c.gpio.irqEdges.pab,1);
+ c.r[15]&=~2;c.step();assert.equal(c.r[15]&2,0);
+ c.r[21]=0;c.pressed=false;c.step();assert.equal(c.r[15]&2,0);
+ c.f[5]=0;c.r[21]=1;c.r[5]=0;c.step();c.r[5]=1;c.step();assert.equal(c.r[15]&2,0);
+});
+test('Pending port flag dispatches with GIE and enable; firmware clears sticky flag',()=>{
+ const c=cpu();c.r[21]=32;c.step();c.pressed=true;c.step();c.r[14]=2;c.gie=true;
+ const returnPC=c.pc+1;c.step();assert.equal(c.pc,8);assert.deepEqual(c.stack,[returnPC]);assert.equal(c.gie,false);assert.equal(c.r[15]&2,2);
+ c.write(15,0);assert.equal(c.r[15]&2,0);
+});
+test('External edges select polarity and suppress PB0/1 port-change flags',()=>{
+ for(const bit of [0,1])for(const mode of [1,2,3]){
+  const c=cpu();c.r[21]=0;c.r[9]=1<<bit;c.f[6]=0; // EIS must override GPIO output direction.
+  c.r[24]=(16<<bit)|(mode<<(bit*2));c.gpio.external.b[bit]=0;c.step();
+  c.gpio.external.b[bit]=1;c.step();const flag=bit?128:4;
+  assert.equal(c.r[15]&flag,mode&1?flag:0);assert.equal(c.r[15]&2,0);
+  c.r[15]=0;c.gpio.external.b[bit]=0;c.step();assert.equal(c.r[15]&flag,mode&2?flag:0);assert.equal(c.r[15]&2,0);
+ }
+});
+test('Unknown levels, arming and GPIO mode changes do not fabricate IRQ edges',()=>{
+ const c=cpu();c.r[21]=0;c.r[9]=0;c.gpio.external.b[0]=0;c.step();
+ c.r[24]=19;c.gpio.external.b[0]=1;c.step();assert.equal(c.r[15]&4,0);
+ c.gpio.external.b[0]=null;c.step();c.gpio.external.b[0]=0;c.step();assert.equal(c.r[15]&4,0);
+ c.gpio.mode='legacy';c.step();c.gpio.external.b[0]=1;c.gpio.mode='pad';c.step();assert.equal(c.r[15]&4,0);
+});
+test('PWM output override cannot generate an input-change interrupt',()=>{
+ const c=cpu();c.r[21]=0;c.r[9]=8;c.s[1]=128;c.timer1.count=2;c.timer1.duty=1;c.step();
+ assert.equal(c.gpio.port(c,'b').pins[3].input,false);
+ c.timer1.count=0;c.step();assert.equal(c.r[15]&2,0);
+});
+test('External interrupt dispatch uses PB1 flag and firmware-controlled masking',()=>{
+ const c=cpu();c.r[21]=0;c.r[9]=0;c.r[24]=36;c.gpio.external.b[1]=0;c.step();
+ c.r[14]=128;c.gie=true;c.gpio.external.b[1]=1;const next=c.pc+1;c.step();
+ assert.equal(c.pc,8);assert.deepEqual(c.stack,[next]);assert.equal(c.r[15]&128,128);
+ assert.equal(c.gpio.irqEnabledSeen,128);
+});
