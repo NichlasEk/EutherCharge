@@ -120,3 +120,18 @@ previous state/LCD/PWM results. See `docs/h6cs-interrupt-audit.md`.
 Readout metadata does not establish config-word coverage; reserved07FE/07FF words
 remain uninterpreted. SDK OldVersion/8B062D.IC is binary with no useful plaintext
 watchdog map. Do not infer WDT or oscillator settings from WDTEN alone.
+
+## SDK configuration-layout continuation
+
+Actual manufacturer RegisterHelper was exercised in a network/device-isolated
+Mono process:3,072one-hot field checks establish raw WDT/event/timebase/RDPORT/
+instruction-clock positions within the SDK config block. Golden fixture and a
+small18-byte JS field-window extractor added; two new tests pass. Existing75tests
+were not rerun because CPU/UI behavior did not change. Details and reproduction:
+`docs/h6cs-sdk-config-layout.md`.
+
+No original configuration has been decoded. SDK offsets are not programming
+addresses and must not be applied to the ROM tail. Next resolve full config-block
+size/envelope/version via manufacturer library before searching saved artifacts.
+Temporary full IL: `/tmp/h6cs-nyquest-core-full.il`; binary hash in layout document.
+No vendor code/binaries or original dump contents committed.
