@@ -4,8 +4,8 @@ export function decode(w,pc=0,experimental=false){
  for(const [mask,value,name,ops] of RULES) if((w&mask)===value){
   let target=null;
   if(ops.includes('addr11'))target=w&2047;
-  else if(ops.includes('addr9'))target=((pc+1)&0x600)|(w&511);
-  else if(ops.includes('addr8'))target=((pc+1)&0x700)|(w&255);
+  else if(ops.includes('addr9'))return {name,target:null,text:name+' PCHBUF[2:1]:0x'+hex(w&511,3)};
+  else if(ops.includes('addr8'))return {name,target:null,text:name+' PCHBUF[2:0]:0x'+hex(w&255)};
   let arg=target!==null?'0x'+hex(target,3):ops.includes('imm8')?'0x'+hex(w&255):ops.includes('RReg')?'R'+hex(w&127)+(ops.includes('DestAR')?(w&128?',R':',A'):'')+(ops.includes('bs')?','+((w>>7)&7):''):ops.includes('FReg')?'F'+hex(w&15):ops.includes('SReg')?'S'+hex(w&31):'';
   return {name,target,text:name+' '+arg};
  }
@@ -33,7 +33,9 @@ export class LCD {
 }
 export class NY8 {
  constructor(rom){this.rom=rom;this.reset();}
- reset(){this.r=new Uint8Array(128);this.b1=new Uint8Array(32);this.f=new Uint8Array(16);this.s=new Uint8Array(32);this.f[5]=this.f[6]=255;this.r[3]=24;this.r[16]=32;this.a=0;this.pc=0;this.stack=[];this.steps=0;this.gie=false;this.t0md=0;this.timerPhase=0;this.timerDivider=32;this.timerEnabled=false;this.adc=[0,1500,2500,500,300];this.pressed=false;this.experimental=false;this.halted='';this.lcd=new LCD();this.trace=[];this.breakpoint=null;this.assumedOps=0;}
+ reset(){this.r=new Uint8Array(128);this.b1=new Uint8Array(32);this.f=new Uint8Array(16);this.s=new Uint8Array(32);// NY8B062D candidate reset values; unspecified X bits and RAM are seeded zero.
+ this.f[5]=255;this.f[6]=63;this.f[9]=255;this.f[15]=0x1d;
+ this.r[3]=24;this.r[8]=0x98;this.r[9]=63;this.r[11]=255;this.r[12]=63;this.r[16]=32;this.a=0;this.pc=0;this.stack=[];this.steps=0;this.gie=false;this.t0md=0x3f;this.cycles=0;this.timerMode="synthetic";this.timerOverflows=0;this.interrupts=0;this.timerPhase=0;this.timerDivider=32;this.timerEnabled=false;this.adc=[0,1500,2500,500,300];this.pressed=false;this.experimental=false;this.halted='';this.lcd=new LCD();this.trace=[];this.breakpoint=null;this.assumedOps=0;}
  key(i){i&=127;if(i===0){i=this.r[4]&127;if(!i)return null;}return i;}
  read(i){i=this.key(i);if(i===null)return 0;if(i>=32&&i<64&&(this.r[3]&64))return this.b1[i-32];if(i===2)return this.pc&255;if(i===5)return (this.r[5]&~32)|(this.pressed?0:32);return this.r[i];}
  write(i,v){i=this.key(i);if(i===null)return;v&=255;if(i>=32&&i<64&&(this.r[3]&64)){this.b1[i-32]=v;return;}
@@ -55,7 +57,8 @@ export class NY8 {
   const sub=(x,y,borrow=0)=>{const v=x-y-borrow;this.flag(0,v>=0);this.flag(1,(x&15)>=(y&15)+borrow);this.z(v);return v&255;};
   try{
    switch(n){
-    case 'NOP':case 'CLRWDT':break;
+    case 'NOP':break;
+    case 'CLRWDT':this.r[3]|=24;break; // WDT timebase is not yet modeled.
     case 'MOVIA':this.a=w&255;break;
     case 'MOVAR':this.write(rr,this.a);break;
     case 'MOVR':this.z(val);dest(val);break;
@@ -77,7 +80,7 @@ export class NY8 {
     case 'SUBIA':this.a=sub(w&255,this.a);break;
     case 'ADCIA':this.a=add(w&255,this.a,carry);break;
     case 'SBCIA':this.a=sub(w&255,this.a,1-carry);break;
-    case 'CMPAR':sub(val,this.a);break;
+    case 'CMPAR':this.flag(0,val>=this.a);this.z(val-this.a);break;
     case 'ANDAR':{let v=val&this.a;dest(v);this.z(v);break;}
     case 'IORAR':{let v=val|this.a;dest(v);this.z(v);break;}
     case 'XORAR':{let v=val^this.a;dest(v);this.z(v);break;}
@@ -88,8 +91,10 @@ export class NY8 {
     case 'SWAPR':dest(((val<<4)|(val>>4))&255);break;
     case 'RLR':this.flag(0,val&128);dest((val<<1)|carry);break;
     case 'RRR':this.flag(0,val&1);dest((val>>1)|(carry<<7));break;
-    case 'LCALL':case 'CALL':this.push(this.next);this.next=d.target;break;
-    case 'LGOTO':case 'GOTO':this.next=d.target;break;
+    case 'LCALL':this.push(this.next);this.next=d.target;break;
+    case 'CALL':this.push(this.next);this.next=((this.r[10]&7)<<8)|(w&255);break;
+    case 'LGOTO':this.next=d.target;break;
+    case 'GOTO':this.next=((this.r[10]&6)<<8)|(w&511);break;
     case 'CALLA':this.push(this.next);this.next=((this.s[7]&7)<<8)|this.a;break;
     case 'GOTOA':this.next=((this.s[7]&7)<<8)|this.a;break;
     case 'RETIA':this.a=w&255;this.next=this.pop();break;
@@ -99,24 +104,40 @@ export class NY8 {
     case 'ENI':this.gie=true;break;
     case 'DISI':this.gie=false;break;
     case 'IOST':this.f[w&15]=this.a;break;
-    case 'IOSTR':this.a=this.f[w&15];break;
+    case 'IOSTR':this.a=(w&15)===15?(this.f[15]&127)|(this.gie?128:0):this.f[w&15];break;
     case 'SFUN':this.s[w&31]=this.a;break;
     case 'SFUNR':this.a=this.s[w&31];break;
-    case 'T0MD':this.t0md=this.a;break;
+    case 'T0MD':this.t0md=this.a;if(!(this.a&8))this.timerPhase=0;break;
     case 'T0MDR':this.a=this.t0md;break;
     case 'TABLEA':{let data=this.rom[((this.s[7]&7)<<8)|this.a];this.a=data&255;this.s[8]=(data>>8)&63;break;}
     case 'SLEEP':throw Error('SLEEP: wake-upmodell saknas');
     default:throw Error('Ej verifierad instruktion '+hex(w,4)+' vid '+hex(pc,3));
    }
-   this.pc=this.next&2047;this.steps++;
-   if(this.timerEnabled&&(this.f[15]&1)&&++this.timerPhase>=this.timerDivider){this.timerPhase=0;this.r[1]=(this.r[1]+1)&255;if(!this.r[1])this.r[15]|=1;}
-   if(this.gie&&(this.r[14]&this.r[15]&1)){this.gie=false;this.push(this.pc);this.pc=8;}
+   const branch=['LCALL','CALL','LGOTO','GOTO','CALLA','GOTOA','RETIA','RETIE','RET','TABLEA'].includes(n);
+   const skipped=['BTRSS','BTRSC','INCRSZ','DECRSZ'].includes(n)&&this.next===pc+2;
+   const elapsed=n==='INT'?3:branch||skipped?2:1;
+   this.pc=this.next&2047;this.steps++;this.cycles+=elapsed;
+   this.advanceTimer(elapsed);
+   if(this.gie&&(this.r[14]&this.r[15]&1)){this.gie=false;this.push(this.pc);this.pc=8;this.interrupts++;}
    this.trace.push({pc,w,text:d.text});if(this.trace.length>100)this.trace.shift();
    return true;
   }catch(e){this.halted=e.message;return false;}
  }
+ // Instruction-clock Timer0 follows NY8B062D v1.8 sections 3.2 and 3.6.
+ // External/low oscillator clocks and interrupt-entry latency remain unmodeled.
+ advanceTimer(cycles){
+  if(!this.timerEnabled||!(this.f[15]&1))return;
+  const documented=this.timerMode==='instruction';
+  if(documented&&(this.t0md&32))return;
+  const divisor=documented?(this.t0md&8?1:2**((this.t0md&7)+1)):this.timerDivider;
+  this.timerPhase+=documented?cycles:1;
+  while(this.timerPhase>=divisor){
+   this.timerPhase-=divisor;this.r[1]=(this.r[1]+1)&255;
+   if(!this.r[1]){this.r[15]|=1;this.timerOverflows++;}
+  }
+ }
  run(count){let done=0;for(;done<count;done++){if(this.breakpoint!==null&&this.pc===this.breakpoint){this.halted='Brytpunkt '+hex(this.pc,3);break;}if(!this.step())break;}return done;}
- snapshot(){return {pc:this.pc,a:this.a,steps:this.steps,r:[...this.r],bank1:[...this.b1],f:[...this.f],s:[...this.s],stack:[...this.stack],adc:[...this.adc],lcd:{ram:[...this.lcd.ram],commands:[...this.lcd.commands]},experimental:this.experimental,assumedOps:this.assumedOps,timerEnabled:this.timerEnabled,timerDivider:this.timerDivider,halted:this.halted};}
+ snapshot(){return {pc:this.pc,a:this.a,steps:this.steps,cycles:this.cycles,timerMode:this.timerMode,timerOverflows:this.timerOverflows,interrupts:this.interrupts,r:[...this.r],bank1:[...this.b1],f:[...this.f],s:[...this.s],stack:[...this.stack],adc:[...this.adc],lcd:{ram:[...this.lcd.ram],commands:[...this.lcd.commands]},experimental:this.experimental,assumedOps:this.assumedOps,timerEnabled:this.timerEnabled,timerDivider:this.timerDivider,halted:this.halted};}
 }
 export const PROFILES={ny8:{label:'Nyquest NY8 · originalkod',voltage:'5 V',execution:true},avr:{label:'AVR · portningsmodell',voltage:'5 V (modell)',execution:false},stm32:{label:'STM32 · portningsmodell',voltage:'3,3 V (nivåanpassning krävs)',execution:false}};
 export class Plant {

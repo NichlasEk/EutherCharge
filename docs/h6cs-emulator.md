@@ -19,3 +19,11 @@ and state download. Screenshots/logs in ignored artifacts/h6cs-emulator/.
 Private firmware remains ignored and unchanged; no copied dump in web assets,
 no commit/push or hardware operation performed. Inspectable state export omits
 ROM contents; it is not a reloadable replay snapshot.
+
+## System Regis audit
+
+See [CPU audit](h6cs-regis-cpu-audit.md) for identity evidence, flag/reset fixes,
+short-branch corrections, the optional instruction-clock Timer0, and the offline
+capture-comparison runner. The suite now contains 24 passing tests with the private
+ROM available. Baseline emulator and analysis were committed as 69762ac; earlier
+text above describes initial bring-up rather than the current versioning state.

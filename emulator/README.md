@@ -104,3 +104,14 @@ unknown. Numeric display output comes from the original formatting/serial code.
 
 16core tests now pass, plus Firefox tests for photo output28.0°C, summer/LED,
 temperature→ADC1=2176, accelerated main-loop RAM writes and previous interactions.
+
+### Instruction-clock Timer0
+
+Enable Timer0, then select **Instruktionscykler + T0MD** to use the candidate
+NY8B062D clock/prescaler model. The divider input applies only to the synthetic
+lab timer. Firmware chooses divide16; LCD updates take many more instructions
+than the accelerated lab mode. This mode counts instruction cycles, but omits
+interrupt-entry latency and external clocks and is not calibrated to wall time.
+The **Labbkörning** button deliberately selects the synthetic fast timer again.
+See `docs/h6cs-regis-cpu-audit.md` and `tools/h6cs_emulator_run.mjs` for reproducible
+startup comparison and remaining identity/ISA limitations.
