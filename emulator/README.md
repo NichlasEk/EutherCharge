@@ -80,7 +80,7 @@ python tests/test_h6cs_ny8_static.py
 PLAYWRIGHT_MODULE=/path/to/playwright-core FIREFOX_EXECUTABLE=/path/to/firefox node tests/h6cs-emulator-ui.cjs
 ```
 
-34Node tests pass with the local dump, plus Python static-analysis and Firefox UI
+38Node tests pass with the local dump, plus Python static-analysis and Firefox UI
 tests. Private-ROM cases skip when the dump is absent. Browser tests require the
 local server and private dump. Reports/screenshots remain in ignored artifacts/.
 `tools/h6cs_emulator_run.mjs` compares capture bits and replays external ADC/button

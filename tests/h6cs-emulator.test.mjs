@@ -129,3 +129,33 @@ test('Private original: external feedback scenario reaches state5 without RAM in
  const actions=validateScenario(JSON.parse(fs.readFileSync(new URL('./fixtures/h6cs/feedback-state5.json',import.meta.url))),4000000);
  applyStimulus(c,actions[0]);c.run(4000000);assert.equal(c.halted,'');assert.equal(c.r[62],5);
 });
+test('Private original:50-sample ADC2/3 accumulation clamps1300 and divides sum by32',{skip:!rom},()=>{
+ for(const raw of [0,1,32,1299,1300,1301,4095]){
+  const c=new NY8(rom);
+  for(let n=0;n<50;n++){c.r[0x2a]=raw&255;c.r[0x2b]=raw>>8;c.r[0x2e]=raw&255;c.r[0x2f]=raw>>8;routine(c,0x3f4);}
+  const expected=Math.floor(Math.min(raw,1300)*50/32);
+  assert.equal(c.r[0x2c]|c.r[0x2d]<<8,expected);assert.equal(c.r[0x30]|c.r[0x31]<<8,expected);assert.equal(c.r[0x4d]&4,4);
+ }
+});
+test('Private original: high ADC2-derived value latches flag after20 qualifying windows',{skip:!rom},()=>{
+ const c=new NY8(rom);
+ c.r[0x2c]=1649&255;c.r[0x2d]=1649>>8;for(let n=0;n<30;n++)routine(c,0x613);assert.equal(c.r[0x4f]&2,0);
+ c.r[0x2c]=1650&255;c.r[0x2d]=1650>>8;for(let n=0;n<19;n++)routine(c,0x613);assert.equal(c.r[0x4f]&2,0);
+ routine(c,0x613);assert.equal(c.r[0x4f]&2,2);c.r[0x2c]=c.r[0x2d]=0;routine(c,0x613);assert.equal(c.r[0x4f]&2,2);
+});
+test('Private original: eligibility flag thresholds and1000-poll release delay',{skip:!rom},()=>{
+ for(const [feedback,feedback4,set]of [[1359,19,0],[1360,19,1],[1359,20,1]]){
+  const c=new NY8(rom);c.r[0x2c]=feedback&255;c.r[0x2d]=feedback>>8;c.r[0x38]=feedback4;
+  routine(c,0x532);assert.equal(c.r[0x4d]&1,set);
+ }
+ const c=new NY8(rom);c.r[0x4d]=1;for(let n=0;n<999;n++)routine(c,0x532);assert.equal(c.r[0x4d]&1,1);
+ routine(c,0x532);assert.equal(c.r[0x4d]&1,0);
+});
+test('Private original: state2 gating and state4 consumes two averaging-ready events',{skip:!rom},()=>{
+ for(let flags=0;flags<4;flags++)for(let mode=0;mode<4;mode++){
+  const c=new NY8(rom);c.r[0x3e]=2;c.r[0x4b]=mode;c.r[0x4d]=flags&1;c.r[0x4e]=(flags>>1)&1;
+  routine(c,0x439);assert.equal(c.r[0x3e],flags===3?(mode===3?3:4):2);
+ }
+ const c=new NY8(rom);c.r[0x3e]=4;c.r[0x4d]=2;routine(c,0x63c);assert.equal(c.r[0x3e],4);assert.equal(c.r[0x4d]&2,0);
+ routine(c,0x63c);assert.equal(c.r[0x3e],4);c.r[0x4d]|=2;routine(c,0x63c);assert.equal(c.r[0x3e],5);
+});

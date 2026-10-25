@@ -183,3 +183,32 @@ GUI now has explicit accelerated synthetic timer mode rather than replacing
 firmware display data with a fabricated number. Full main-loop execution produces
 nonzero LCD RAM and changing outputs. Original GPIO indicator routine04BD tested
 for all four modes; mode labels are inferred from left-to-right photograph order.
+
+## System Regis: tested state gates and feedback processing
+
+The current emulator uses manufacturer-assembler-verified ADCAR/SBCAR encodings;
+see [CPU audit](h6cs-regis-cpu-audit.md). The following routine tests execute the
+original instructions. Register values are deliberately injected for unit tests;
+the separate reset/scenario tests exercise complete flow without RAM injection.
+Physical input scales and charging-phase names remain unknown.
+
+| Routine | Verified numeric behavior | Evidence boundary |
+|---|---|---|
+|03F4|ADC2 and ADC3 samples each clamp at1300;50 samples accumulate, outputs are `floor(sum/32)` in R2D:R2C and R31:R30; sets R4D.bit2|Raw arithmetic, not a physical-unit calibration|
+|0613|R2D:R2C≥1650 for20 qualifying calls sets R4F.bit1; lower values reset the pending counter; once set the routine does not clear the flag|Main calls it once per completed50-sample window|
+|0532|Sets R4D.bit0 when R2D:R2C≥1360 OR R39:R38≥20; when neither holds, an already-set flag clears after1000 calls|The second quantity derives from ADC4; physical meaning unassigned|
+|0439 (state2)|Requires both R4E.bit0 and R4D.bit0 before mode setup: modes0/1/2→state4, mode3→state3|All16 combinations of flags and mode tested|
+|063C (state4)|Consumes R4D.bit1 events; second event transitions to state5|It counts averaging-ready events, not directly Timer0 ticks|
+|057A|Accumulates126 samples of R37:R36 and divides the sum by64 into R39:R38, then sets R4D.bit1|Read from instructions; full arithmetic sweep still outstanding|
+
+Main-loop ADC4 processing first shifts raw input right once and caps at500.
+Main-loop lines01F1–01FA force state0 when R4F is nonzero (and clear PA6).
+Consequently state0 can result from a latched input condition; it should not be
+called simply "idle" without more evidence. ADC2 default2500 clamps to1300 and
+produces2031 after each50-sample block, exceeding1650: this explains the observed
+20-window/roughly1000-Timer0-poll transition to state0 in the default simulation.
+
+The nine-case ADC2/ADC3 sweep instead reaches states4and5 when ADC2=0 and ADC3 is
+2048or4095. This is a reproducible stimulus experiment, not a valid battery model.
+The fixture `tests/fixtures/h6cs/feedback-state5.json` preserves one such case.
+No simulated output is connected to hardware.
