@@ -27,3 +27,7 @@ short-branch corrections, the optional instruction-clock Timer0, and the offline
 capture-comparison runner. The suite now contains 24 passing tests with the private
 ROM available. Baseline emulator and analysis were committed as 69762ac; earlier
 text above describes initial bring-up rather than the current versioning state.
+
+Clocked12-bit ADC and main-loop MODE regression are now included; see the audit
+follow-up for exact counts. Physical calibration and exact chip identification
+remain open. ADC/T0 mode selectors are exercised in the Firefox test.

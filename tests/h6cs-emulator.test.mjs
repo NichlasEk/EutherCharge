@@ -63,3 +63,36 @@ test('NY8 short CALL/GOTO use PCHBUF, not executing instruction page',()=>{
  const g=program(0x3355);g.r[10]=4;g.step();assert.equal(g.pc,0x555);
  assert.equal(decode(0x3155,0).target,null);
 });
+import {adcDuration} from '../emulator/adc.mjs';
+test('ADC conversion periods reproduce manufacturer table31 examples',()=>{
+ assert.equal(adcDuration(0,14),352); // 22 ADCLK, FINST/16
+ assert.equal(adcDuration(32,2),15);assert.equal(adcDuration(32,1),13);assert.equal(adcDuration(32,0),11);
+});
+test('Clocked ADC waits, completes, sets interrupt flag and captures raw stimulus',()=>{
+ const c=program();c.adcMode='clocked';c.r[17]=32;c.r[20]=2;c.adc[2]=0xabc;c.write(16,0xd2);
+ assert.equal(c.r[16]&96,0);c.adc[2]=123;c.adcPeripheral.advance(c,14);assert.equal(c.r[16]&32,0);
+ c.adcPeripheral.advance(c,1);assert.equal(c.r[16]&32,32);assert.equal(c.r[18],0xab);assert.equal(c.r[17],0xac);
+ assert.equal(c.adcPeripheral.conversions,1);
+});
+test('Clocked ADC rejects unsupported input modes and dispatches enabled completion IRQ',()=>{
+ const c=program();c.adcMode='clocked';assert.throws(()=>c.write(16,0xc1),/GCHS/);
+ c.r[17]=0x60;c.r[20]=2;c.write(16,0xd1);c.gie=true;c.run(15);
+ assert.equal(c.pc,8);assert.equal(c.interrupts,1);assert.equal(c.gie,false);
+});
+test('Private original: clocked ADC and instruction Timer0 run from reset',{skip:!rom},()=>{
+ const c=new NY8(rom);c.experimental=true;c.timerEnabled=true;c.timerMode='instruction';c.adcMode='clocked';c.run(4000000);
+ assert.equal(c.halted,'');assert.ok(c.adcPeripheral.conversions>1000);assert.ok(c.lcd.frames.some(f=>f.startsWith('101')));
+});
+test('Clocked ADC data buffers resist firmware writes while controls remain writable',()=>{
+ const c=program();c.adcMode='clocked';c.r[17]=0x0b;c.r[18]=0xac;
+ c.write(17,0x70);c.write(18,0);assert.equal(c.r[17],0x7b);assert.equal(c.r[18],0xac);
+});
+test('Private original: MODE debouncing and hold suppression run through timer/main-loop polling',{skip:!rom},()=>{
+ const c=new NY8(rom);c.experimental=true;c.timerEnabled=true;c.timerMode='instruction';c.adcMode='clocked';
+ c.run(50000);assert.equal(c.r[75],0);
+ for(const mode of [1,2,3,0]){
+  c.pressed=true;c.run(150000);assert.equal(c.r[75],mode);assert.equal(c.halted,'');
+  c.run(100000);assert.equal(c.r[75],mode,'held key must not repeat');
+  c.pressed=false;c.run(50000);
+ }
+});

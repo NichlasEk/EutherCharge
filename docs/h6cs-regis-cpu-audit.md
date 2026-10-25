@@ -71,3 +71,37 @@ need for an arbitrary accelerated timer for that result. It does not remove the
 opcode/ADC/reset assumptions or establish calibrated charger timing.
 
 No programmer, charger or power-stage access was performed by these tools.
+
+## Clocked ADC follow-up
+
+A separate optional ADC model now implements the v1.8 section3.14.3 conversion
+period `(sampling ADC clocks + resolution bits + 2) * ADC clock divider`.
+Manufacturer table31 examples (352,15,13,11 instruction clocks) are regression
+fixtures. Result packing is currently implemented only for12-bit conversions;
+8/10-bit result modes stop explicitly rather than assuming alignment.
+
+It checks ADEN/GCHS, clears EOC while busy, completes ADR/ADD atomically, sets ADIF
+and supports enabled ADC interrupt dispatch. START reads zero and result fields
+resist firmware writes. The sample is latched at START as a simulation choice.
+Unsupported channels or overlapping START requests stop execution. Disabling ADEN
+cancels a pending conversion in this model; physical cancellation behavior has not
+been measured. Analog settling, reference-voltage scaling and the256us bias startup
+requirement are not modeled. No clock frequency is assumed to turn cycles into seconds.
+
+The runner now defaults to clocked ADC; pass `instant` as the fourth argument after
+the instruction budget for comparison. UI controls expose both modes. The photo
+fixture and accelerated lab button explicitly restore instant ADC. Earlier audit
+statements about absent ADC timing describe the baseline before this follow-up.
+
+Measured offline follow-up (`regis-run-clocked.json`,4million instructions):
+5,415,542 modeled instruction cycles;1,348 Timer0 interrupts;18,307 ADC
+conversions. First LCD RAM frame completes at instruction1,484,052 / cycle2,009,983.
+At the default raw stimuli, observed state progression is0→1→2→0; these numeric
+states must not yet be labeled charging phases. First LCD update with instant ADC
+was at instruction1,707,386 / cycle2,010,114: similar cycle count but substantially
+different instruction count is consistent with the firmware's ADC polling loops.
+
+A new regression operates MODE through the main loop and Timer0 polling, with no
+routine jumps or RAM injection. Separate presses traverse0→1→2→3→0, and holding
+continues without repeat. This validates modeled firmware button behavior, not a
+physical debounce time or verified charging-mode thresholds.

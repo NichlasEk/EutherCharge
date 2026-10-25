@@ -34,8 +34,10 @@ only, serves only emulator assets and the explicitly supplied firmware path.
 This is a partial NY8-family emulator, not a cycle-accurate NY8B062D implementation.
 Exact chip identity remains unknown. Reset defaults, complete interrupt priority,
 watchdog behavior, oscillator config, peripheral timing, port electrical behavior,
-ADC conversion latency and calibration are not fully modeled. Timer0 is optional
-and synthetic. ADC returns immediately. CLRWDT is a no-op, SLEEP stops execution.
+ADC offers instant lab results or a clocked 12-bit candidate model. Timer0 offers
+a synthetic lab clock or instruction-clock/prescaler model. Absolute timing and
+analog calibration are unverified. CLRWDT restores status flags, but watchdog
+timeout is not modeled. SLEEP stops execution.
 Only Timer0 interrupts are modeled. Stack overflow halts rather than wrapping.
 Unknown instructions halt before advancing PC. Use the experimental arithmetic
 switch only as an explicitly labeled hypothesis; any resulting charging behavior
@@ -115,3 +117,11 @@ interrupt-entry latency and external clocks and is not calibrated to wall time.
 The **Labbkörning** button deliberately selects the synthetic fast timer again.
 See `docs/h6cs-regis-cpu-audit.md` and `tools/h6cs_emulator_run.mjs` for reproducible
 startup comparison and remaining identity/ISA limitations.
+
+### Clocked ADC
+
+Select **Klockad 12-bitars ADC** to execute firmware's EOC polling loops with a
+conversion period derived from ADC clock and sampling registers. Inputs are still
+raw injected12-bit numbers, latched at START. No analog calibration, reference
+voltage scaling, bias settling or battery physics is implied. Unsupported input
+channels, result modes and overlapping START requests stop with a diagnostic.
