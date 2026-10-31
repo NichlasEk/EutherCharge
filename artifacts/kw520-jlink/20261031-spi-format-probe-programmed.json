@@ -1,0 +1,47 @@
+{
+  "date": "2026-10-31",
+  "operation": "Fixed two-byte external-resource parser probe",
+  "result": "pass",
+  "vtarget_volts": 3.290,
+  "helper": {
+    "size_bytes": 1688,
+    "sha256": "3cb70682ae7f37f808b39180c232d1cc8d61d7c6af968d8d8e80a3f74d9c45f7",
+    "readback_exact_match": true,
+    "state": "0x41"
+  },
+  "gates": {
+    "live_registers": true,
+    "core_register_transfer": true,
+    "jedec_id": "1c 30 16",
+    "status_before": "0x18",
+    "block_protection_readback": "0xff",
+    "bytes_before": "0x656d",
+    "sector_crc_before": "0xf5c23372"
+  },
+  "status_sequence": {
+    "after_wren_clear": "0x1a",
+    "cleared": "0x00",
+    "after_wren_program": "0x02",
+    "after_program": "0x00",
+    "after_wren_restore": "0x02",
+    "restored": "0x18"
+  },
+  "result_data": {
+    "address": "0x003899",
+    "bytes_after": "0x2525",
+    "sector_crc_after": "0x7985c2f6",
+    "spi_error": 0,
+    "cleanup_attempted": false
+  },
+  "restoration": {
+    "code_exact": true,
+    "mailbox_exact": true,
+    "stack_exact": true,
+    "vtor": "0x08000000"
+  },
+  "predicted_physical_observation": {
+    "literal_renderer": "Huvud%%ny",
+    "printf_like_renderer": "Huvud%ny"
+  },
+  "conclusion": "The in-system J-Link to SRAM to SPI2 path can perform a fully gated Page Program on the installed EN25Q32(A/B), verify the complete sector, and restore the original status-register protection. Physical UI observation is still required before drawing a parser conclusion."
+}

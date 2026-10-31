@@ -33,8 +33,14 @@ måste visa en ny, tydligt avgränsad förmåga innan nästa steg påbörjas.
   resursimage har tidigare skrivits, lästs tillbaka och startat på apparaten.
 - En ändrad logobild syntes inte i det observerade startflödet. Dess aktiva
   användning är därför obevisad.
-- Det finns ännu ingen bevisad metod att läsa eller skriva externflashen genom
-  den befintliga SWD-headern.
+- J-Link kan nu köra en strikt avgränsad SRAM-rutin via SWD-headern. Den har
+  läst EN25Q32-ID `1c 30 16`, matchat 16 kända byte och beräknat hela den
+  installerade 4-MiB-imagens CRC-32B `268f3bd7`.
+- En fixerad tvåbytesändring i sektor `0x003000` har programmerats, verifierats
+  och observerats på verklig LCD som `Huvud%%ny`. Exakt backup återställde
+  sektor-CRC `f5c23372`, status `0x18` och normal `Huvudmeny` efter kallstart.
+- Provet visar literal textrendering på denna resursväg. Det gav ingen
+  formatsträngstolkning och ingen väg till MCU:ns skyddade internflash.
 
 ## Arbetsordning och beslutspunkter
 
@@ -67,6 +73,11 @@ ofarligt parserprov.
 träffar. Det märks då som kandidat och används inte till en skrivimage.
 
 ### Fas 2 – transport genom J-Link till externflashen
+
+**Status 2026-10-31: genomförd för kvalificerad läsning.** PA8 är `/CS` och
+PB13/PB14/PB15 används av SPI2. SRAM-bryggan och dess återställning är fysiskt
+verifierade. Hela 4 MiB har fingeravtryckts mot känd image; en full byte-dump
+över denna väg är möjlig men behövs inte för nästa parserprov.
 
 SEGGER beskriver två principiella metoder. Direkt metod kräver anslutning till
 SPI-signalerna. Indirekt metod går via SWD och en kort, kortspecifik rutin i
@@ -104,6 +115,12 @@ av MCU:n.
 
 ### Fas 3 – återställbar skrivning av externflash
 
+**Status 2026-10-31: genomförd för exakt sektor `0x003000`.** EN25Q32(A/B)
+startade med status `0x18` och blockskyddsläsning `0xff`. Skyddet öppnades med
+statusregisterskrivning `0x00`, provet programmerades, och status `0x18`
+återställdes. Återställningsrutinen raderade endast den fixerade sektorn,
+programmerade 16 sidor och verifierade original-CRC före normal kallstart.
+
 1. Jämför den aktuella flashen mot både originaldumpen och den verifierade
    svenska imagen. Skilj resursändringar från levande historik/metadata.
 2. Välj en 4-KiB-sektor som innehåller en känd, icke säkerhetskritisk menyresurs.
@@ -118,6 +135,12 @@ Ingen chip erase används. Ett misslyckat sidprogram följs av läsning och
 jämförelse; det följs inte automatiskt av fler skrivförsök.
 
 ### Fas 4 – kartlägg parserns beteende
+
+**Första fysiska resultatet:** byteparet `6d 65` i `Huvudmeny` ersattes med
+`25 25`. Displayen visade exakt `Huvud%%ny`, alltså literal rendering. Efter
+återställning visade den åter `Huvudmeny`. Försök inte få denna resursväg att
+läcka data med fler printf-specifierare; nästa diskriminerande prov bör i
+stället vara pekaromdirigering eller deklarerad längd.
 
 Tester görs ett i taget i stigande intrångsgrad:
 
@@ -191,9 +214,11 @@ Det som kan göras utan mer fysisk mätning är:
 | F | Internflash kan läsas trots skyddet |
 | G | Full firmwaredump är dubbel-läst och strukturellt validerad |
 
-Planen står nu på nivå A för språkformatet och tidigare resursmodifiering visar
-att originalfirmware konsumerar delar av datat. Nivå B och en väg från D till F
-är ännu inte bevisade.
+Planen står nu på nivå C och på en smal nivå D: transport, fixerad
+sektorskrivning/återställning och konsumtion av ett kontrollerat textfält är
+fysiskt bevisade. Literalprovet gav ingen nivå E-primitiv. Pekarföljning,
+gränsöverskridande läsning och varje väg från D/E till internflashnivå F är
+fortfarande obevisade.
 
 ## Referenser
 

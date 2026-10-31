@@ -1,0 +1,33 @@
+{
+  "date": "2026-10-31",
+  "operation": "Fixed EN25Q32 block-0 protection roundtrip attempt 1",
+  "result": "refused_before_array_mutation",
+  "vtarget_volts": 3.288,
+  "helper": {
+    "size_bytes": 1400,
+    "sha256": "07e9ae3aced08d0b28d64dc97b97a0c01d8c24bd83d3dddfb8aaf2db239e01c6",
+    "readback_exact_match": true,
+    "page_program_opcode_present": false,
+    "erase_opcode_present": false
+  },
+  "observed": {
+    "state": "0xeb",
+    "jedec_id": "1c 30 16",
+    "status_before": "0x18",
+    "protection_before": "0xff",
+    "sector_crc_before": "0xf5c23372",
+    "status_after_wren_unprotect": "0x1a",
+    "post_unprotect_status_not_recorded_by_attempt1": true,
+    "cleanup_attempted": true,
+    "spi_error": 0
+  },
+  "post_cold_start_read_only_verification": {
+    "status": "0x18",
+    "block_protection": "0xff",
+    "helper_readback_exact": true,
+    "code_restored_exact": true,
+    "mailbox_restored_exact": true,
+    "stack_restored_exact": true
+  },
+  "conclusion": "The first roundtrip stopped because its exact post-39h status expectation failed. The cleanup path and subsequent cold-start read-only census confirmed the original protection state was restored. No Page Program or erase operation was available to this helper."
+}

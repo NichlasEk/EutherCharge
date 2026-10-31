@@ -1,0 +1,37 @@
+{
+  "date": "2026-10-31",
+  "operation": "Complete physical external-resource parser-probe cycle",
+  "result": "pass",
+  "target": {
+    "mcu": "AT32F421C8T7",
+    "external_flash": "EN25Q32(A/B)",
+    "jedec_id": "1c 30 16"
+  },
+  "probe": {
+    "sector": "0x003000",
+    "address": "0x003899",
+    "before": "6d 65",
+    "after": "25 25",
+    "sector_crc32b_before": "0xf5c23372",
+    "sector_crc32b_patched": "0x7985c2f6",
+    "predicted_literal_display": "Huvud%%ny",
+    "observed_literal_display": "Huvud%%ny"
+  },
+  "restoration": {
+    "source": "independently qualified 4096-byte sector backup",
+    "erased_sector_crc32b": "0xf154670a",
+    "pages_programmed": 16,
+    "final_sector_crc32b": "0xf5c23372",
+    "status_before": "0x18",
+    "status_during_write": "0x00",
+    "status_final": "0x18",
+    "block_protection_readback_final": "0xff"
+  },
+  "final_physical_observation": {
+    "method": "normal cold start after J-Link restoration session",
+    "observed_display": "Huvudmeny",
+    "normal_ui_operation": true,
+    "reported_by": "user"
+  },
+  "conclusion": "The installed firmware reads this language payload from external flash and renders percent bytes literally. The exact original sector and protection status were restored, and normal behavior returned after a physical cold start. This proves a reversible external-resource mutation path, not an internal-flash disclosure primitive."
+}

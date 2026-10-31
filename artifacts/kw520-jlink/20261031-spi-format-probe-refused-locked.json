@@ -1,0 +1,29 @@
+{
+  "date": "2026-10-31",
+  "operation": "Fixed two-byte format probe while EN25Q32(A/B) block protection remained active",
+  "result": "refused_without_array_change",
+  "vtarget_volts": 3.291,
+  "helper": {
+    "size_bytes": 1380,
+    "sha256": "cb714019d3879c654822c2d7b1506b4fb6067c07fa2cfc8894cd27132dc58b9b",
+    "readback_exact_match": true,
+    "state": "0xee"
+  },
+  "observed": {
+    "jedec_id": "1c 30 16",
+    "status_before": "0x18",
+    "block_protection_readback": "0xff",
+    "bytes_before": "0x656d",
+    "sector_crc_before": "0xf5c23372",
+    "status_after_wren": "0x1a",
+    "status_after_page_program_command": "0x1a",
+    "spi_error": 0
+  },
+  "restoration": {
+    "code_exact": true,
+    "mailbox_exact": true,
+    "stack_exact": true,
+    "vtor": "0x08000000"
+  },
+  "conclusion": "Page Program was ignored while protection stayed active: WEL remained set instead of being consumed. The helper issued Write Disable and stopped before post-program CRC. No erase opcode was present. Flashrom's official EN25Q32(A/B) definition uses status-register BP clearing, not the unsupported 39h command, for global unprotect."
+}

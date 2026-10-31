@@ -1,0 +1,47 @@
+{
+  "date": "2026-10-31",
+  "operation": "Fixed read-only EN25Q32 sector 0x003000 recovery backup",
+  "result": "pass",
+  "vtarget_volts": 3.290,
+  "helper_layout": {
+    "code": "0x20001a00",
+    "mailbox": "0x20001f00",
+    "buffer": "0x20000a00-0x200019ff",
+    "stack_top": "0x20002300",
+    "verified_zero_run": "0x200009fc-0x2000236b"
+  },
+  "helper": {
+    "size_bytes": 1048,
+    "sha256": "4491e434e3883eecf9d7f3d4fdcdaecf281cef5be9b2791520e260e5570b7927",
+    "readback_exact_match": true,
+    "spi_commands": [
+      "9f",
+      "03"
+    ],
+    "mutating_spi_commands_present": false,
+    "wdt_refreshes": 2
+  },
+  "result_data": {
+    "jedec_id": "1c 30 16",
+    "source_offset": "0x003000",
+    "requested_bytes": 4096,
+    "completed_bytes": 4096,
+    "sha256": "95cb89b4c6cf9a72037189adaf4d62d8050f584b784ea7f233335fce218e1ca9",
+    "crc32b": "0xf5c23372",
+    "matches_installed_euthercharge_image": true,
+    "matches_prepared_restore_sector": true
+  },
+  "restoration": {
+    "code_exact": true,
+    "mailbox_exact": true,
+    "buffer_exact": true,
+    "stack_exact": true,
+    "vtor": "0x08000000"
+  },
+  "rejected_attempts": {
+    "count": 2,
+    "reason": "The normal 0x20001800 buffer crossed live SRAM 0x20002380-0x200023f7, corrupting sector offsets 0x0b80-0x0bf7. The two unstable captures were rejected and are not external-flash evidence.",
+    "peripheral_or_dma_registers_changed": false
+  },
+  "conclusion": "A bit-exact recovery copy of sector 0x003000 is now qualified without external-flash mutation. The separately linked safe SRAM layout avoids the live peripheral/DMA window."
+}

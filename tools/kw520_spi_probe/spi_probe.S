@@ -2,9 +2,19 @@
 .cpu cortex-m4
 .thumb
 
-.equ MAILBOX,      0x20001700
-.equ READ_BUFFER,  0x20001800
-.equ STACK_TOP,    0x20003f00
+#ifndef KW_MAILBOX
+#define KW_MAILBOX 0x20001700
+#endif
+#ifndef KW_READ_BUFFER
+#define KW_READ_BUFFER 0x20001800
+#endif
+#ifndef KW_STACK_TOP
+#define KW_STACK_TOP 0x20003f00
+#endif
+
+.equ MAILBOX,      KW_MAILBOX
+.equ READ_BUFFER,  KW_READ_BUFFER
+.equ STACK_TOP,    KW_STACK_TOP
 .equ GPIOA,        0x48000000
 .equ GPIOB,        0x48000400
 .equ SPI2,         0x40003800
@@ -103,6 +113,10 @@ probe_start:
   ldr r1, [r6, #8]
   cmp r1, #4
   beq initial_command_ready
+  cmp r1, #5
+  beq initial_command_ready
+  cmp r1, #6
+  beq initial_command_ready
   cmp r1, #3
   bne clear_initial_command
   ldr r2, [r6, #0x0c]
@@ -128,6 +142,10 @@ command_loop:
   cmp r1, #3
   beq jedec_probe
   cmp r1, #4
+  beq jedec_probe
+  cmp r1, #5
+  beq jedec_probe
+  cmp r1, #6
   beq jedec_probe
   movs r1, #0xe0
   str r1, [r6, #4]
@@ -205,6 +223,10 @@ transfer_done:
   beq read_data            /* fixed one-shot JEDEC -> offset 0 + 16 */
   cmp r1, #4
   beq crc_full_flash       /* fixed one-shot JEDEC -> 4 MiB CRC-32B */
+  cmp r1, #5
+  beq read_sector_3000     /* fixed one-shot JEDEC -> sector 0x003000 */
+  cmp r1, #6
+  beq read_protection_3000 /* fixed one-shot JEDEC -> status + BPR */
   movs r1, #0x11
   str r1, [r6, #4]
   b command_done
@@ -213,6 +235,104 @@ jedec_mismatch:
   movs r1, #0x12
   str r1, [r6, #4]
   b command_done
+
+read_protection_3000:
+  /*
+   * Strictly read-only protection census for the recovery sector.
+   * Opcodes used after the JEDEC gate are only RDSR (05h) and the
+   * EN25Q32 Read Block Protection command (3Ch) at address 003000h.
+   */
+  movs r1, #0x50
+  str r1, [r6, #4]
+  ldr r2, =WDT
+  ldr r1, =0x0000aaaa
+  str r1, [r2]
+
+  ldr r1, [r5, #0x08]
+  tst r1, #1
+  beq protection_status_empty
+  ldr r1, [r5, #0x0c]
+protection_status_empty:
+  ldr r1, =PA8
+  str r1, [r4, #0x28]
+  dsb sy
+  movs r0, #0x05
+  bl spi_xfer
+  cmp r1, #0
+  bne spi_timeout
+  movs r0, #0xff
+  bl spi_xfer
+  cmp r1, #0
+  bne spi_timeout
+  str r0, [r6, #0x60]
+  ldr r2, =0x00040000
+protection_status_busy:
+  ldr r1, [r5, #0x08]
+  tst r1, #0x80
+  beq protection_status_done
+  subs r2, r2, #1
+  bne protection_status_busy
+  b spi_timeout
+protection_status_done:
+  ldr r1, =PA8
+  str r1, [r4, #0x18]
+  dsb sy
+
+  ldr r1, [r5, #0x08]
+  tst r1, #1
+  beq protection_bpr_empty
+  ldr r1, [r5, #0x0c]
+protection_bpr_empty:
+  ldr r1, =PA8
+  str r1, [r4, #0x28]
+  dsb sy
+  movs r0, #0x3c
+  bl spi_xfer
+  cmp r1, #0
+  bne spi_timeout
+  movs r0, #0x00
+  bl spi_xfer
+  cmp r1, #0
+  bne spi_timeout
+  movs r0, #0x30
+  bl spi_xfer
+  cmp r1, #0
+  bne spi_timeout
+  movs r0, #0x00
+  bl spi_xfer
+  cmp r1, #0
+  bne spi_timeout
+  movs r0, #0xff
+  bl spi_xfer
+  cmp r1, #0
+  bne spi_timeout
+  str r0, [r6, #0x64]
+  ldr r2, =0x00040000
+protection_bpr_busy:
+  ldr r1, [r5, #0x08]
+  tst r1, #0x80
+  beq protection_bpr_done
+  subs r2, r2, #1
+  bne protection_bpr_busy
+  b spi_timeout
+protection_bpr_done:
+  ldr r1, =PA8
+  str r1, [r4, #0x18]
+  dsb sy
+  movs r1, #0x51
+  str r1, [r6, #4]
+  b command_done
+
+read_sector_3000:
+  /* Fixed 4 KiB recovery backup for the first resource-parser experiment. */
+  ldr r2, =WDT
+  ldr r1, =0x0000aaaa
+  str r1, [r2]             /* one bounded refresh before genuine SPI progress */
+  ldr r1, =0x00003000
+  str r1, [r6, #0x0c]
+  ldr r1, =0x00001000
+  str r1, [r6, #0x10]
+  b read_data
 
 crc_full_flash:
   /* Fixed, read-only fingerprint of the complete 4 MiB EN25Q32. */
@@ -383,6 +503,13 @@ read_transfer_done:
   ldr r2, =PA8
   str r2, [r4, #0x18]     /* PA8 high: CS released */
   dsb sy
+  ldr r1, [r6, #8]
+  cmp r1, #5
+  bne read_no_wdt_refresh
+  ldr r2, =WDT
+  ldr r1, =0x0000aaaa
+  str r1, [r2]             /* one bounded refresh after all 4096 bytes */
+read_no_wdt_refresh:
   movs r1, #0x21
   str r1, [r6, #4]
   b command_done

@@ -1,0 +1,17 @@
+{
+  "date": "2026-10-31",
+  "operation": "Physical cold-start observation of fixed external-resource parser probe",
+  "result": "literal_renderer",
+  "programmed_bytes": {
+    "address": "0x003899",
+    "before": "6d 65",
+    "after": "25 25"
+  },
+  "predictions": {
+    "literal_renderer": "Huvud%%ny",
+    "printf_like_renderer": "Huvud%ny"
+  },
+  "observed_display": "Huvud%%ny",
+  "evidence": "User-provided physical LCD photograph in the active session clearly shows two adjacent percent signs in the main-menu title.",
+  "conclusion": "The original firmware consumes this external-flash language resource and renders the two percent bytes literally. This resource path is not a printf-like format interpreter and does not consume a variadic argument. The exact external sector must now be restored before further parser experiments."
+}

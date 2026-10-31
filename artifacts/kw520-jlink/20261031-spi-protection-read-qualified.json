@@ -1,0 +1,33 @@
+{
+  "date": "2026-10-31",
+  "operation": "Fixed read-only EN25Q32 status and block-protection census",
+  "result": "pass",
+  "vtarget_volts": 3.290,
+  "helper": {
+    "size_bytes": 1272,
+    "sha256": "dd49a250a91e30bbb0636dfbeff4f88117be742a207bb78f15fbdf79679a56f3",
+    "readback_exact_match": true,
+    "spi_commands": [
+      "9f",
+      "05",
+      "3c"
+    ],
+    "mutating_spi_commands_present": false
+  },
+  "result_data": {
+    "jedec_id": "1c 30 16",
+    "status_register": "0x18",
+    "status_bp_bits": "110",
+    "status_protected_range": "0x200000-0x3fffff",
+    "queried_address": "0x003000",
+    "block_protection_register": "0xff",
+    "block_is_protected": true
+  },
+  "restoration": {
+    "code_exact": true,
+    "mailbox_exact": true,
+    "stack_exact": true,
+    "vtor": "0x08000000"
+  },
+  "conclusion": "Sector 0x003000 is outside the status-register protected upper half but its individual block-protection register is set. Any in-system format probe must temporarily unprotect and then reprotect block 0 without changing the status register."
+}

@@ -1,0 +1,36 @@
+{
+  "date": "2026-10-31",
+  "operation": "Fixed sector-0x003000 restoration helper no-op qualification",
+  "result": "pass",
+  "vtarget_volts": 3.288,
+  "helper": {
+    "size_bytes": 1528,
+    "sha256": "0227afbc660f824285bb37fc6bc2005b5a49df71fc2caf5c72ad91fb40dbf170",
+    "readback_exact_match": true,
+    "state": "0x42"
+  },
+  "gates": {
+    "live_registers": true,
+    "core_register_transfer": true,
+    "jedec_id": "1c 30 16",
+    "status": "0x18",
+    "block_protection_readback": "0xff",
+    "restore_buffer_crc32b": "0xf5c23372",
+    "target_sector_crc32b": "0xf5c23372"
+  },
+  "mutation_counters": {
+    "erased_crc32b": "0x00000000",
+    "final_crc32b": "0x00000000",
+    "pages_programmed": 0,
+    "status_last": "0x00",
+    "spi_error": 0
+  },
+  "restoration": {
+    "code_exact": true,
+    "mailbox_exact": true,
+    "buffer_chunks_exact": true,
+    "stack_exact": true,
+    "vtor": "0x08000000"
+  },
+  "conclusion": "With the installed status/protection image, the fixed recovery helper independently verified both its 4 KiB SRAM restore payload and the live sector, then exited before Write Enable. Its recovery mutation path remains gated to the one exact patched CRC."
+}

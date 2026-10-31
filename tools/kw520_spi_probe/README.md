@@ -24,6 +24,22 @@ reflected CRC-32B (`EDB88320`, initial/final XOR `FFFFFFFF`) in core registers.
 Only progress and the final 32-bit CRC enter the mailbox. It adds no flash-write
 opcode and transfers no bulk flash contents through the debug link.
 
+Command 5 is a fixed recovery backup for parser experiments. It performs the
+same JEDEC gate and then reads exactly the 4 KiB sector at `0x003000` into SRAM
+at `0x20001800` in one core run. The source and length are compiled in; host
+mailbox values cannot redirect this command. It remains read-only.
+It refreshes the already configured watchdog exactly once immediately before
+the read and once after all 4,096 bytes complete; it does not unlock or change
+the watchdog configuration.
+
+The physical sector-read configuration uses a separately linked copy at
+`0x20001a00`, buffer `0x20000a00–0x200019ff`, mailbox `0x20001f00` and stack
+top `0x20002300`. These addresses stay inside the previously captured zero run
+`0x200009fc–0x2000236b`. The first two attempts with the normal buffer crossed
+the live `0x20002380–0x200023f7` region, which continued changing while the CPU
+was halted and corrupted exactly sector offsets `0xb80–0xbf7`; those captures
+are rejected and are not flash evidence.
+
 The installed hardware watchdog was proven by `CRM_CTRLSTS.WDTRSTF` after two
 repeatable resets. During command 4 only, the helper writes the vendor-defined
 reload key `AAAA` to `WDT_CMD` once at entry and after each 4096 bytes of genuine

@@ -1,0 +1,32 @@
+{
+  "date": "2026-10-31",
+  "operation": "Fixed EN25Q32 block-0 protection roundtrip attempt 2",
+  "result": "unprotect_command_ignored",
+  "vtarget_volts": 3.288,
+  "helper": {
+    "size_bytes": 1440,
+    "sha256": "f2fd842af689dc3b0eea24ab97a558db2e7126b7d7815888d84e5e0d2ea9d0bb",
+    "readback_exact_match": true,
+    "page_program_opcode_present": false,
+    "erase_opcode_present": false
+  },
+  "observed": {
+    "state": "0xed",
+    "jedec_id": "1c 30 16",
+    "status_before": "0x18",
+    "protection_before": "0xff",
+    "sector_crc_before": "0xf5c23372",
+    "status_after_wren_unprotect": "0x1a",
+    "status_after_unprotect": "0x1a",
+    "protection_after_unprotect": "0xff",
+    "cleanup_attempted": true,
+    "spi_error": 0
+  },
+  "restoration": {
+    "helper_readback_exact": true,
+    "code_exact": true,
+    "mailbox_exact": true,
+    "stack_exact": true
+  },
+  "conclusion": "WREN succeeded, but 39h neither cleared WEL nor changed the block-protection readback. The helper stopped before Protect Block and before any array-data mutation, then executed its fixed cleanup path. This distinguishes an ignored Unprotect Block command from the status-assumption failure in attempt 1."
+}
