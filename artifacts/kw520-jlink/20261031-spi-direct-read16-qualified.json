@@ -1,0 +1,51 @@
+{
+  "date": "2026-10-31",
+  "operation": "Direct SRAM helper EN25Q32 JEDEC plus fixed offset-zero 16-byte read",
+  "result": "pass",
+  "vtarget_volts": 3.290,
+  "core_register_readback_exact": true,
+  "debug_status": {
+    "before_run": "0x00030003",
+    "during_run": "0x01010001",
+    "after_direct_halt": "0x01030003"
+  },
+  "helper_result": {
+    "magic": "0x4b575350",
+    "state": "0x00000021",
+    "command_after_completion": "0x00000000",
+    "jedec_id": "1c 30 16",
+    "completed_bytes": 16,
+    "read_opcode": "03",
+    "source_offset": "0x000000",
+    "mutating_spi_commands_present": false
+  },
+  "read_result": {
+    "size_bytes": 16,
+    "sha256": "6e55de265faea5577dae4d908b9ffb2a6c7cd736f49bbfbc04225f74c1b6c73b",
+    "matches_installed_euthercharge_readback": true,
+    "installed_readback_path": "dumps/readback/kw520-after-euthercharge-2026-10-18.bin",
+    "installed_full_image_sha256": "4a4947e116dc405e577c97e965c342cc89f7f8b3f517babee9a8105e400d0329",
+    "matches_build_full_image": true,
+    "build_full_image_path": "build/euthercharge-kw520-1.0.1-full.bin",
+    "matches_factory_original": false,
+    "factory_original_sha256": "d369a860ae39b307ec9cdd00fb59b2501937a20f7f20d9417ff5eede83b841e2",
+    "interpretation": "The installed charger contains the previously verified EutherCharge external-flash image, so mismatch against the pre-modification factory dump is expected."
+  },
+  "helper_integrity": {
+    "size_bytes": 760,
+    "expected_sha256": "0f3656c859bea2bf139b4dcf28adf37e7fdca82cef0d56393666b1d9c7a3aac7",
+    "readback_sha256": "0f3656c859bea2bf139b4dcf28adf37e7fdca82cef0d56393666b1d9c7a3aac7"
+  },
+  "restoration": {
+    "code_768_sha256_before_after": "ef115a0e0c15cdc41958ca46b5b14b456115f4baec5e3ca68599d2a8f435e3b8",
+    "mailbox_128_sha256_before_after": "38723a2e5e8a17aa7950dc008209944e898f69a7bd10a23c839d341e935fd5ca",
+    "buffer_16_sha256_before_after": "374708fff7719dd5979ec875d56cd2286f6d3cf7ec317a3b25632aab28ec37bb",
+    "stack_64_sha256_before_after": "41da49e695b5b5e5ec316c29b1f62fee75be3f279e18b5279776d9e9b186a293",
+    "all_bit_identical": true,
+    "vtor": "0x08000000"
+  },
+  "cleanup": {
+    "final_dp_ctrl_stat": "0x00000040"
+  },
+  "conclusion": "The read-only J-Link to SRAM helper to PA8/SPI2 to installed EN25Q32 data path is physically qualified end to end."
+}

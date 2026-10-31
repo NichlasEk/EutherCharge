@@ -1,0 +1,60 @@
+{
+  "date": "2026-10-31",
+  "operation": "Read-only full-device CRC-32B fingerprint of installed EN25Q32 with bounded WDT refresh",
+  "result": "pass",
+  "vtarget_volts": 3.293,
+  "core_register_readback_exact": true,
+  "debug_status": {
+    "before_run": "0x00030003",
+    "during_run": "0x01010001",
+    "after_direct_halt": "0x01030003"
+  },
+  "helper_result": {
+    "magic": "0x4b575350",
+    "state": "0x00000041",
+    "command_after_completion": "0x00000000",
+    "jedec_id": "1c 30 16",
+    "completed_bytes": 4194304,
+    "requested_bytes": 4194304,
+    "wdt_refresh_count": 1024,
+    "wdt_refresh_interval_bytes": 4096,
+    "crc32b": "0x268f3bd7"
+  },
+  "expected_installed_image": {
+    "path": "dumps/readback/kw520-after-euthercharge-2026-10-18.bin",
+    "size_bytes": 4194304,
+    "crc32b": "0x268f3bd7",
+    "sha256": "4a4947e116dc405e577c97e965c342cc89f7f8b3f517babee9a8105e400d0329"
+  },
+  "watchdog_scope": {
+    "register": "WDT_CMD at 0x40003000",
+    "value": "0x0000aaaa",
+    "writes": "once at entry and once per 4096 completed bytes",
+    "unlock_written": false,
+    "divider_written": false,
+    "reload_written": false,
+    "note": "If SPI/CRC progress stops, refresh stops and the watchdog remains effective."
+  },
+  "spi_scope": {
+    "commands": ["9f", "03"],
+    "mutating_commands_present": false,
+    "external_flash_write_or_erase": false
+  },
+  "helper_integrity": {
+    "size_bytes": 996,
+    "expected_sha256": "5b55a03cdd89444487622d5ab4338882a406f844ffe06135b70765e64286aa71",
+    "readback_sha256": "5b55a03cdd89444487622d5ab4338882a406f844ffe06135b70765e64286aa71"
+  },
+  "restoration": {
+    "code_1024_sha256_before_after": "5f70bf18a086007016e948b04aed3b82103a36bea41755b6cddfaf10ace3c6ef",
+    "mailbox_128_sha256_before_after": "38723a2e5e8a17aa7950dc008209944e898f69a7bd10a23c839d341e935fd5ca",
+    "buffer_16_sha256_before_after": "374708fff7719dd5979ec875d56cd2286f6d3cf7ec317a3b25632aab28ec37bb",
+    "stack_64_sha256_before_after": "4fa07949e53688313a4bd435297dffc540399584ee6cfe56e3850bb25f721b05",
+    "all_bit_identical": true,
+    "vtor": "0x08000000"
+  },
+  "cleanup": {
+    "final_dp_ctrl_stat": "0x00000040"
+  },
+  "conclusion": "The installed external flash matches the known EutherCharge image by exact offset-zero read and full-device CRC-32B. This is not a cryptographic full readback and does not disclose the MCU's FAP-protected internal main flash."
+}

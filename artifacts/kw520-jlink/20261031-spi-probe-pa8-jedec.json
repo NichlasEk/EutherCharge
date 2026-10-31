@@ -1,0 +1,44 @@
+{
+  "date": "2026-10-31",
+  "target": "KW520 HW 1.2.0 / SW 1.0.7",
+  "purpose": "Qualify a read-only SRAM-to-SPI2 path using the physically traced EN25Q32 chip-select",
+  "physical_trace": {
+    "flash": "EN25Q32",
+    "flash_pin": "1 /CS",
+    "mcu_pin": "29 / PA8",
+    "continuity_ohms_reported": 0
+  },
+  "live_registers": {
+    "gpioa_cfgr": "0x6951ffff",
+    "gpioa_odt": "0x00009d00",
+    "gpiob_cfgr": "0xab41417f",
+    "spi2_ctrl1": "0x00000357",
+    "spi2_sts": "0x00000002",
+    "crm_ahben": "0x004e0015",
+    "crm_apb1en": "0x00004010"
+  },
+  "helper": {
+    "load_address": "0x20001000",
+    "size_bytes": 520,
+    "sha256": "085b14605d6bdd656a3d9153000429a795d0d32bcaaaf75d687d8d4cbc531190",
+    "command_sent": "9f ff ff ff",
+    "mutating_spi_commands_present": false
+  },
+  "result": {
+    "magic": "0x4b575350",
+    "state": "0x11",
+    "jedec_id": "1c 30 16",
+    "expected_jedec_id": "1c 30 16",
+    "match": true
+  },
+  "restoration": {
+    "vtor": "0x08000000",
+    "sram_backup_bytes": 5120,
+    "sram_backup_sha256": "c9a8620959c0481d3cc89d1dc2162fb0efe659f371ffce8e492624a47e3146cf",
+    "note": "The complete helper-touched region below the temporary stack was restored; observed differences above it were original-firmware live SRAM activity after external reset."
+  },
+  "cleanup": {
+    "final_dp_ctrl_stat": "0x00000040"
+  },
+  "conclusion": "PA8 is the EN25Q32 chip-select and the J-Link to SRAM helper to SPI2 read-only path is proven. No external or internal flash write, erase, unlock, or protection change occurred."
+}

@@ -1,0 +1,47 @@
+{
+  "date": "2026-10-31",
+  "power": {
+    "target_supply": "external 3.3 V backfeed, user-reported",
+    "jlink_vtarget_mv": 3290,
+    "usb": "002/083"
+  },
+  "gate_2_load_readback": {
+    "target_state": "halted",
+    "backup_size": 5120,
+    "backup_sha256": "258040a55efc585da1d0d85ce7741ca0b9279d2a1e1006b429482cced742bf89",
+    "helper_size": 308,
+    "helper_sha256": "abc47fdb82ec7dd17fdf6e11166e1973341cb092382d2c60d6a2149a460f5663",
+    "readback_exact_match": true,
+    "pass": true
+  },
+  "gate_3_sram_execution": {
+    "old_vtor": "0x00000000",
+    "halt_pc": "0x20001066",
+    "halt_msp": "0x20002300",
+    "mailbox_magic": "0x4b575250",
+    "mailbox_state": "0x00000001",
+    "pass": true
+  },
+  "gate_4_internal_flash_probe": {
+    "source": "0x08000000",
+    "word_count": 2,
+    "mailbox_state": "0x00000011",
+    "words": ["0x00000000", "0x00000000"],
+    "fault": false,
+    "plausible_cortex_m_vectors": false,
+    "protected_data_recovered": false
+  },
+  "restore": {
+    "vtor": "0x00000000",
+    "sram_readback_size": 5120,
+    "sram_readback_sha256": "258040a55efc585da1d0d85ce7741ca0b9279d2a1e1006b429482cced742bf89",
+    "exact_match": true
+  },
+  "cleanup": {
+    "sticky_abort": "0x0000001e",
+    "after_debug_release": "0xc0000040",
+    "final_ctrl_stat": "0x00000040"
+  },
+  "conclusion": "SRAM execution is proven, but low-level FAP masks main-flash reads in debug/SRAM execution mode. Full 64 KiB acquisition is blocked and was not run.",
+  "destructive_operations": false
+}

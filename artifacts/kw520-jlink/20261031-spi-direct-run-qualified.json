@@ -1,0 +1,42 @@
+{
+  "date": "2026-10-31",
+  "operation": "SPI-free direct Cortex-M4 run-control qualification with minimal backup window",
+  "result": "pass",
+  "vtarget_volts": 3.290,
+  "mailbox_command": 0,
+  "spi_commands_executed": [],
+  "core_register_readback": {
+    "msp": "0x20003f00",
+    "psp": "0x20003f00",
+    "special": "0x00000000",
+    "xpsr": "0x01000000",
+    "pc": "0x20001040",
+    "all_exact": true
+  },
+  "debug_status": {
+    "before_run": "0x00030003",
+    "during_run": "0x01010001",
+    "after_direct_halt": "0x01030003",
+    "halt_released_during_run": true
+  },
+  "helper": {
+    "magic": "0x4b575350",
+    "state": "0x00000001",
+    "command": "0x00000000",
+    "size_bytes": 760,
+    "expected_sha256": "0f3656c859bea2bf139b4dcf28adf37e7fdca82cef0d56393666b1d9c7a3aac7",
+    "readback_sha256": "0f3656c859bea2bf139b4dcf28adf37e7fdca82cef0d56393666b1d9c7a3aac7"
+  },
+  "restoration": {
+    "code_768_sha256_before_after": "ef115a0e0c15cdc41958ca46b5b14b456115f4baec5e3ca68599d2a8f435e3b8",
+    "mailbox_128_sha256_before_after": "38723a2e5e8a17aa7950dc008209944e898f69a7bd10a23c839d341e935fd5ca",
+    "buffer_16_sha256_before_after": "374708fff7719dd5979ec875d56cd2286f6d3cf7ec317a3b25632aab28ec37bb",
+    "stack_64_sha256_before_after": "6a78ea1e05ccdfe6bb99871a51d1efa421825c9a20c327841601890eccfa19ac",
+    "all_bit_identical": true,
+    "vtor": "0x08000000"
+  },
+  "cleanup": {
+    "final_dp_ctrl_stat": "0x00000040"
+  },
+  "conclusion": "Direct DHCSR/DCRSR/DCRDR run control is qualified when pre-run transfer volume is limited to the exact touched SRAM windows. The gate selected command zero and performed no SPI transaction."
+}
