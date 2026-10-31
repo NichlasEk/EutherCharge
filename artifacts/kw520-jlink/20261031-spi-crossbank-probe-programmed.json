@@ -1,0 +1,59 @@
+{
+  "date": "2026-10-31",
+  "operation": "Fixed valid cross-bank main-menu pointer redirection",
+  "result": "pass",
+  "vtarget_volts": 3.291,
+  "helper": {
+    "magic": "0x4b574342",
+    "arm": "0x41524d37",
+    "size_bytes": 1740,
+    "sha256": "75d9cf3a479d35aacbcbec46bb8a46b43e3900fe354446150892bc3a7218811a",
+    "readback_exact_match": true,
+    "state": "0x41"
+  },
+  "pointer_change": {
+    "source_table": "English table carrying installed Swedish payloads",
+    "target_bank": "Français",
+    "table_entry": 1,
+    "pointer_offset": "0x003604",
+    "changed_byte_offsets": ["0x003606", "0x003607"],
+    "before": "0x00000692",
+    "after": "0x000013e9",
+    "source_record": "0x003892",
+    "source_text": "Huvudmeny",
+    "target_record": "0x0045e9",
+    "target_text": "Menu principal",
+    "string_payload_bytes_modified": false,
+    "length_prefixes_modified": false
+  },
+  "gates": {
+    "live_registers": true,
+    "core_register_transfer": true,
+    "jedec_id": "1c 30 16",
+    "status_before": "0x18",
+    "block_protection_readback": "0xff",
+    "input_buffer_crc32b": "0xb29ee7d1",
+    "target_sector_crc32b": "0xf5c23372"
+  },
+  "programming_result": {
+    "erased_sector_crc32b": "0xf154670a",
+    "pages_programmed": 16,
+    "final_sector_crc32b": "0xb29ee7d1",
+    "status_cleared": "0x00",
+    "status_restored": "0x18",
+    "spi_error": 0,
+    "cleanup_attempted": false
+  },
+  "sram_restoration": {
+    "code_exact": true,
+    "mailbox_exact": true,
+    "all_four_buffer_chunks_exact": true,
+    "stack_exact": true,
+    "vtor": "0x08000000"
+  },
+  "predicted_physical_observation": {
+    "main_menu_title": "Menu principal",
+    "interpretation_if_observed": "The ordinary-string relative pointer is not constrained to the source language bank."
+  },
+  "conclusion": "The exact fixed cross-bank sector was programmed and verified in-system. Physical UI observation and then ARM8 restoration remain required."
+}

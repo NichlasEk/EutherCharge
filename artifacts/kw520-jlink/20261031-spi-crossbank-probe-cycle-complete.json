@@ -1,0 +1,37 @@
+{
+  "date": "2026-10-31",
+  "operation": "Complete physical valid cross-bank pointer-redirection cycle",
+  "result": "pass",
+  "controlled_change": {
+    "source_table": "English table carrying installed Swedish payloads",
+    "target_bank": "Français",
+    "table_entry": 1,
+    "pointer_offset": "0x003604",
+    "pointer_before": "0x00000692",
+    "pointer_after": "0x000013e9",
+    "source_record": "0x003892",
+    "source_text": "Huvudmeny",
+    "target_record": "0x0045e9",
+    "target_text": "Menu principal",
+    "string_payload_bytes_modified": false,
+    "length_prefixes_modified": false
+  },
+  "forward_result": {
+    "input_sector_crc32b": "0xf5c23372",
+    "erased_sector_crc32b": "0xf154670a",
+    "pages_programmed": 16,
+    "final_sector_crc32b": "0xb29ee7d1",
+    "status_final": "0x18",
+    "observed_display_after_cold_start": "Menu principal"
+  },
+  "restoration_result": {
+    "input_sector_crc32b": "0xb29ee7d1",
+    "erased_sector_crc32b": "0xf154670a",
+    "pages_programmed": 16,
+    "final_sector_crc32b": "0xf5c23372",
+    "status_final": "0x18",
+    "observed_display_after_cold_start": "Huvudmeny",
+    "normal_button_response": true
+  },
+  "conclusion": "Original firmware physically follows an ordinary-string relative pointer from the active English/Swedish table into an existing valid Français record. The pointer is not constrained to the source language bank. The complete change-observe-restore cycle passed and normal operation returned. This remains an in-range external-flash read and not an out-of-bounds or protected internal-flash disclosure primitive."
+}

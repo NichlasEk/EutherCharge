@@ -1,0 +1,41 @@
+{
+  "date": "2026-10-31",
+  "operation": "Cross-bank-probe-specific restoration helper no-op qualification",
+  "result": "pass",
+  "vtarget_volts": 3.290,
+  "helper": {
+    "magic": "0x4b574352",
+    "arm": "0x41524d38",
+    "size_bytes": 1740,
+    "sha256": "c2efac5633809ad1347cbe01e554d8b15789e21aeb18796b7770875e95982842",
+    "readback_exact_match": true,
+    "state": "0x42"
+  },
+  "gates": {
+    "live_registers": true,
+    "core_register_transfer": true,
+    "jedec_id": "1c 30 16",
+    "status": "0x18",
+    "block_protection_readback": "0xff",
+    "restore_buffer_crc32b": "0xf5c23372",
+    "target_sector_crc32b": "0xf5c23372"
+  },
+  "mutation_counters": {
+    "erased_crc32b": "0x00000000",
+    "final_crc32b": "0x00000000",
+    "pages_programmed": 0,
+    "status_last": "0x00",
+    "spi_error": 0,
+    "status_cleared": "0x00",
+    "status_restored": "0x00",
+    "cleanup_attempted": false
+  },
+  "restoration": {
+    "code_exact": true,
+    "mailbox_exact": true,
+    "all_four_buffer_chunks_exact": true,
+    "stack_exact": true,
+    "vtor": "0x08000000"
+  },
+  "conclusion": "With the original sector already present, the ARM8 recovery helper validated the exact original-sector payload and live flash state, then exited before Write Enable. It is ready to accept only the fixed cross-bank probe CRC 0xb29ee7d1."
+}

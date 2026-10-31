@@ -6,10 +6,12 @@ OBJDUMP := $(CROSS)objdump
 SIZE := $(CROSS)size
 ELFS := $(BUILD_DIR)/format_probe.elf $(BUILD_DIR)/restore_sector.elf \
 	$(BUILD_DIR)/pointer_probe.elf $(BUILD_DIR)/pointer_restore.elf \
+	$(BUILD_DIR)/crossbank_probe.elf $(BUILD_DIR)/crossbank_restore.elf \
 	$(BUILD_DIR)/protection_roundtrip.elf \
 	$(BUILD_DIR)/status_roundtrip.elf
 BINS := $(BUILD_DIR)/format_probe.bin $(BUILD_DIR)/restore_sector.bin \
 	$(BUILD_DIR)/pointer_probe.bin $(BUILD_DIR)/pointer_restore.bin \
+	$(BUILD_DIR)/crossbank_probe.bin $(BUILD_DIR)/crossbank_restore.bin \
 	$(BUILD_DIR)/protection_roundtrip.bin \
 	$(BUILD_DIR)/status_roundtrip.bin
 
@@ -45,6 +47,24 @@ $(BUILD_DIR)/pointer_restore.elf: restore_sector.c linker_mutation.ld | $(BUILD_
 		-DKW_EXPECTED_FINAL_CRC32=0xf5c23372u \
 		-nostdlib -Wl,-T,linker_mutation.ld -Wl,--build-id=none \
 		-Wl,--gc-sections -Wl,-Map,$(BUILD_DIR)/pointer_restore.map -o $@ $<
+$(BUILD_DIR)/crossbank_probe.elf: restore_sector.c linker_mutation.ld | $(BUILD_DIR)
+	$(CC) $(CFLAGS) -DKW_RESTORE_BUFFER=0x20000a00 \
+		-DKW_MAILBOX_BASE=0x20002100 -DKW_STACK_TOP=0x20002300 \
+		-DKW_HELPER_MAGIC=0x4b574342u -DKW_ARM_MAGIC=0x41524d37u \
+		-DKW_BUFFER_CRC32=0xb29ee7d1u \
+		-DKW_EXPECTED_TARGET_CRC32=0xf5c23372u \
+		-DKW_EXPECTED_FINAL_CRC32=0xb29ee7d1u \
+		-nostdlib -Wl,-T,linker_mutation.ld -Wl,--build-id=none \
+		-Wl,--gc-sections -Wl,-Map,$(BUILD_DIR)/crossbank_probe.map -o $@ $<
+$(BUILD_DIR)/crossbank_restore.elf: restore_sector.c linker_mutation.ld | $(BUILD_DIR)
+	$(CC) $(CFLAGS) -DKW_RESTORE_BUFFER=0x20000a00 \
+		-DKW_MAILBOX_BASE=0x20002100 -DKW_STACK_TOP=0x20002300 \
+		-DKW_HELPER_MAGIC=0x4b574352u -DKW_ARM_MAGIC=0x41524d38u \
+		-DKW_BUFFER_CRC32=0xf5c23372u \
+		-DKW_EXPECTED_TARGET_CRC32=0xb29ee7d1u \
+		-DKW_EXPECTED_FINAL_CRC32=0xf5c23372u \
+		-nostdlib -Wl,-T,linker_mutation.ld -Wl,--build-id=none \
+		-Wl,--gc-sections -Wl,-Map,$(BUILD_DIR)/crossbank_restore.map -o $@ $<
 $(BUILD_DIR)/format_probe.elf: format_probe.c linker_mutation.ld | $(BUILD_DIR)
 	$(CC) $(CFLAGS) -DKW_MAILBOX_BASE=0x20002100 \
 		-DKW_STACK_TOP=0x20002300 -nostdlib -Wl,-T,linker_mutation.ld \
@@ -69,11 +89,14 @@ inspect: $(ELFS)
 	$(OBJDUMP) -h -d $(BUILD_DIR)/restore_sector.elf
 	$(OBJDUMP) -h -d $(BUILD_DIR)/pointer_probe.elf
 	$(OBJDUMP) -h -d $(BUILD_DIR)/pointer_restore.elf
+	$(OBJDUMP) -h -d $(BUILD_DIR)/crossbank_probe.elf
+	$(OBJDUMP) -h -d $(BUILD_DIR)/crossbank_restore.elf
 	$(OBJDUMP) -h -d $(BUILD_DIR)/protection_roundtrip.elf
 	$(OBJDUMP) -h -d $(BUILD_DIR)/status_roundtrip.elf
 clean:
 	rm -f $(ELFS) $(BINS) $(BUILD_DIR)/format_probe.map \
 		$(BUILD_DIR)/restore_sector.map $(BUILD_DIR)/pointer_probe.map \
 		$(BUILD_DIR)/pointer_restore.map \
+		$(BUILD_DIR)/crossbank_probe.map $(BUILD_DIR)/crossbank_restore.map \
 		$(BUILD_DIR)/protection_roundtrip.map \
 		$(BUILD_DIR)/status_roundtrip.map

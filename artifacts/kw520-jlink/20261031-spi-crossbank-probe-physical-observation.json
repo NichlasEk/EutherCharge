@@ -1,0 +1,23 @@
+{
+  "date": "2026-10-31",
+  "operation": "Physical cold-start observation of valid cross-bank pointer redirection",
+  "result": "cross_bank_pointer_followed",
+  "controlled_change": {
+    "source_table": "English table carrying installed Swedish payloads",
+    "target_bank": "Français",
+    "table_entry": 1,
+    "pointer_offset": "0x003604",
+    "pointer_before": "0x00000692",
+    "pointer_after": "0x000013e9",
+    "source_record": "0x003892",
+    "source_text": "Huvudmeny",
+    "target_record": "0x0045e9",
+    "target_text": "Menu principal",
+    "string_payload_bytes_modified": false,
+    "length_prefixes_modified": false
+  },
+  "predicted_display": "Menu principal",
+  "observed_display": "Menu principal",
+  "evidence": "User reported the physical LCD main-menu title after a normal cold start.",
+  "conclusion": "The original firmware follows the ordinary-string relative external-flash pointer across language-bank boundaries to an existing valid record. The pointer is not constrained to the active source bank. This remains an in-range external-flash read and is not an out-of-bounds or protected internal-flash disclosure primitive. The exact original sector must now be restored with ARM8."
+}

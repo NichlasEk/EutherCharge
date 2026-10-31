@@ -102,3 +102,28 @@ cross-bank access, an out-of-bounds read, or internal-flash disclosure.
 
 Machine-readable evidence is in
 `artifacts/kw520-jlink/20261031-spi-pointer-probe-cycle-complete.json`.
+
+## Qualified valid cross-bank pointer probe
+
+The next bounded discriminator redirects the same table entry from relative
+pointer `0x00000692` (`Huvudmeny`, record `0x003892`) to relative pointer
+`0x000013e9` (`Menu principal`, existing Français record `0x0045e9`). Only
+pointer bytes at `0x003606..0x003607` differ; neither record nor a length prefix
+is modified. The fixed sector CRC is `b29ee7d1`.
+
+The forward pair uses magic `KWCB`/`ARM7`, requires live original CRC
+`f5c23372`, input CRC `b29ee7d1`, and final CRC `b29ee7d1`. Its recovery pair
+uses `KWCR`/`ARM8`, accepts only live CRC `b29ee7d1`, input CRC `f5c23372`, and
+final CRC `f5c23372`. Both are compiled from the already qualified fixed-sector
+engine. The restore helper must pass a physical no-op qualification on the
+original sector before the forward write is authorized.
+
+The complete physical cycle passed on 2026-10-31. The forward run verified
+CRC `b29ee7d1`; a cold start displayed `Menu principal`. ARM8 then restored
+CRC `f5c23372` and status `0x18`; the final cold start displayed working
+`Huvudmeny`. This proves that the relative ordinary-string pointer is not
+confined to the active language bank. It remains an in-range external-flash
+read, not an out-of-bounds or internal-flash disclosure.
+
+Machine-readable evidence is in
+`artifacts/kw520-jlink/20261031-spi-crossbank-probe-cycle-complete.json`.

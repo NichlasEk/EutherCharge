@@ -1,0 +1,46 @@
+{
+  "date": "2026-10-31",
+  "operation": "Exact restoration after valid cross-bank pointer probe",
+  "result": "pass",
+  "vtarget_volts": 3.290,
+  "helper": {
+    "magic": "0x4b574352",
+    "arm": "0x41524d38",
+    "size_bytes": 1740,
+    "sha256": "c2efac5633809ad1347cbe01e554d8b15789e21aeb18796b7770875e95982842",
+    "readback_exact_match": true,
+    "state": "0x41"
+  },
+  "gates": {
+    "live_registers": true,
+    "core_register_transfer": true,
+    "jedec_id": "1c 30 16",
+    "status_before": "0x18",
+    "block_protection_readback": "0xff",
+    "restore_buffer_crc32b": "0xf5c23372",
+    "target_crc_before": "0xb29ee7d1"
+  },
+  "restoration_result": {
+    "erased_sector_crc32b": "0xf154670a",
+    "pages_programmed": 16,
+    "final_sector_crc32b": "0xf5c23372",
+    "status_cleared": "0x00",
+    "status_restored": "0x18",
+    "spi_error": 0,
+    "cleanup_attempted": false
+  },
+  "sram_restoration": {
+    "code_exact": true,
+    "mailbox_exact": true,
+    "all_four_buffer_chunks_exact": true,
+    "stack_exact": true,
+    "vtor": "0x08000000"
+  },
+  "physical_cold_start": {
+    "result": "pass",
+    "observed_display": "Huvudmeny",
+    "normal_button_response": true,
+    "reported_by": "user"
+  },
+  "conclusion": "The exact valid cross-bank pointer sector was accepted, erased, reconstructed from the qualified original-sector payload, and verified to CRC 0xf5c23372. Status-register protection returned to 0x18. A subsequent physical cold start restored the working Huvudmeny UI."
+}

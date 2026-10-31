@@ -45,6 +45,10 @@ måste visa en ny, tydligt avgränsad förmåga innan nästa steg påbörjas.
   till den befintliga `Testa`-posten i samma bank. Fysisk kallstart visade
   `Testa`; efter exakt återställning visade apparaten åter `Huvudmeny` och
   knapparna fungerade. Samma-bank-pekarföljning är därmed fysiskt bevisad.
+- Samma tabellpost pekades därefter till en giltig `Menu principal`-post i
+  Français-banken. Displayen visade exakt den franska texten och återgick till
+  fungerande `Huvudmeny` efter exakt återställning. Pekaren begränsas alltså
+  inte till den aktiva språkbankens intervall.
 
 ## Arbetsordning och beslutspunkter
 
@@ -149,8 +153,9 @@ Nästa prov omdirigerade endast tabellpostens 32-bitars relativa pekare
 `0x00000692 -> 0x0000069e`; inga payload- eller längdbyte ändrades. Displayen
 visade den förutsagda befintliga texten `Testa`. Exakt originalsektor och
 statusskydd återställdes, varefter `Huvudmeny` och knappar fungerade normalt.
-Punkt 1 nedan är alltså genomförd. Nästa diskriminerande prov bör vara punkt 2,
-pekaromdirigering mellan banker, innan någon längdmanipulation övervägs.
+Punkt 1 och 2 nedan är alltså genomförda. Nästa diskriminerande prov bör vara
+en konservativ förkortning av deklarerad längd enligt punkt 4. En förlängning
+eller ogiltig offset kräver en separat riskgranskning och görs inte samtidigt.
 
 Tester görs ett i taget i stigande intrångsgrad:
 
@@ -225,10 +230,10 @@ Det som kan göras utan mer fysisk mätning är:
 | G | Full firmwaredump är dubbel-läst och strukturellt validerad |
 
 Planen står nu på nivå D: transport, fixerad sektorskrivning/återställning,
-literal payloadkonsumtion och samma-bank-pekarföljning är fysiskt bevisade.
-Literal- och pekarproven gav ingen nivå E-primitiv. Pekarföljning mellan banker,
-gränsöverskridande läsning och varje väg från D/E till internflashnivå F är
-fortfarande obevisade.
+literal payloadkonsumtion samt pekarföljning inom och mellan språkbanker är
+fysiskt bevisade. Literal- och pekarproven gav ingen nivå E-primitiv. Ogiltig
+offset, extern gränsöverskridande läsning och varje väg från D/E till
+internflashnivå F är fortfarande obevisade.
 
 ## Referenser
 

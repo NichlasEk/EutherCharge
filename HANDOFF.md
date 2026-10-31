@@ -1630,3 +1630,73 @@ pointer interpretation, out-of-bounds behavior and internal-flash disclosure
 remain unproven. The next discriminating parser experiment is a fixed valid
 cross-bank pointer, with a separately CRC-gated restoration pair; do not reuse
 the same-bank CRC helpers for a different sector image.
+
+### 2026-10-31: valid cross-bank pointer probe prepared; recovery qualified
+
+The next fixed experiment redirects English-table entry1 at003604 from
+relative pointer00000692 (`Huvudmeny`, record003892) to the existing Français
+entry1 relative pointer000013e9 (`Menu principal`, record0045e9). Only pointer
+bytes003606..003607 differ; payloads and length prefixes remain untouched.
+Patched sector CRC is b29ee7d1 and SHA256 is
+3efd9a22de5e71a4e864cb712058c21180eb660eedeba50718969b506559c72d.
+The KWCB/ARM7 forward helper accepts only original target CRCf5c23372, exact
+buffer CRCb29ee7d1 and final CRCb29ee7d1; SHA256
+75d9cf3a479d35aacbcbec46bb8a46b43e3900fe354446150892bc3a7218811a.
+No physical forward write has occurred yet.
+
+The separate KWCR/ARM8 recovery helper accepts only cross-bank target
+CRCb29ee7d1, original buffer CRCf5c23372 and final CRCf5c23372. Its physical
+no-op qualification on the still-original sector passed at VTarget3.290V:
+state42, JEDEC1c3016, status18, protectionff, buffer/target CRCf5c23372,
+pages0, no erase/final CRC/status change and spi_error0. Helper readback matched
+SHA256 c2efac5633809ad1347cbe01e554d8b15789e21aeb18796b7770875e95982842;
+code/mailbox/all four buffer chunks/stack restored exactly and VTOR returned
+08000000. Evidence:
+`artifacts/kw520-jlink/20261031-spi-crossbank-restore-noop-qualified.json`.
+Cold-start target normally before the distinct ARM7 forward probe.
+
+After that cold start the fixed KWCB/ARM7 forward run passed physically at
+VTarget3.291V. It required JEDEC1c3016, status18, protectionff, buffer
+CRCb29ee7d1 and live original target CRCf5c23372. It verified erased CRC
+f154670a, programmed exactly16 pages, verified final sector CRCb29ee7d1 and
+restored status18; state41, spi_error0, cleanup0. Helper readback matched
+SHA256 75d9cf3a479d35aacbcbec46bb8a46b43e3900fe354446150892bc3a7218811a;
+code/mailbox/all four buffer chunks/stack restored exactly and VTOR returned
+08000000. Evidence:
+`artifacts/kw520-jlink/20261031-spi-crossbank-probe-programmed.json`. The target
+is halted and the cross-bank pointer patch is live. Next action: normal cold
+start and exact title observation; expected `Menu principal`. Then use only the
+already qualified KWCR/ARM8 restoration helper.
+
+The user cold-started the physical charger and reported the exact main-menu
+title `Menu principal`. No target payload or length prefix was changed. This
+physically proves that original firmware follows an ordinary-string relative
+pointer from the active English/Swedish table across the language-bank boundary
+to the valid Français record at0045e9. The pointer is not restricted to its
+source bank. This is still an in-range external-SPI read, not out-of-bounds or
+protected internal-flash disclosure. Evidence:
+`artifacts/kw520-jlink/20261031-spi-crossbank-probe-physical-observation.json`.
+The cross-bank patch remains live; run only the fixed KWCR/ARM8 restore next.
+
+The fixed KWCR/ARM8 restoration then passed physically at VTarget3.290V. It
+accepted only cross-bank target CRCb29ee7d1 and original buffer CRCf5c23372,
+verified erased CRCf154670a, programmed exactly16 pages, verified final sector
+CRCf5c23372 and restored status18; state41, spi_error0, cleanup0. Helper
+readback matched SHA256
+c2efac5633809ad1347cbe01e554d8b15789e21aeb18796b7770875e95982842;
+code/mailbox/all four buffer chunks/stack restored exactly and VTOR returned
+08000000. Evidence:
+`artifacts/kw520-jlink/20261031-spi-crossbank-probe-restored.json`. Target is
+halted. Final required gate is a normal cold start showing working
+`Huvudmeny` before closing the cross-bank cycle.
+
+The user performed that final normal cold start and confirmed working
+`Huvudmeny` with responsive buttons. The cross-bank cycle is closed:
+`Huvudmeny` -> pointer-only cross-bank patch -> physical `Menu principal` ->
+exact sector/status restore -> physical working `Huvudmeny`. Evidence:
+`artifacts/kw520-jlink/20261031-spi-crossbank-probe-cycle-complete.json`.
+Level D now includes valid relative pointer following both within and across
+language banks. The pointer is not source-bank bounded. This does not establish
+invalid/out-of-range pointer behavior or internal-flash disclosure. Next safe
+parser discriminator is a fixed shortening of one declared allocation/length;
+do not combine it with a pointer change or attempt a length extension first.
