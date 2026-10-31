@@ -1,0 +1,42 @@
+{
+  "date": "2026-10-31",
+  "operation": "Complete physical same-bank pointer-redirection cycle",
+  "result": "pass",
+  "target": {
+    "mcu": "AT32F421C8T7",
+    "external_flash": "EN25Q32(A/B)",
+    "jedec_id": "1c 30 16"
+  },
+  "controlled_change": {
+    "sector": "0x003000",
+    "table_entry": 1,
+    "pointer_offset": "0x003604",
+    "changed_byte_offset": "0x003607",
+    "pointer_before": "0x00000692",
+    "pointer_after": "0x0000069e",
+    "source_record": "0x003892",
+    "source_text": "Huvudmeny",
+    "target_record": "0x00389e",
+    "target_text": "Testa",
+    "string_payload_bytes_modified": false,
+    "length_prefixes_modified": false
+  },
+  "forward_result": {
+    "input_sector_crc32b": "0xf5c23372",
+    "erased_sector_crc32b": "0xf154670a",
+    "pages_programmed": 16,
+    "final_sector_crc32b": "0x14b0524b",
+    "status_final": "0x18",
+    "observed_display_after_cold_start": "Testa"
+  },
+  "restoration_result": {
+    "input_sector_crc32b": "0x14b0524b",
+    "erased_sector_crc32b": "0xf154670a",
+    "pages_programmed": 16,
+    "final_sector_crc32b": "0xf5c23372",
+    "status_final": "0x18",
+    "observed_display_after_cold_start": "Huvudmeny",
+    "normal_button_response": true
+  },
+  "conclusion": "Original firmware physically follows ordinary-string table entry 1 as a relative external-flash pointer to an existing same-bank record. The complete change-observe-restore cycle passed and the charger returned to normal operation. This proves controlled same-bank pointer following, not cross-bank or out-of-bounds access and not protected internal-flash disclosure."
+}

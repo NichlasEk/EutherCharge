@@ -1,0 +1,41 @@
+{
+  "date": "2026-10-31",
+  "operation": "Pointer-probe-specific restoration helper no-op qualification",
+  "result": "pass",
+  "vtarget_volts": 3.291,
+  "helper": {
+    "magic": "0x4b57524f",
+    "arm": "0x41524d36",
+    "size_bytes": 1740,
+    "sha256": "9b2df2c5e404b2a6c258869af7496f83ca086dc45d2be080d2ea07352ddfe744",
+    "readback_exact_match": true,
+    "state": "0x42"
+  },
+  "gates": {
+    "live_registers": true,
+    "core_register_transfer": true,
+    "jedec_id": "1c 30 16",
+    "status": "0x18",
+    "block_protection_readback": "0xff",
+    "restore_buffer_crc32b": "0xf5c23372",
+    "target_sector_crc32b": "0xf5c23372"
+  },
+  "mutation_counters": {
+    "erased_crc32b": "0x00000000",
+    "final_crc32b": "0x00000000",
+    "pages_programmed": 0,
+    "status_last": "0x00",
+    "spi_error": 0,
+    "status_cleared": "0x00",
+    "status_restored": "0x00",
+    "cleanup_attempted": false
+  },
+  "restoration": {
+    "code_exact": true,
+    "mailbox_exact": true,
+    "all_four_buffer_chunks_exact": true,
+    "stack_exact": true,
+    "vtor": "0x08000000"
+  },
+  "conclusion": "With the original sector already present, the pointer-probe-specific ARM6 recovery helper validated its exact original-sector payload and live flash state, then exited before Write Enable. The physical recovery path is ready for only the fixed pointer-probe CRC 0x14b0524b."
+}

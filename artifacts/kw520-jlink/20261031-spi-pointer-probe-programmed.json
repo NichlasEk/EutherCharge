@@ -1,0 +1,57 @@
+{
+  "date": "2026-10-31",
+  "operation": "Fixed same-bank main-menu pointer redirection",
+  "result": "pass",
+  "vtarget_volts": 3.290,
+  "helper": {
+    "magic": "0x4b575044",
+    "arm": "0x41524d35",
+    "size_bytes": 1740,
+    "sha256": "26bf5766a54891df9716b25b7771a512bc6a3c98105adc603b40dfa232c36a79",
+    "readback_exact_match": true,
+    "state": "0x41"
+  },
+  "pointer_change": {
+    "table_entry": 1,
+    "pointer_offset": "0x003604",
+    "changed_byte_offset": "0x003607",
+    "before": "0x00000692",
+    "after": "0x0000069e",
+    "source_record": "0x003892",
+    "source_text": "Huvudmeny",
+    "target_record": "0x00389e",
+    "target_text": "Testa",
+    "string_payload_bytes_modified": false,
+    "length_prefixes_modified": false
+  },
+  "gates": {
+    "live_registers": true,
+    "core_register_transfer": true,
+    "jedec_id": "1c 30 16",
+    "status_before": "0x18",
+    "block_protection_readback": "0xff",
+    "input_buffer_crc32b": "0x14b0524b",
+    "target_sector_crc32b": "0xf5c23372"
+  },
+  "programming_result": {
+    "erased_sector_crc32b": "0xf154670a",
+    "pages_programmed": 16,
+    "final_sector_crc32b": "0x14b0524b",
+    "status_cleared": "0x00",
+    "status_restored": "0x18",
+    "spi_error": 0,
+    "cleanup_attempted": false
+  },
+  "sram_restoration": {
+    "code_exact": true,
+    "mailbox_exact": true,
+    "all_four_buffer_chunks_exact": true,
+    "stack_exact": true,
+    "vtor": "0x08000000"
+  },
+  "predicted_physical_observation": {
+    "main_menu_title": "Testa",
+    "interpretation_if_observed": "Original firmware follows English-table entry 1 to the existing entry-2 record."
+  },
+  "conclusion": "The exact fixed pointer sector was programmed and verified in-system. A physical cold-start UI observation is required before making a parser conclusion, followed by the separately qualified ARM6 restoration."
+}

@@ -60,3 +60,45 @@ The complete physical cycle passed on 2026-10-31:
 
 Machine-readable evidence is in
 `artifacts/kw520-jlink/20261031-spi-format-probe-cycle-complete.json`.
+
+## Qualified same-bank pointer probe
+
+`prepare_kw520_pointer_probe.py` prepares the discriminator without touching
+hardware. It changes only table entry 1 at `0x003604` from relative
+record pointer `0x00000692` (`Huvudmeny`) to the already valid entry-2 pointer
+`0x0000069e` (`Testa`). The record bytes and both length prefixes remain
+unchanged. The expected physical result is a main-menu title of `Testa`.
+
+The single changed pointer byte is `0x92 -> 0x9e`, which includes NOR 0-to-1
+transitions. Therefore this probe must never use Page Program alone. The
+separately built `pointer_probe.bin` reuses the qualified fixed-sector engine
+but has distinct magic `KWPD`, arm word `ARM5`, input CRC `14b0524b`, required
+live target CRC `f5c23372`, and final CRC `14b0524b`. It can only erase and
+replace sector `0x003000` with the one CRC-gated 4 KiB SRAM payload. A physical
+OpenOCD gate is intentionally separate from the offline generator and must
+retain exact SRAM backup/readback/restoration checks.
+
+`prepare_kw520_pointer_openocd.py` derives that gate from the exact physically
+qualified restore config and refuses if the template SHA-256 changes. The run
+script also requires the explicit argument `--write-pointer-probe`, regenerates
+the CRC-locked payload and config, and exits nonzero unless OpenOCD prints one
+of the two exact accepted outcomes. This is still only preparation until the
+physical run and subsequent LCD observation have both occurred.
+
+The forward helper is paired with a separately compiled `pointer_restore.bin`:
+magic `KWRO`, arm word `ARM6`, restore-buffer CRC `f5c23372`, required patched
+target CRC `14b0524b`, and final CRC `f5c23372`. It cannot accept the earlier
+percent probe or an unknown sector. `run-pointer-restore.sh` likewise requires
+the explicit `--restore-pointer-probe` argument. Keep this helper and the four
+original-sector chunks available before authorizing the forward experiment.
+
+The complete physical cycle passed on 2026-10-31. The forward run accepted
+original CRC `f5c23372`, programmed 16 pages, verified pointer-sector CRC
+`14b0524b`, and restored status `0x18`. A normal cold start displayed `Testa`.
+The ARM6 run then accepted only CRC `14b0524b`, restored original CRC
+`f5c23372` plus status `0x18`, and a final cold start displayed working
+`Huvudmeny`. This proves same-bank table-pointer following. It does not prove
+cross-bank access, an out-of-bounds read, or internal-flash disclosure.
+
+Machine-readable evidence is in
+`artifacts/kw520-jlink/20261031-spi-pointer-probe-cycle-complete.json`.

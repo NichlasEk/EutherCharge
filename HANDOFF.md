@@ -1554,3 +1554,79 @@ firmware, or protected internal-flash disclosure exists yet. Do not repeat
 percent-format probes on this literal path. Next useful parser discriminator is
 a separately generated, fixed and recoverable same-bank pointer redirection,
 then cross-bank pointer or conservative declared-length shortening.
+
+### 2026-10-31: same-bank pointer probe prepared; recovery no-op qualified
+
+The next fixed experiment redirects English-table entry1 at003604 from
+relative pointer00000692 (`Huvudmeny` record003892) to existing entry2 pointer
+0000069e (`Testa` record00389e). Only byte003607 changes92->9e; payloads and
+length prefixes remain untouched. Because this includes0->1 transitions, the
+forward helper uses the already qualified fixed-sector erase/program engine.
+Its distinct KWPD/ARM5 gates require original target CRCf5c23372, exact SRAM
+payload CRC14b0524b and final CRC14b0524b. Generated pointer-sector SHA256 is
+e2a360307ecdf51373df959d68b3b8446aba39fc7aa69d7da863c3d4e52a0028;
+forward helper SHA256 is
+26bf5766a54891df9716b25b7771a512bc6a3c98105adc603b40dfa232c36a79.
+No physical forward write has occurred yet.
+
+A separate KWRO/ARM6 recovery helper accepts only exact patched target
+CRC14b0524b, original SRAM payload CRCf5c23372 and final CRCf5c23372. Its
+physical no-op qualification on the still-original sector passed at
+VTarget3.291V: state42, JEDEC1c3016, status18, protectionff, buffer/target
+CRCf5c23372, pages0, no erase/final CRC/status change, spi_error0. Helper
+readback matched SHA256
+9b2df2c5e404b2a6c258869af7496f83ca086dc45d2be080d2ea07352ddfe744;
+code/mailbox/all four buffer chunks/stack restored exactly and VTOR returned
+08000000. Evidence:
+`artifacts/kw520-jlink/20261031-spi-pointer-restore-noop-qualified.json`.
+Cold-start target normally before running the distinct forward pointer probe.
+
+After that cold start the fixed KWPD/ARM5 forward run passed physically at
+VTarget3.290V. It required JEDEC1c3016, status18, protectionff, input buffer
+CRC14b0524b and live original target CRCf5c23372. It then verified erased CRC
+f154670a, programmed exactly16 pages, verified final sector CRC14b0524b and
+restored status18; state41, spi_error0, cleanup0. Helper readback matched
+SHA256 26bf5766a54891df9716b25b7771a512bc6a3c98105adc603b40dfa232c36a79;
+code/mailbox/all four buffer chunks/stack restored exactly and VTOR returned
+08000000. Evidence:
+`artifacts/kw520-jlink/20261031-spi-pointer-probe-programmed.json`. The target
+is halted after the accepted session and the pointer patch is currently live.
+Next required action is one normal cold start and an exact observation of the
+main-menu title. Expected title is `Testa`. Do not run any other mutation before
+that observation; afterward use only the already no-op-qualified ARM6 pointer
+restore helper.
+
+The user then cold-started the physical charger and reported that the main-menu
+title displayed exactly `Testa`, matching the sole table-pointer redirection.
+No string payload or length prefix was changed. This physically proves that
+original firmware follows ordinary-string table entry1 as a relative
+external-flash pointer to the existing same-bank record at00389e. It does not
+yet prove cross-bank access, out-of-bounds access, a memory disclosure, or
+internal-flash access. Evidence:
+`artifacts/kw520-jlink/20261031-spi-pointer-probe-physical-observation.json`.
+The pointer patch is still live. The only next target action is the fixed
+KWRO/ARM6 pointer restore; do not run another parser mutation first.
+
+The fixed KWRO/ARM6 restoration then passed physically at VTarget3.291V. It
+accepted only pointer-patch target CRC14b0524b and original buffer CRCf5c23372,
+verified erased CRCf154670a, programmed exactly16 pages, verified final sector
+CRCf5c23372 and restored status18; state41, spi_error0, cleanup0. Helper
+readback matched SHA256
+9b2df2c5e404b2a6c258869af7496f83ca086dc45d2be080d2ea07352ddfe744;
+code/mailbox/all four buffer chunks/stack restored exactly and VTOR returned
+08000000. Evidence:
+`artifacts/kw520-jlink/20261031-spi-pointer-probe-restored.json`. The target is
+halted after the accepted session. Final required gate: normal cold start must
+show working `Huvudmeny` before declaring the complete cycle closed.
+
+The user performed that final normal cold start and confirmed working
+`Huvudmeny` with responsive buttons. The same-bank pointer-probe cycle is
+therefore closed: original `Huvudmeny` -> pointer-only patch -> physical
+`Testa` -> exact sector/status restore -> physical working `Huvudmeny`.
+Evidence:
+`artifacts/kw520-jlink/20261031-spi-pointer-probe-cycle-complete.json`.
+Evidence level D is now physical for same-bank pointer following. Cross-bank
+pointer interpretation, out-of-bounds behavior and internal-flash disclosure
+remain unproven. The next discriminating parser experiment is a fixed valid
+cross-bank pointer, with a separately CRC-gated restoration pair; do not reuse
+the same-bank CRC helpers for a different sector image.

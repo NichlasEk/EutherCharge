@@ -23,12 +23,26 @@
 #define SCB_HFSR 0xe000ed2cu
 #define PA8 0x00000100u
 
-#define HELPER_MAGIC 0x4b575052u /* KWPR */
-#define ARM_MAGIC 0x41524d32u    /* ARM2 */
+#ifndef KW_HELPER_MAGIC
+#define KW_HELPER_MAGIC 0x4b575052u /* KWPR */
+#endif
+#ifndef KW_ARM_MAGIC
+#define KW_ARM_MAGIC 0x41524d32u /* ARM2 */
+#endif
+#ifndef KW_BUFFER_CRC32
+#define KW_BUFFER_CRC32 0xf5c23372u
+#endif
+#ifndef KW_EXPECTED_TARGET_CRC32
+#define KW_EXPECTED_TARGET_CRC32 0x7985c2f6u
+#endif
+#ifndef KW_EXPECTED_FINAL_CRC32
+#define KW_EXPECTED_FINAL_CRC32 0xf5c23372u
+#endif
+
+#define HELPER_MAGIC KW_HELPER_MAGIC
+#define ARM_MAGIC KW_ARM_MAGIC
 #define SECTOR_ADDRESS 0x00003000u
 #define SECTOR_SIZE 4096u
-#define ORIGINAL_CRC32 0xf5c23372u
-#define PATCHED_CRC32 0x7985c2f6u
 #define ERASED_CRC32 0xf154670au
 
 struct mailbox {
@@ -358,17 +372,17 @@ __attribute__((section(".text.start"), noreturn)) void probe_start(void) {
     }
     mb->buffer_crc32 = buffer_crc32();
     watchdog_refresh();
-    if (mb->buffer_crc32 != ORIGINAL_CRC32) {
+    if (mb->buffer_crc32 != KW_BUFFER_CRC32) {
         stop(0xe8u);
     }
     if (!target_crc32((uint32_t *)&mb->target_crc32_before)) {
         stop(0xe9u);
     }
     watchdog_refresh();
-    if (mb->target_crc32_before == ORIGINAL_CRC32) {
+    if (mb->target_crc32_before == KW_EXPECTED_FINAL_CRC32) {
         stop(0x42u);
     }
-    if (mb->target_crc32_before != PATCHED_CRC32) {
+    if (mb->target_crc32_before != KW_EXPECTED_TARGET_CRC32) {
         stop(0xeau);
     }
 
@@ -425,7 +439,7 @@ __attribute__((section(".text.start"), noreturn)) void probe_start(void) {
         best_effort_restore_status();
         stop(0xf1u);
     }
-    if (mb->target_crc32_after != ORIGINAL_CRC32) {
+    if (mb->target_crc32_after != KW_EXPECTED_FINAL_CRC32) {
         best_effort_restore_status();
         stop(0xf2u);
     }

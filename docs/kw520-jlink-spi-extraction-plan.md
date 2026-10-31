@@ -41,6 +41,10 @@ måste visa en ny, tydligt avgränsad förmåga innan nästa steg påbörjas.
   sektor-CRC `f5c23372`, status `0x18` och normal `Huvudmeny` efter kallstart.
 - Provet visar literal textrendering på denna resursväg. Det gav ingen
   formatsträngstolkning och ingen väg till MCU:ns skyddade internflash.
+- Ett separat pekarprov ändrade endast tabellpost 1 från `Huvudmeny`-posten
+  till den befintliga `Testa`-posten i samma bank. Fysisk kallstart visade
+  `Testa`; efter exakt återställning visade apparaten åter `Huvudmeny` och
+  knapparna fungerade. Samma-bank-pekarföljning är därmed fysiskt bevisad.
 
 ## Arbetsordning och beslutspunkter
 
@@ -136,11 +140,17 @@ jämförelse; det följs inte automatiskt av fler skrivförsök.
 
 ### Fas 4 – kartlägg parserns beteende
 
-**Första fysiska resultatet:** byteparet `6d 65` i `Huvudmeny` ersattes med
+**Fysiska resultat:** byteparet `6d 65` i `Huvudmeny` ersattes med
 `25 25`. Displayen visade exakt `Huvud%%ny`, alltså literal rendering. Efter
 återställning visade den åter `Huvudmeny`. Försök inte få denna resursväg att
-läcka data med fler printf-specifierare; nästa diskriminerande prov bör i
-stället vara pekaromdirigering eller deklarerad längd.
+läcka data med fler printf-specifierare.
+
+Nästa prov omdirigerade endast tabellpostens 32-bitars relativa pekare
+`0x00000692 -> 0x0000069e`; inga payload- eller längdbyte ändrades. Displayen
+visade den förutsagda befintliga texten `Testa`. Exakt originalsektor och
+statusskydd återställdes, varefter `Huvudmeny` och knappar fungerade normalt.
+Punkt 1 nedan är alltså genomförd. Nästa diskriminerande prov bör vara punkt 2,
+pekaromdirigering mellan banker, innan någon längdmanipulation övervägs.
 
 Tester görs ett i taget i stigande intrångsgrad:
 
@@ -214,9 +224,9 @@ Det som kan göras utan mer fysisk mätning är:
 | F | Internflash kan läsas trots skyddet |
 | G | Full firmwaredump är dubbel-läst och strukturellt validerad |
 
-Planen står nu på nivå C och på en smal nivå D: transport, fixerad
-sektorskrivning/återställning och konsumtion av ett kontrollerat textfält är
-fysiskt bevisade. Literalprovet gav ingen nivå E-primitiv. Pekarföljning,
+Planen står nu på nivå D: transport, fixerad sektorskrivning/återställning,
+literal payloadkonsumtion och samma-bank-pekarföljning är fysiskt bevisade.
+Literal- och pekarproven gav ingen nivå E-primitiv. Pekarföljning mellan banker,
 gränsöverskridande läsning och varje väg från D/E till internflashnivå F är
 fortfarande obevisade.
 

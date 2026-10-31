@@ -1,0 +1,21 @@
+{
+  "date": "2026-10-31",
+  "operation": "Physical cold-start observation of same-bank pointer redirection",
+  "result": "pointer_followed",
+  "controlled_change": {
+    "table_entry": 1,
+    "pointer_offset": "0x003604",
+    "pointer_before": "0x00000692",
+    "pointer_after": "0x0000069e",
+    "source_record": "0x003892",
+    "source_text": "Huvudmeny",
+    "target_record": "0x00389e",
+    "target_text": "Testa",
+    "string_payload_bytes_modified": false,
+    "length_prefixes_modified": false
+  },
+  "predicted_display": "Testa",
+  "observed_display": "Testa",
+  "evidence": "User reported the physical LCD main-menu title after a normal cold start.",
+  "conclusion": "The original firmware follows ordinary-string table entry 1 as a relative external-flash pointer to an existing same-bank record. This is controlled pointer-following evidence, not an out-of-bounds read or internal-flash disclosure primitive. The exact original sector must now be restored with the qualified ARM6 helper."
+}
