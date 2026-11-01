@@ -1,0 +1,77 @@
+{
+  "date": "2026-11-01",
+  "operation": "Existing maximum-size string record title-pointer and runtime SRAM cycle",
+  "result": "pass",
+  "target_record": {
+    "bank": "Russian-custom",
+    "entry_number_one_based": 111,
+    "record_offset": "0x007ec2",
+    "relative_pointer": "0x00004cc2",
+    "allocation_bytes": 113,
+    "visible_payload_bytes": 112,
+    "record_sha256": "a5a5f3fffc708581f0b63149ad3c714fd6d36ac0e275b31d18d6def60a309a79",
+    "payload_sha256": "14c5ceffc1c854db65a1bb2d30f5a9bf57f9a2b347ded1e9dd900a747ffded26",
+    "payload_modified": false,
+    "allocation_modified": false
+  },
+  "pointer_patch": {
+    "pointer_offset": "0x003604",
+    "pointer_before": "0x00000692",
+    "pointer_after": "0x00004cc2",
+    "changed_offsets": ["0x003606", "0x003607"],
+    "sector_crc_before": "0xf5c23372",
+    "sector_crc_after": "0xde37c157",
+    "sector_sha256_after": "856efe786f0a46c3d812229146046ce28cfaed436ccfc2e776768772f0333707"
+  },
+  "restore_noop_gate": {
+    "vtarget_volts": 3.290,
+    "target_crc32b": "0xf5c23372",
+    "buffer_crc32b": "0xf5c23372",
+    "pages_programmed": 0,
+    "erase_or_program_executed": false,
+    "spi_error": 0,
+    "accepted": true
+  },
+  "programming": {
+    "vtarget_volts": 3.288,
+    "target_crc32b_before": "0xf5c23372",
+    "erased_crc32b": "0xf154670a",
+    "final_crc32b": "0xde37c157",
+    "pages_programmed": 16,
+    "status_final": "0x18",
+    "spi_error": 0,
+    "helper_sha256": "50b0d18ee1783269fc9ff116a002f9df20edd3f25d27882b58979b15039f9a8a"
+  },
+  "physical_observation": {
+    "cold_start_count_before_capture": 1,
+    "title": "long clipped custom-encoded glyph row across the title area",
+    "remaining_main_menu_rendered_normally": true,
+    "visible_crash_or_corruption": false,
+    "user_supplied_photo_observed": true
+  },
+  "runtime_sram": {
+    "capture_size_bytes": 16384,
+    "capture_sha256": "5f767456a6b080fda8a876f4ec2af164686416e85ec779ae0017b767c6935627",
+    "capture_log_sha256": "66da4fc088af27fe29ed09416c853fa55fe9cf2e331be5f8f7200b6d540a2069",
+    "vtarget_volts": 3.293,
+    "raw_dump_committed": false,
+    "full_payload_plus_nul_found_at": ["0x20003978"],
+    "full_payload_occurrence_count": 1,
+    "persistent_source_buffer_matches_short_title_path": true,
+    "short_title_temporary_render_copy_0x20003728": "zero at capture time",
+    "interpretation": "The persistent source object holds the full maximum legitimate 112-byte payload plus NUL. The previous render copy is transient and cannot be treated as a fixed live allocation from this capture."
+  },
+  "restoration": {
+    "cold_start_after_debug_capture_showed_test_title": true,
+    "input_crc32b": "0xde37c157",
+    "erased_crc32b": "0xf154670a",
+    "final_crc32b": "0xf5c23372",
+    "pages_programmed": 16,
+    "status_final": "0x18",
+    "spi_error": 0,
+    "helper_sha256": "72ffd2a94c0030550d9fa894c3841be32eb5cc7000dd6fe21c5af65eb3e8f707",
+    "final_display": "Huvudmeny",
+    "normal_button_response": true
+  },
+  "conclusion": "The original firmware follows the ordinary-string pointer to the existing maximum-format record, preserves its complete 112-byte payload plus NUL in the same persistent SRAM source buffer used by short titles, and continues to render the rest of the main menu. This qualifies the known legitimate format maximum on the runtime source path. It does not establish the size of the transient render buffer, any overflow, out-of-range read, code execution, or protected internal-flash disclosure."
+}

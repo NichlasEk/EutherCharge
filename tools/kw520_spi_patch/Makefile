@@ -8,6 +8,7 @@ ELFS := $(BUILD_DIR)/format_probe.elf $(BUILD_DIR)/restore_sector.elf \
 	$(BUILD_DIR)/length_probe.elf $(BUILD_DIR)/length_restore.elf \
 	$(BUILD_DIR)/boundary_baseline.elf $(BUILD_DIR)/boundary_extend.elf \
 	$(BUILD_DIR)/boundary_restore.elf \
+	$(BUILD_DIR)/maxrecord_probe.elf $(BUILD_DIR)/maxrecord_restore.elf \
 	$(BUILD_DIR)/pointer_probe.elf $(BUILD_DIR)/pointer_restore.elf \
 	$(BUILD_DIR)/crossbank_probe.elf $(BUILD_DIR)/crossbank_restore.elf \
 	$(BUILD_DIR)/protection_roundtrip.elf \
@@ -16,6 +17,7 @@ BINS := $(BUILD_DIR)/format_probe.bin $(BUILD_DIR)/restore_sector.bin \
 	$(BUILD_DIR)/length_probe.bin $(BUILD_DIR)/length_restore.bin \
 	$(BUILD_DIR)/boundary_baseline.bin $(BUILD_DIR)/boundary_extend.bin \
 	$(BUILD_DIR)/boundary_restore.bin \
+	$(BUILD_DIR)/maxrecord_probe.bin $(BUILD_DIR)/maxrecord_restore.bin \
 	$(BUILD_DIR)/pointer_probe.bin $(BUILD_DIR)/pointer_restore.bin \
 	$(BUILD_DIR)/crossbank_probe.bin $(BUILD_DIR)/crossbank_restore.bin \
 	$(BUILD_DIR)/protection_roundtrip.bin \
@@ -121,6 +123,24 @@ $(BUILD_DIR)/boundary_restore.elf: restore_sector.c linker_mutation.ld | $(BUILD
 		-DKW_EXPECTED_FINAL_CRC32=0xf5c23372u \
 		-nostdlib -Wl,-T,linker_mutation.ld -Wl,--build-id=none \
 		-Wl,--gc-sections -Wl,-Map,$(BUILD_DIR)/boundary_restore.map -o $@ $<
+$(BUILD_DIR)/maxrecord_probe.elf: restore_sector.c linker_mutation.ld | $(BUILD_DIR)
+	$(CC) $(CFLAGS) -DKW_RESTORE_BUFFER=0x20000a00 \
+		-DKW_MAILBOX_BASE=0x20002100 -DKW_STACK_TOP=0x20002300 \
+		-DKW_HELPER_MAGIC=0x4b574d50u -DKW_ARM_MAGIC=0x41524d45u \
+		-DKW_BUFFER_CRC32=0xde37c157u \
+		-DKW_EXPECTED_TARGET_CRC32=0xf5c23372u \
+		-DKW_EXPECTED_FINAL_CRC32=0xde37c157u \
+		-nostdlib -Wl,-T,linker_mutation.ld -Wl,--build-id=none \
+		-Wl,--gc-sections -Wl,-Map,$(BUILD_DIR)/maxrecord_probe.map -o $@ $<
+$(BUILD_DIR)/maxrecord_restore.elf: restore_sector.c linker_mutation.ld | $(BUILD_DIR)
+	$(CC) $(CFLAGS) -DKW_RESTORE_BUFFER=0x20000a00 \
+		-DKW_MAILBOX_BASE=0x20002100 -DKW_STACK_TOP=0x20002300 \
+		-DKW_HELPER_MAGIC=0x4b574d52u -DKW_ARM_MAGIC=0x41524d46u \
+		-DKW_BUFFER_CRC32=0xf5c23372u \
+		-DKW_EXPECTED_TARGET_CRC32=0xde37c157u \
+		-DKW_EXPECTED_FINAL_CRC32=0xf5c23372u \
+		-nostdlib -Wl,-T,linker_mutation.ld -Wl,--build-id=none \
+		-Wl,--gc-sections -Wl,-Map,$(BUILD_DIR)/maxrecord_restore.map -o $@ $<
 $(BUILD_DIR)/protection_roundtrip.elf: protection_roundtrip.c linker_restore.ld | $(BUILD_DIR)
 	$(CC) $(CFLAGS) -nostdlib -Wl,-T,linker_restore.ld \
 		-Wl,--build-id=none -Wl,--gc-sections \
@@ -142,6 +162,8 @@ inspect: $(ELFS)
 	$(OBJDUMP) -h -d $(BUILD_DIR)/boundary_baseline.elf
 	$(OBJDUMP) -h -d $(BUILD_DIR)/boundary_extend.elf
 	$(OBJDUMP) -h -d $(BUILD_DIR)/boundary_restore.elf
+	$(OBJDUMP) -h -d $(BUILD_DIR)/maxrecord_probe.elf
+	$(OBJDUMP) -h -d $(BUILD_DIR)/maxrecord_restore.elf
 	$(OBJDUMP) -h -d $(BUILD_DIR)/restore_sector.elf
 	$(OBJDUMP) -h -d $(BUILD_DIR)/pointer_probe.elf
 	$(OBJDUMP) -h -d $(BUILD_DIR)/pointer_restore.elf
@@ -154,6 +176,7 @@ clean:
 		$(BUILD_DIR)/length_probe.map $(BUILD_DIR)/length_restore.map \
 		$(BUILD_DIR)/boundary_baseline.map $(BUILD_DIR)/boundary_extend.map \
 		$(BUILD_DIR)/boundary_restore.map \
+		$(BUILD_DIR)/maxrecord_probe.map $(BUILD_DIR)/maxrecord_restore.map \
 		$(BUILD_DIR)/restore_sector.map $(BUILD_DIR)/pointer_probe.map \
 		$(BUILD_DIR)/pointer_restore.map \
 		$(BUILD_DIR)/crossbank_probe.map $(BUILD_DIR)/crossbank_restore.map \

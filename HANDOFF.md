@@ -1826,3 +1826,37 @@ Evidence: `artifacts/kw520-jlink/20261101-runtime-sram-string-path.json`.
 Correction: the controlled external padding at003dc7 belongs to one-based
 ordinary-string entry99, not entry98. Addresses, exact bytes, CRCs and physical
 results are unchanged; only the descriptive entry number was corrected.
+
+### 2026-11-01: maximum legitimate record reached the stable SRAM source path
+
+The next probe did not invent a larger length. It redirected only main-title
+pointer bytes003606..003607 from relative00000692 to existing Russian-custom
+entry111 at record007ec2, relative00004cc2. That untouched record has the
+verified format maximum allocation113:112 payload bytes plus NUL. Target record
+SHA256 is a5a5f3fffc708581f0b63149ad3c714fd6d36ac0e275b31d18d6def60a309a79.
+Patched sector CRC was de37c157; no payload or allocation byte changed.
+
+The distinct KWMR/ARMF recovery helper first passed a physical no-op gate on
+the original sector at VTarget3.290V: target/buffer CRCf5c23372, state42,
+pages0, no erase/program and spi_error0. The KWMP/ARME forward helper then
+accepted only original target CRCf5c23372 and buffer CRCde37c157, verified
+erased CRCf154670a, programmed16 pages, verified final CRCde37c157 and restored
+status18 with spi_error0.
+
+After cold start the user supplied a photo showing a long clipped custom-glyph
+row across the title area while all five Swedish menu entries still rendered
+normally. A read-only full16KiB SRAM capture then found the complete112-byte
+payload plus NUL exactly once at20003978, the same persistent source address as
+short titles. The temporary short-title copy at20003728 was zero at capture
+time, so it is not evidence for a fixed live113-byte render allocation. Raw
+SRAM remains ignored; capture SHA256 is
+5f767456a6b080fda8a876f4ec2af164686416e85ec779ae0017b767c6935627.
+
+After the required post-debug cold start the test title was still present. The
+fixed restore accepted only target CRCde37c157, restored verified original CRC
+f5c23372/status18 with spi_error0, and the user cold-started to working
+`Huvudmeny` with normal button response. Evidence:
+`artifacts/kw520-jlink/20261101-maxrecord-runtime-cycle-complete.json`.
+This proves the legitimate maximum reaches the stable source buffer; it does
+not prove render-buffer capacity, overflow, code execution or internal-flash
+disclosure.

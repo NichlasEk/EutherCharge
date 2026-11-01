@@ -78,6 +78,18 @@ replace sector `0x003000` with the one CRC-gated 4 KiB SRAM payload. A physical
 OpenOCD gate is intentionally separate from the offline generator and must
 retain exact SRAM backup/readback/restoration checks.
 
+The maximum-record pair is similarly fixed and non-generic:
+
+```sh
+./tools/kw520_spi_patch/run-maxrecord-restore.sh --restore-maxrecord-probe
+./tools/kw520_spi_patch/run-maxrecord-probe.sh --write-maxrecord-probe
+```
+
+The restore command must pass as a no-op on original CRC `f5c23372` before the
+forward command is considered. The forward command changes only the title
+pointer to existing record `0x007ec2` (allocation 113), producing sector CRC
+`de37c157`. The same restore command is the only accepted recovery path.
+
 `prepare_kw520_pointer_openocd.py` derives that gate from the exact physically
 qualified restore config and refuses if the template SHA-256 changes. The run
 script also requires the explicit argument `--write-pointer-probe`, regenerates

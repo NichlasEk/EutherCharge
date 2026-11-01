@@ -167,3 +167,13 @@ exakt `0x20003981 -> 0x20003980`, i takt med nio respektive åtta synliga byte.
 Råa SRAM-bilder ligger bara lokalt; publicerad evidens innehåller hash, adresser
 och minimala skillnadsintervall. Detta ger fasta mål för vidare gränsmätning,
 men bevisar ännu inte buffertstorlek eller overflow.
+
+Den befintliga största giltiga posten användes sedan utan någon payload- eller
+längdändring. Titelpekaren flyttades till Russian-custom post 111 vid `0x007ec2`:
+allokering 113, 112 payloadbyte plus NUL. På LCD:n syntes en lång klippt rad med
+tecken medan resten av huvudmenyn ritades normalt. En read-only-SRAM-fångst
+hittade hela payloaden plus NUL exakt en gång, vid samma beständiga källbuffert
+`0x20003978`. Den tidigare korttitelkopian vid `0x20003728` var nollställd vid
+denna fångst och ska därför behandlas som övergående. Detta kvalificerar den
+kända legitima formatmaxgränsen på källvägen, men säger fortfarande inget om
+säkerheten över 113 byte.
