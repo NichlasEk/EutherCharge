@@ -159,3 +159,11 @@ utanför EN25Q32, och det är fortfarande ingen läsning av FAP-skyddad intern
 flash. Nästa prov måste därför skapa en ny observerbar skillnad utan att anta
 att en krasch eller frysning är en läsprimitiv. Den befintliga DTC-posten är
 fortsatt en bättre kandidat än en godtycklig ogiltig pekare.
+
+En efterföljande read-only-jämförelse av två fulla 16 KiB-SRAM-bilder kartlade
+dessutom strängvägen. `Huvudmeny` och `SAFEWXYZ` använder samma källbuffert
+`0x20003978` och renderkopia `0x20003728`. Slutpekaren vid `0x20003710` ändras
+exakt `0x20003981 -> 0x20003980`, i takt med nio respektive åtta synliga byte.
+Råa SRAM-bilder ligger bara lokalt; publicerad evidens innehåller hash, adresser
+och minimala skillnadsintervall. Detta ger fasta mål för vidare gränsmätning,
+men bevisar ännu inte buffertstorlek eller overflow.

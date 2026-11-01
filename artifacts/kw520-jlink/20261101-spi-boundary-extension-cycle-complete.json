@@ -8,7 +8,7 @@
     "title_pointer_before": "0x00000692",
     "title_pointer_test": "0x00000bc7",
     "nested_record_offset": "0x003dc7",
-    "location": "ten verified zero bytes inside trailing padding of the entry 98 allocation",
+    "location": "ten verified zero bytes inside trailing padding of the entry 99 allocation",
     "baseline_record_hex": "0004534146455758595a",
     "extended_record_hex": "0008534146455758595a",
     "logical_baseline_to_extension_change": "length byte at 0x003dc8 only: 04 to 08",

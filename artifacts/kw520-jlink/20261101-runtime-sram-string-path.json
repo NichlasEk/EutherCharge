@@ -1,0 +1,71 @@
+{
+  "date": "2026-11-01",
+  "operation": "Read-only runtime SRAM comparison of original and SAFEWXYZ titles",
+  "result": "pass",
+  "captures": {
+    "original": {
+      "size_bytes": 16384,
+      "sha256": "02e807707fef2946e5ac7177202423b6097942c14c63004825f20d4725a8f167",
+      "log_sha256": "792b009b6cd32aa1748ce66f58f1633574f4765c04c667aa070de0c365780ad3",
+      "vtarget_volts": 3.290,
+      "display_before_capture": "Huvudmeny"
+    },
+    "controlled": {
+      "size_bytes": 16384,
+      "sha256": "414f043f56d9de930ace78f24743f66a939cb3e6bc9e6ab2dedb69920fca19ff",
+      "log_sha256": "11ec0f7dd4117bfed8863a09b9d9acf874d87e523d437e3a68c8e53192af5866",
+      "vtarget_volts": 3.291,
+      "display_before_capture": "SAFEWXYZ"
+    }
+  },
+  "capture_scope": {
+    "base": "0x20000000",
+    "size_bytes": 16384,
+    "target_sram_writes": false,
+    "internal_or_external_flash_commands": false,
+    "raw_dumps_committed": false,
+    "known_effect": "debug initialization freezes original firmware; cold start required"
+  },
+  "stable_string_path": {
+    "source_buffer": "0x20003978",
+    "render_copy": "0x20003728",
+    "source_pointer_location": "0x20003974",
+    "render_destination_pointer_location": "0x20003714",
+    "source_end_pointer_location": "0x20003710",
+    "original_end_pointer": "0x20003981",
+    "controlled_end_pointer": "0x20003980",
+    "historical_original_copy_object_exact_range": "0x200036d0-0x2000387b",
+    "historical_original_source_object_exact_range": "0x20003930-0x20003a5f"
+  },
+  "controlled_differences": {
+    "source_object_0x20003930_0x20003a5f": [
+      {
+        "range": "0x20003978-0x20003980",
+        "original_hex": "48757675646d656e79",
+        "controlled_hex": "534146455758595a00"
+      }
+    ],
+    "copy_object_0x200036d0_0x2000387b": [
+      {"address": "0x200036f8", "original_hex": "55", "controlled_hex": "52"},
+      {"address": "0x20003708", "original_hex": "5b", "controlled_hex": "58"},
+      {"address": "0x20003710", "original_hex": "81", "controlled_hex": "80"},
+      {
+        "range": "0x20003728-0x20003730",
+        "original_hex": "48757675646d656e79",
+        "controlled_hex": "534146455758595a00"
+      }
+    ]
+  },
+  "recovery": {
+    "first_restore_attempt": "refused before flash access because debug capture removed live PA8/SPI2 gate",
+    "first_attempt_flash_write": false,
+    "display_after_required_cold_start": "SAFEWXYZ",
+    "successful_restore_crc_before": "0xe4e92a7b",
+    "successful_restore_crc_after": "0xf5c23372",
+    "status_final": "0x18",
+    "spi_error": 0,
+    "final_display": "Huvudmeny",
+    "normal_button_response": true
+  },
+  "conclusion": "The external ordinary-string path has two stable SRAM stages: a source buffer at 0x20003978 and a render copy at 0x20003728. The declared payload length moves the observed source-end pointer by exactly one byte between the nine-character original and eight-character controlled title. This maps a concrete runtime copy path but does not establish either buffer's allocation size, an overflow, code execution, or protected internal-flash disclosure."
+}

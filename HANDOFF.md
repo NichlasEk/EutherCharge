@@ -1769,7 +1769,7 @@ risk class and requires a separately reviewed bounded output/recovery design.
 ### 2026-11-01: bounded declared-length extension passed and restored
 
 A separately reviewed two-stage probe used ten verified zero padding bytes at
-003dc7, inside the trailing allocation of entry98 and not an active neighboring
+003dc7, inside the trailing allocation of entry99 and not an active neighboring
 record. The main-title pointer at003604 was redirected to relative00000bc7. The
 fixed baseline record was `00 04 SAFEWXYZ` (sector CRCb461d992); the extension
 changed only byte003dc8 from04 to08 (sector CRCe4e92a7b). Both lengths are far
@@ -1797,3 +1797,32 @@ apparatus is not left patched. Evidence:
 `artifacts/kw520-jlink/20261101-spi-boundary-extension-cycle-complete.json`.
 This proves bounded in-range extension on the ordinary-string path, not an
 out-of-range read, protected internal-flash disclosure, or code execution.
+
+### 2026-11-01: runtime SRAM string path mapped read-only
+
+The boundary cycle was repeated only to capture a controlled runtime SRAM
+state. Full 16KiB generic MEM-AP captures were taken in normal `Huvudmeny` and
+verified `SAFEWXYZ` states. The capture configuration contains no target SRAM
+write or flash command, but debug initialization freezes the protected original
+firmware and therefore requires a cold start afterward. Raw dumps remain
+ignored under `build/kw520-runtime-sram/`.
+
+Both states use source buffer20003978 and render copy20003728. The source
+pointer at20003974 and destination pointer at20003714 are stable. The source-end
+pointer at20003710 changed exactly20003981->20003980 for the nine-character
+original and eight-character controlled title. In source-object range
+20003930..20003a5f only bytes20003978..20003980 changed. In copy-object range
+200036d0..2000387b, the title bytes, end-pointer low byte and two likely layout
+values changed. This maps a concrete two-stage runtime copy path; it does not
+yet establish either allocation size or an overflow.
+
+The first post-capture restore attempt refused before flash access because the
+debug-frozen state failed the live PA8/SPI2 gate. After the required cold start
+the display still showed `SAFEWXYZ`; the fixed restore then accepted CRC
+e4e92a7b, restored verified original CRCf5c23372/status18 with spi_error0, and
+the user cold-started to working `Huvudmeny` with normal button response.
+Evidence: `artifacts/kw520-jlink/20261101-runtime-sram-string-path.json`.
+
+Correction: the controlled external padding at003dc7 belongs to one-based
+ordinary-string entry99, not entry98. Addresses, exact bytes, CRCs and physical
+results are unchanged; only the descriptive entry number was corrected.
