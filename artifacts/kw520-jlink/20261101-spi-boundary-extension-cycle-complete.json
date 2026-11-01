@@ -1,0 +1,68 @@
+{
+  "date": "2026-11-01",
+  "operation": "Bounded nested-record declared-length extension cycle",
+  "result": "pass",
+  "controlled_layout": {
+    "sector": "0x003000",
+    "title_pointer_offset": "0x003604",
+    "title_pointer_before": "0x00000692",
+    "title_pointer_test": "0x00000bc7",
+    "nested_record_offset": "0x003dc7",
+    "location": "ten verified zero bytes inside trailing padding of the entry 98 allocation",
+    "baseline_record_hex": "0004534146455758595a",
+    "extended_record_hex": "0008534146455758595a",
+    "logical_baseline_to_extension_change": "length byte at 0x003dc8 only: 04 to 08",
+    "active_neighbor_record_modified": false,
+    "power_or_calibration_data_modified": false
+  },
+  "restore_noop": {
+    "vtarget_volts": 3.290,
+    "target_crc32b": "0xf5c23372",
+    "buffer_crc32b": "0xf5c23372",
+    "pages_programmed": 0,
+    "erase_or_program_executed": false,
+    "accepted": true
+  },
+  "baseline": {
+    "vtarget_volts": 3.290,
+    "input_crc32b": "0xf5c23372",
+    "erased_crc32b": "0xf154670a",
+    "final_crc32b": "0xb461d992",
+    "pages_programmed": 16,
+    "status_final": "0x18",
+    "spi_error": 0,
+    "observed_after_cold_start": "SAFE"
+  },
+  "extension": {
+    "vtarget_volts": 3.291,
+    "input_crc32b": "0xb461d992",
+    "erased_crc32b": "0xf154670a",
+    "final_crc32b": "0xe4e92a7b",
+    "pages_programmed": 16,
+    "status_final": "0x18",
+    "spi_error": 0,
+    "observed_after_cold_start": "SAFEWXYZ"
+  },
+  "restoration": {
+    "vtarget_volts": 3.290,
+    "input_crc32b": "0xe4e92a7b",
+    "erased_crc32b": "0xf154670a",
+    "final_crc32b": "0xf5c23372",
+    "pages_programmed": 16,
+    "status_final": "0x18",
+    "spi_error": 0,
+    "observed_after_cold_start": "Huvudmeny",
+    "normal_button_response": true
+  },
+  "helper_sha256": {
+    "baseline": "395858da02d72f744be32921852bef6e427948840b2fd57bf1b0002e90a6427e",
+    "extension": "d427a74f5a1540b1e408a6719ac6f4cfb160ba4c30a0ed7ebe65199000ff1463",
+    "restore": "709972902923197981493c5562b84aa6f2ed7bc43637931f37d69ec2f1ee7235"
+  },
+  "session_log_sha256": {
+    "baseline": "f9607f2a2066851b39279d499de5b431afe512256edd649effeb55307e93b38c",
+    "extension": "ba912b5c0faf70be33c51e307fb267dcf151d910c809acaa78d6a458525d3b62",
+    "restore": "5ce7a912ebc5f6ba01318c0194cb56844de0cf4b1299dd99ae310becdd6181e5"
+  },
+  "conclusion": "The original firmware rendered exactly four and then eight payload bytes from the same controlled in-range record when only its declared length changed from 4 to 8. The complete CRC-gated change-observe-restore cycle passed and normal operation was physically confirmed. This proves bounded in-range length extension for this ordinary-string path; it does not prove an out-of-range read, internal-flash disclosure, or code execution."
+}

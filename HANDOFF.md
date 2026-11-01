@@ -1765,3 +1765,35 @@ Level D now includes reproducible declared-length consumption: value8 yields
 exactly8 visible payload bytes even though unchanged `y\0` follows. Do not infer
 that extension is safe. Length extension or invalid pointer testing is a new
 risk class and requires a separately reviewed bounded output/recovery design.
+
+### 2026-11-01: bounded declared-length extension passed and restored
+
+A separately reviewed two-stage probe used ten verified zero padding bytes at
+003dc7, inside the trailing allocation of entry98 and not an active neighboring
+record. The main-title pointer at003604 was redirected to relative00000bc7. The
+fixed baseline record was `00 04 SAFEWXYZ` (sector CRCb461d992); the extension
+changed only byte003dc8 from04 to08 (sector CRCe4e92a7b). Both lengths are far
+below the known legitimate maximum113. No calibration or power-stage data was
+selected.
+
+The KWBR/ARMD restore helper was first physically qualified as a no-op on the
+original sector: VTarget3.290V, target/buffer CRCf5c23372, state42, pages0,
+spi_error0, and no erase/program. The distinct KWBS/ARMB baseline helper then
+accepted only original target CRCf5c23372, verified erased CRCf154670a,
+programmed16 pages, verified final CRCb461d992 and restored status18. After a
+normal cold start the user observed exact title `SAFE`.
+
+The distinct KWEX/ARMC helper accepted only baseline target CRCb461d992 and
+buffer CRCe4e92a7b, verified erased CRCf154670a, programmed16 pages, verified
+final CRCe4e92a7b and restored status18. After a normal cold start the user
+observed exact title `SAFEWXYZ`. This is physical evidence that the original
+firmware consumed all eight bytes when only the controlled in-range record's
+declared length changed4->8.
+
+Finally KWBR/ARMD accepted only the exact extension CRCe4e92a7b, restored and
+verified original CRCf5c23372, and restored status18 with spi_error0. The user
+cold-started and confirmed working `Huvudmeny` plus normal button response. The
+apparatus is not left patched. Evidence:
+`artifacts/kw520-jlink/20261101-spi-boundary-extension-cycle-complete.json`.
+This proves bounded in-range extension on the ordinary-string path, not an
+out-of-range read, protected internal-flash disclosure, or code execution.

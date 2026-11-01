@@ -139,3 +139,23 @@ En djupare dumpanalys gav faktiskt en bättre väg framåt. Vi har nu en bevisad
 möjliga. Vi har ännu ingen läsprimitiv, kodexekvering eller intern firmwaredump.
 Nästa tekniska spärr är stabil läsning och återställbar skrivning av EN25Q32 via
 den befintliga J-Link/SWD-anslutningen.
+
+## Fysisk parserstatus 2026-11-01
+
+Den spärren är nu passerad för den externa EN25Q32-flashen. J-Link kan köra en
+CRC-låst SRAM-hjälpare, läsa/skriva exakt sektor `0x003000`, verifiera hela
+sektorn och återställa statusregistret. Följande har dessutom bekräftats på den
+fysiska laddaren med full återställning efter varje prov:
+
+- samma-bank-pekaren gav `Testa`;
+- en giltig pekare över språkbankgränsen gav `Menu principal`;
+- deklarerad längd 8 på `Huvudmeny\0` gav exakt `Huvudmen`;
+- en isolerad post i verifierad nollpadding gav först `SAFE` vid längd 4 och
+  sedan `SAFEWXYZ` vid längd 8, när endast längdbyten ändrades mellan stegen.
+
+Det sista provet visar att en måttlig längdökning inom en helt kontrollerad,
+giltig externflashpost fungerar. Det visar inte att pekare eller längder får gå
+utanför EN25Q32, och det är fortfarande ingen läsning av FAP-skyddad intern
+flash. Nästa prov måste därför skapa en ny observerbar skillnad utan att anta
+att en krasch eller frysning är en läsprimitiv. Den befintliga DTC-posten är
+fortsatt en bättre kandidat än en godtycklig ogiltig pekare.

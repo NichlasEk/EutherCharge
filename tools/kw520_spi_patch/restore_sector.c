@@ -382,7 +382,12 @@ __attribute__((section(".text.start"), noreturn)) void probe_start(void) {
     if (mb->target_crc32_before == KW_EXPECTED_FINAL_CRC32) {
         stop(0x42u);
     }
+#ifdef KW_EXPECTED_TARGET_CRC32_ALT
+    if (mb->target_crc32_before != KW_EXPECTED_TARGET_CRC32 &&
+        mb->target_crc32_before != KW_EXPECTED_TARGET_CRC32_ALT) {
+#else
     if (mb->target_crc32_before != KW_EXPECTED_TARGET_CRC32) {
+#endif
         stop(0xeau);
     }
 
