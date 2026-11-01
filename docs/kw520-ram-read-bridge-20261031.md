@@ -148,3 +148,17 @@ capture. Allocation 256/320 overwrote that word and the device faulted. Before
 any chosen return target is attempted, an embedded-NUL diagnostic must preserve
 the original word and distinguish fixed-size copy, stop-at-NUL copy and
 zero-padding behavior. A crash alone is not code-execution evidence.
+
+That diagnostic is now complete. With allocation 320, an embedded NUL at
+payload offset 100 did not stop or pad the copy: all bytes 0--255 matched the
+external payload, including a marker after the NUL and the preserved little-
+endian return word `f3 93 00 08` at offsets 252--255. Firmware then wrote a NUL
+at offset 256. The menu remained visible with the original return word, whereas
+the earlier cyclic value faulted. This establishes full 32-bit influence over
+the recurrent stack word from normally booted main-flash firmware.
+
+The next gate may therefore select `0x20003979`, the Thumb address of the copied
+payload itself, but must initially do nothing except write fixed magic to an
+otherwise backed-up SRAM mailbox and loop. No internal-flash source, peripheral
+access or external-flash write belongs in that first control-flow test. Only a
+post-boot MEM-AP read of the exact magic can qualify SRAM code execution.

@@ -408,6 +408,50 @@ VARIANTS["language9-list-restore"] = {
     "noop": "ACCEPTED: exact original language sector already present; no write",
     "refused": "REFUSED: language-list restore gate did not pass",
 }
+VARIANTS["nulcopy-data-install"] = {
+    "stem": "nulcopy-data-install", "chunk": "nulcopy-data-test-sector-00c000-chunk",
+    "binary": "nulcopy_data_install", "arm": "0x41524d60", "magic": "0x4b574e44",
+    "directory": "kw520-nulcopy-probe", "label": "NULCOPY_DATA_INSTALL",
+    "buffer": "0x733066b3", "target": "0xf154670a", "final": "0x733066b3",
+    "status_retry": True, "long_wait": True, "helper_readback": "0x700",
+    "title": "Install only the inactive embedded-NUL diagnostic record in sector 0x00c000.",
+    "accepted": "ACCEPTED: exact embedded-NUL data sector installed",
+    "noop": "ACCEPTED: exact embedded-NUL data sector already present; no write",
+    "refused": "REFUSED: embedded-NUL data install gate did not pass",
+}
+VARIANTS["nulcopy-data-restore"] = {
+    "stem": "nulcopy-data-restore", "chunk": "data-original-sector-00c000-chunk",
+    "binary": "nulcopy_data_restore", "arm": "0x41524d61", "magic": "0x4b575a52",
+    "directory": "kw520-nulcopy-probe", "label": "NULCOPY_DATA_RESTORE",
+    "buffer": "0xf154670a", "target": "0x733066b3", "final": "0xf154670a",
+    "status_retry": True, "long_wait": True, "helper_readback": "0x700",
+    "title": "Restore the unreferenced embedded-NUL data sector to exact all-FF.",
+    "accepted": "ACCEPTED: embedded-NUL data sector restored to exact all-FF",
+    "noop": "ACCEPTED: embedded-NUL data sector already exact all-FF; no write",
+    "refused": "REFUSED: embedded-NUL data restore gate did not pass",
+}
+VARIANTS["nulcopy-pointer-install"] = {
+    "stem": "nulcopy-pointer-install", "chunk": "pointer-test-sector-003000-chunk",
+    "binary": "boundary_pointer_install_retry", "arm": "0x41524d4f", "magic": "0x4b575849",
+    "directory": "kw520-nulcopy-probe", "label": "NULCOPY_POINTER_INSTALL",
+    "buffer": "0x6f68933f", "target": "0xf5c23372", "final": "0x6f68933f",
+    "status_retry": True, "long_wait": True, "helper_readback": "0x700",
+    "title": "Activate only the embedded-NUL diagnostic through the qualified title pointer.",
+    "accepted": "ACCEPTED: embedded-NUL title pointer installed and verified",
+    "noop": "ACCEPTED: embedded-NUL title pointer already present; no write",
+    "refused": "REFUSED: embedded-NUL pointer install gate did not pass",
+}
+VARIANTS["nulcopy-pointer-bitbang-restore"] = {
+    "stem": "nulcopy-pointer-bitbang-restore", "chunk": "pointer-original-sector-003000-chunk",
+    "binary": "frontier_pointer_bitbang_restore", "arm": "0x41524d5b", "magic": "0x4b574652",
+    "directory": "kw520-nulcopy-probe", "label": "NULCOPY_POINTER_BITBANG_RESTORE",
+    "buffer": "0xf5c23372", "target": "0x6f68933f", "final": "0xf5c23372",
+    "status_retry": True, "recover_bitbang": True, "long_wait": True, "helper_readback": "0x700",
+    "title": "Restore the embedded-NUL title pointer without depending on firmware SPI state.",
+    "accepted": "ACCEPTED: embedded-NUL title pointer restored through bitbang SPI",
+    "noop": "ACCEPTED: original title pointer already present; bitbang helper made no write",
+    "refused": "REFUSED: embedded-NUL bitbang pointer restore gate did not pass",
+}
 
 
 def sha256(data: bytes) -> str:

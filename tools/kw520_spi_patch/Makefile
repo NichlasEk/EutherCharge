@@ -37,6 +37,7 @@ ELFS := $(BUILD_DIR)/format_probe.elf $(BUILD_DIR)/restore_sector.elf \
 	$(BUILD_DIR)/frontier_pointer_bitbang_restore.elf \
 	$(BUILD_DIR)/language9_install.elf $(BUILD_DIR)/language9_restore.elf \
 	$(BUILD_DIR)/language9_list_install.elf $(BUILD_DIR)/language9_list_restore.elf \
+	$(BUILD_DIR)/nulcopy_data_install.elf $(BUILD_DIR)/nulcopy_data_restore.elf \
 	$(BUILD_DIR)/pointer_probe.elf $(BUILD_DIR)/pointer_restore.elf \
 	$(BUILD_DIR)/crossbank_probe.elf $(BUILD_DIR)/crossbank_restore.elf \
 	$(BUILD_DIR)/protection_roundtrip.elf \
@@ -65,6 +66,7 @@ BINS := $(BUILD_DIR)/format_probe.bin $(BUILD_DIR)/restore_sector.bin \
 	$(BUILD_DIR)/frontier_pointer_bitbang_restore.bin \
 	$(BUILD_DIR)/language9_install.bin $(BUILD_DIR)/language9_restore.bin \
 	$(BUILD_DIR)/language9_list_install.bin $(BUILD_DIR)/language9_list_restore.bin \
+	$(BUILD_DIR)/nulcopy_data_install.bin $(BUILD_DIR)/nulcopy_data_restore.bin \
 	$(BUILD_DIR)/pointer_probe.bin $(BUILD_DIR)/pointer_restore.bin \
 	$(BUILD_DIR)/crossbank_probe.bin $(BUILD_DIR)/crossbank_restore.bin \
 	$(BUILD_DIR)/protection_roundtrip.bin \
@@ -419,6 +421,28 @@ $(BUILD_DIR)/language9_list_restore.elf: restore_sector.c linker_mutation.ld | $
 		-DKW_STATUS_CLEAR_ATTEMPTS=2u -DKW_STRICT_MUTATION_WAIT=1 \
 		-nostdlib -Wl,-T,linker_mutation.ld -Wl,--build-id=none \
 		-Wl,--gc-sections -Wl,-Map,$(BUILD_DIR)/language9_list_restore.map -o $@ $<
+
+$(BUILD_DIR)/nulcopy_data_install.elf: restore_sector.c linker_mutation.ld | $(BUILD_DIR)
+	$(CC) $(CFLAGS) -DKW_RESTORE_BUFFER=0x20000a00 \
+		-DKW_MAILBOX_BASE=0x20002100 -DKW_STACK_TOP=0x20002300 \
+		-DKW_HELPER_MAGIC=0x4b574e44u -DKW_ARM_MAGIC=0x41524d60u \
+		-DKW_SECTOR_ADDRESS=0x0000c000u -DKW_BUFFER_CRC32=0x733066b3u \
+		-DKW_EXPECTED_TARGET_CRC32=0xf154670au \
+		-DKW_EXPECTED_FINAL_CRC32=0x733066b3u \
+		-DKW_STATUS_CLEAR_ATTEMPTS=2u -DKW_STRICT_MUTATION_WAIT=1 \
+		-nostdlib -Wl,-T,linker_mutation.ld -Wl,--build-id=none \
+		-Wl,--gc-sections -Wl,-Map,$(BUILD_DIR)/nulcopy_data_install.map -o $@ $<
+
+$(BUILD_DIR)/nulcopy_data_restore.elf: restore_sector.c linker_mutation.ld | $(BUILD_DIR)
+	$(CC) $(CFLAGS) -DKW_RESTORE_BUFFER=0x20000a00 \
+		-DKW_MAILBOX_BASE=0x20002100 -DKW_STACK_TOP=0x20002300 \
+		-DKW_HELPER_MAGIC=0x4b575a52u -DKW_ARM_MAGIC=0x41524d61u \
+		-DKW_SECTOR_ADDRESS=0x0000c000u -DKW_BUFFER_CRC32=0xf154670au \
+		-DKW_EXPECTED_TARGET_CRC32=0x733066b3u \
+		-DKW_EXPECTED_FINAL_CRC32=0xf154670au \
+		-DKW_STATUS_CLEAR_ATTEMPTS=2u -DKW_STRICT_MUTATION_WAIT=1 \
+		-nostdlib -Wl,-T,linker_mutation.ld -Wl,--build-id=none \
+		-Wl,--gc-sections -Wl,-Map,$(BUILD_DIR)/nulcopy_data_restore.map -o $@ $<
 
 define FRONTIER_RULES
 $(BUILD_DIR)/frontier$(1)_data_install.elf: restore_sector.c linker_mutation.ld | $(BUILD_DIR)

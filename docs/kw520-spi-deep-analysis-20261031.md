@@ -191,6 +191,28 @@ inte. Originalsektorn återställdes exakt från `4779b7f4` till `f5c23372`, och
 de ursprungliga åtta språkvalen återkom. Språklistan är därmed en verifierad,
 klampad parsergräns och inte en fortsatt overflowkandidat.
 
+## Inbäddat NUL och kontrollordet vid 256-bytegränsen
+
+Ett separat allocation-320-prov behöll det stabila ordet `0x080093f3` vid
+payload-offset 252 men placerade ett tidigt NUL vid offset 100 och en unik
+`AFTER-NUL-MARKER` efter detta. På apparaten scrollade provtiteln samtidigt som
+menyn fortfarande ritades. SRAM-fångsten visade:
+
+- payloadbyte 0--255 matchade provposten exakt;
+- markören efter det tidiga NUL-värdet var intakt;
+- ordet vid `0x20003a74` var exakt `f3 93 00 08`;
+- firmware skrev NUL vid payload-offset 256;
+- byte efter 256 var inte hämtade från provpostens svans.
+
+Kopieringen är alltså en fast 256-bytekopiering följd av terminering, inte en
+NUL-stoppad `strcpy` eller NUL-paddande `strncpy`. Det återkommande ordet kan
+formas fullständigt, inklusive nollbyte, från externflashen. Att det
+ursprungliga ordet gav fungerande meny medan det tidigare cykliska mönstret gav
+fault är stark kontrollflödesevidens, men ännu inte bevis för vald
+kodexekvering. Pekarsektorn återställdes först (`6f68933f -> f5c23372`), sedan
+återställdes den orefererade datasektorn (`733066b3 -> f154670a`); båda
+slutlägena verifierades fysiskt.
+
 En efterföljande read-only-jämförelse av två fulla 16 KiB-SRAM-bilder kartlade
 dessutom strängvägen. `Huvudmeny` och `SAFEWXYZ` använder samma källbuffert
 `0x20003978` och renderkopia `0x20003728`. Slutpekaren vid `0x20003710` ändras
