@@ -22,6 +22,9 @@
 #define SCB_CFSR 0xe000ed28u
 #define SCB_HFSR 0xe000ed2cu
 #define PA8 0x00000100u
+#define PB13 0x00002000u
+#define PB14 0x00004000u
+#define PB15 0x00008000u
 
 #ifndef KW_HELPER_MAGIC
 #define KW_HELPER_MAGIC 0x4b575052u /* KWPR */
@@ -37,6 +40,9 @@
 #endif
 #ifndef KW_EXPECTED_FINAL_CRC32
 #define KW_EXPECTED_FINAL_CRC32 0xf5c23372u
+#endif
+#ifndef KW_EXPECTED_STATUS_BEFORE
+#define KW_EXPECTED_STATUS_BEFORE 0x18u
 #endif
 #ifndef KW_SECTOR_ADDRESS
 #define KW_SECTOR_ADDRESS 0x00003000u
@@ -72,6 +78,10 @@ struct mailbox {
     volatile uint32_t status_cleared;
     volatile uint32_t status_restored;
     volatile uint32_t cleanup_attempted;
+#ifdef KW_STATUS_CLEAR_ATTEMPTS
+    volatile uint32_t status_clear_attempts;
+    volatile uint32_t status_wren_last;
+#endif
 };
 
 static volatile struct mailbox *const mb = (volatile struct mailbox *)MAILBOX_BASE;
@@ -118,6 +128,35 @@ static inline void cs_high(void) {
     barrier();
 }
 
+#ifdef KW_BITBANG_SPI
+static inline void bit_delay(void) {
+    for (volatile uint32_t count = 0; count < 12u; ++count) {
+        __asm__ volatile("nop");
+    }
+}
+
+static int spi_xfer(uint8_t out, uint8_t *in) {
+    uint8_t value = 0u;
+    for (uint32_t mask = 0x80u; mask != 0u; mask >>= 1) {
+        REG32(GPIOB_BASE + ((out & mask) != 0u ? 0x18u : 0x28u)) = PB15;
+        bit_delay();
+        REG32(GPIOB_BASE + 0x18u) = PB13;
+        bit_delay();
+        value = (uint8_t)((value << 1) | ((REG32(GPIOB_BASE + 0x10u) & PB14) != 0u));
+        REG32(GPIOB_BASE + 0x28u) = PB13;
+        bit_delay();
+    }
+    *in = value;
+    return 1;
+}
+
+static int wait_spi_idle(void) {
+    return 1;
+}
+
+static void drain_receive(void) {
+}
+#else
 static int spi_xfer(uint8_t out, uint8_t *in) {
     uint32_t timeout = 0x40000u;
     while ((REG32(SPI2_BASE + 0x08u) & 2u) == 0u) {
@@ -154,6 +193,7 @@ static void drain_receive(void) {
         (void)REG32(SPI2_BASE + 0x0cu);
     }
 }
+#endif
 
 static int instruction(uint8_t opcode) {
     uint8_t ignored;
@@ -257,6 +297,7 @@ static int write_enable_checked(uint8_t expected, uint8_t *status) {
     return instruction(0x06u) && read_status(status) && *status == expected;
 }
 
+#ifndef KW_STRICT_MUTATION_WAIT
 static int wait_ready(uint8_t *status) {
     uint32_t polls = 2000000u;
     do {
@@ -269,6 +310,24 @@ static int wait_ready(uint8_t *status) {
     } while (--polls != 0u);
     return 0;
 }
+#define wait_zero(status) wait_ready(status)
+#define wait_restored(status) wait_ready(status)
+#else
+static int wait_expected(uint8_t *status, uint8_t expected) {
+    uint32_t polls = 8000000u;
+    do {
+        if (!read_status(status)) {
+            return 0;
+        }
+        if (*status == expected) {
+            return 1;
+        }
+    } while (--polls != 0u);
+    return 0;
+}
+#define wait_zero(status) wait_expected((status), 0x00u)
+#define wait_restored(status) wait_expected((status), 0x18u)
+#endif
 
 static int erase_fixed_sector(void) {
     uint8_t ignored;
@@ -316,9 +375,14 @@ static int live_configuration_matches(void) {
     mb->raw_spi2_ctrl1 = ctrl1;
     mb->raw_spi2_sts = sts;
     return ((acfgr >> 16) & 3u) == 1u && (aodt & PA8) != 0u &&
+#ifdef KW_BITBANG_SPI
+           ((bcfgr >> 26) & 3u) == 1u && ((bcfgr >> 28) & 3u) == 0u &&
+           ((bcfgr >> 30) & 3u) == 1u && (REG32(GPIOB_BASE + 0x14u) & PB13) == 0u;
+#else
            ((bcfgr >> 26) & 3u) == 2u && ((bcfgr >> 28) & 3u) == 2u &&
            ((bcfgr >> 30) & 3u) == 2u && (ctrl1 & 0xffffu) == 0x0357u &&
            (sts & 2u) != 0u;
+#endif
 }
 
 static void best_effort_restore_status(void) {
@@ -326,10 +390,36 @@ static void best_effort_restore_status(void) {
     mb->cleanup_attempted = 1u;
     if (instruction(0x06u)) {
         (void)write_status(0x18u);
-        (void)wait_ready(&status);
+        (void)wait_restored(&status);
     }
     (void)instruction(0x04u);
 }
+
+#ifdef KW_STATUS_CLEAR_ATTEMPTS
+static int clear_status_verified(uint8_t *status) {
+    for (uint32_t attempt = 1u; attempt <= KW_STATUS_CLEAR_ATTEMPTS; ++attempt) {
+        mb->status_clear_attempts = attempt;
+        if (!instruction(0x06u) || !read_status(status)) {
+            return 0;
+        }
+        mb->status_wren_last = *status;
+        if (*status != 0x1au) {
+            (void)instruction(0x04u);
+            watchdog_refresh();
+            continue;
+        }
+        if (!write_status(0x00u) || !wait_zero(status)) {
+            return 0;
+        }
+        if (*status == 0x00u) {
+            return 1;
+        }
+        (void)instruction(0x04u);
+        watchdog_refresh();
+    }
+    return 0;
+}
+#endif
 
 __attribute__((noreturn)) static void stop(uint32_t state) {
     cs_high();
@@ -348,6 +438,10 @@ __attribute__((section(".text.start"), noreturn)) void probe_start(void) {
     mb->pages_done = 0u;
     mb->spi_error = 0u;
     mb->cleanup_attempted = 0u;
+#ifdef KW_STATUS_CLEAR_ATTEMPTS
+    mb->status_clear_attempts = 0u;
+    mb->status_wren_last = 0u;
+#endif
     REG32(SCB_VTOR) = (uint32_t)(uintptr_t)probe_vectors;
     barrier();
 
@@ -366,7 +460,7 @@ __attribute__((section(".text.start"), noreturn)) void probe_start(void) {
         stop(0xe4u);
     }
     mb->status_before = status;
-    if (status != 0x18u) {
+    if (status != KW_EXPECTED_STATUS_BEFORE) {
         stop(0xe5u);
     }
     uint8_t protection;
@@ -386,6 +480,9 @@ __attribute__((section(".text.start"), noreturn)) void probe_start(void) {
         stop(0xe9u);
     }
     watchdog_refresh();
+#ifdef KW_AUDIT_ONLY
+    stop(0x43u);
+#endif
     if (mb->target_crc32_before == KW_EXPECTED_FINAL_CRC32) {
         stop(0x42u);
     }
@@ -399,11 +496,22 @@ __attribute__((section(".text.start"), noreturn)) void probe_start(void) {
     }
 
     mb->state = 0x18u;
-    if (!write_enable_checked(0x1au, &status) || !write_status(0x00u) ||
-        !wait_ready(&status) || status != 0x00u) {
+#ifdef KW_STATUS_ALREADY_CLEAR
+    if (!instruction(0x04u) || !read_status(&status) || status != 0x00u) {
         best_effort_restore_status();
         stop(0xebu);
     }
+#else
+#ifdef KW_STATUS_CLEAR_ATTEMPTS
+    if (!clear_status_verified(&status)) {
+#else
+    if (!write_enable_checked(0x1au, &status) || !write_status(0x00u) ||
+        !wait_zero(&status) || status != 0x00u) {
+#endif
+        best_effort_restore_status();
+        stop(0xebu);
+    }
+#endif
     mb->status_cleared = status;
 
     mb->state = 0x20u;
@@ -411,7 +519,7 @@ __attribute__((section(".text.start"), noreturn)) void probe_start(void) {
         best_effort_restore_status();
         stop(0xebu);
     }
-    if (!erase_fixed_sector() || !wait_ready(&status)) {
+    if (!erase_fixed_sector() || !wait_zero(&status)) {
         best_effort_restore_status();
         stop(0xecu);
     }
@@ -434,7 +542,7 @@ __attribute__((section(".text.start"), noreturn)) void probe_start(void) {
             best_effort_restore_status();
             stop(0xeeu);
         }
-        if (!program_page(page) || !wait_ready(&status)) {
+        if (!program_page(page) || !wait_zero(&status)) {
             best_effort_restore_status();
             stop(0xefu);
         }
@@ -456,7 +564,7 @@ __attribute__((section(".text.start"), noreturn)) void probe_start(void) {
         stop(0xf2u);
     }
     if (!write_enable_checked(0x02u, &status) || !write_status(0x18u) ||
-        !wait_ready(&status) || status != 0x18u) {
+        !wait_restored(&status) || status != 0x18u) {
         best_effort_restore_status();
         stop(0xf3u);
     }

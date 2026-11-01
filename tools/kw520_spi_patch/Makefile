@@ -11,6 +11,20 @@ ELFS := $(BUILD_DIR)/format_probe.elf $(BUILD_DIR)/restore_sector.elf \
 	$(BUILD_DIR)/maxrecord_probe.elf $(BUILD_DIR)/maxrecord_restore.elf \
 	$(BUILD_DIR)/overmax_data_install.elf $(BUILD_DIR)/overmax_data_restore.elf \
 	$(BUILD_DIR)/overmax_pointer_install.elf $(BUILD_DIR)/overmax_pointer_restore.elf \
+	$(BUILD_DIR)/boundary128_data_install.elf $(BUILD_DIR)/boundary128_data_restore.elf \
+	$(BUILD_DIR)/boundary128_pointer_restore_retry.elf \
+	$(BUILD_DIR)/boundary160_data_install.elf $(BUILD_DIR)/boundary_pointer_install_retry.elf \
+	$(BUILD_DIR)/boundary192_data_install.elf \
+	$(BUILD_DIR)/boundary224_data_install.elf \
+	$(BUILD_DIR)/boundary_data_audit.elf \
+	$(BUILD_DIR)/boundary224_data_install_erased.elf \
+	$(BUILD_DIR)/boundary240_data_install.elf \
+	$(BUILD_DIR)/boundary240_data_restore.elf \
+	$(BUILD_DIR)/boundary_pointer_audit.elf \
+	$(BUILD_DIR)/boundary_pointer_bitbang_audit.elf \
+	$(BUILD_DIR)/boundary_pointer_interrupted_audit.elf \
+	$(BUILD_DIR)/boundary_pointer_interrupted_restore.elf \
+	$(BUILD_DIR)/boundary_pointer_bitbang_restore.elf \
 	$(BUILD_DIR)/pointer_probe.elf $(BUILD_DIR)/pointer_restore.elf \
 	$(BUILD_DIR)/crossbank_probe.elf $(BUILD_DIR)/crossbank_restore.elf \
 	$(BUILD_DIR)/protection_roundtrip.elf \
@@ -22,6 +36,20 @@ BINS := $(BUILD_DIR)/format_probe.bin $(BUILD_DIR)/restore_sector.bin \
 	$(BUILD_DIR)/maxrecord_probe.bin $(BUILD_DIR)/maxrecord_restore.bin \
 	$(BUILD_DIR)/overmax_data_install.bin $(BUILD_DIR)/overmax_data_restore.bin \
 	$(BUILD_DIR)/overmax_pointer_install.bin $(BUILD_DIR)/overmax_pointer_restore.bin \
+	$(BUILD_DIR)/boundary128_data_install.bin $(BUILD_DIR)/boundary128_data_restore.bin \
+	$(BUILD_DIR)/boundary128_pointer_restore_retry.bin \
+	$(BUILD_DIR)/boundary160_data_install.bin $(BUILD_DIR)/boundary_pointer_install_retry.bin \
+	$(BUILD_DIR)/boundary192_data_install.bin \
+	$(BUILD_DIR)/boundary224_data_install.bin \
+	$(BUILD_DIR)/boundary_data_audit.bin \
+	$(BUILD_DIR)/boundary224_data_install_erased.bin \
+	$(BUILD_DIR)/boundary240_data_install.bin \
+	$(BUILD_DIR)/boundary240_data_restore.bin \
+	$(BUILD_DIR)/boundary_pointer_audit.bin \
+	$(BUILD_DIR)/boundary_pointer_bitbang_audit.bin \
+	$(BUILD_DIR)/boundary_pointer_interrupted_audit.bin \
+	$(BUILD_DIR)/boundary_pointer_interrupted_restore.bin \
+	$(BUILD_DIR)/boundary_pointer_bitbang_restore.bin \
 	$(BUILD_DIR)/pointer_probe.bin $(BUILD_DIR)/pointer_restore.bin \
 	$(BUILD_DIR)/crossbank_probe.bin $(BUILD_DIR)/crossbank_restore.bin \
 	$(BUILD_DIR)/protection_roundtrip.bin \
@@ -181,6 +209,146 @@ $(BUILD_DIR)/overmax_pointer_restore.elf: restore_sector.c linker_mutation.ld | 
 		-DKW_EXPECTED_FINAL_CRC32=0xf5c23372u \
 		-nostdlib -Wl,-T,linker_mutation.ld -Wl,--build-id=none \
 		-Wl,--gc-sections -Wl,-Map,$(BUILD_DIR)/overmax_pointer_restore.map -o $@ $<
+$(BUILD_DIR)/boundary128_data_install.elf: restore_sector.c linker_mutation.ld | $(BUILD_DIR)
+	$(CC) $(CFLAGS) -DKW_RESTORE_BUFFER=0x20000a00 \
+		-DKW_MAILBOX_BASE=0x20002100 -DKW_STACK_TOP=0x20002300 \
+		-DKW_HELPER_MAGIC=0x4b573849u -DKW_ARM_MAGIC=0x41524d4bu \
+		-DKW_SECTOR_ADDRESS=0x0000c000u -DKW_BUFFER_CRC32=0x1f18aa83u \
+		-DKW_EXPECTED_TARGET_CRC32=0xf154670au \
+		-DKW_EXPECTED_FINAL_CRC32=0x1f18aa83u \
+		-nostdlib -Wl,-T,linker_mutation.ld -Wl,--build-id=none \
+		-Wl,--gc-sections -Wl,-Map,$(BUILD_DIR)/boundary128_data_install.map -o $@ $<
+$(BUILD_DIR)/boundary128_data_restore.elf: restore_sector.c linker_mutation.ld | $(BUILD_DIR)
+	$(CC) $(CFLAGS) -DKW_RESTORE_BUFFER=0x20000a00 \
+		-DKW_MAILBOX_BASE=0x20002100 -DKW_STACK_TOP=0x20002300 \
+		-DKW_HELPER_MAGIC=0x4b573852u -DKW_ARM_MAGIC=0x41524d4cu \
+		-DKW_SECTOR_ADDRESS=0x0000c000u -DKW_BUFFER_CRC32=0xf154670au \
+		-DKW_EXPECTED_TARGET_CRC32=0x1f18aa83u \
+		-DKW_EXPECTED_FINAL_CRC32=0xf154670au \
+		-nostdlib -Wl,-T,linker_mutation.ld -Wl,--build-id=none \
+		-Wl,--gc-sections -Wl,-Map,$(BUILD_DIR)/boundary128_data_restore.map -o $@ $<
+$(BUILD_DIR)/boundary128_pointer_restore_retry.elf: restore_sector.c linker_mutation.ld | $(BUILD_DIR)
+	$(CC) $(CFLAGS) -DKW_RESTORE_BUFFER=0x20000a00 \
+		-DKW_MAILBOX_BASE=0x20002100 -DKW_STACK_TOP=0x20002300 \
+		-DKW_HELPER_MAGIC=0x4b575852u -DKW_ARM_MAGIC=0x41524d4du \
+		-DKW_STATUS_CLEAR_ATTEMPTS=2u -DKW_BUFFER_CRC32=0xf5c23372u \
+		-DKW_EXPECTED_TARGET_CRC32=0x6f68933fu \
+		-DKW_EXPECTED_FINAL_CRC32=0xf5c23372u \
+		-nostdlib -Wl,-T,linker_mutation.ld -Wl,--build-id=none \
+		-Wl,--gc-sections -Wl,-Map,$(BUILD_DIR)/boundary128_pointer_restore_retry.map -o $@ $<
+$(BUILD_DIR)/boundary160_data_install.elf: restore_sector.c linker_mutation.ld | $(BUILD_DIR)
+	$(CC) $(CFLAGS) -DKW_RESTORE_BUFFER=0x20000a00 \
+		-DKW_MAILBOX_BASE=0x20002100 -DKW_STACK_TOP=0x20002300 \
+		-DKW_HELPER_MAGIC=0x4b573649u -DKW_ARM_MAGIC=0x41524d4eu \
+		-DKW_STATUS_CLEAR_ATTEMPTS=2u -DKW_SECTOR_ADDRESS=0x0000c000u \
+		-DKW_BUFFER_CRC32=0x0c91e3d5u -DKW_EXPECTED_TARGET_CRC32=0x1f18aa83u \
+		-DKW_EXPECTED_FINAL_CRC32=0x0c91e3d5u \
+		-nostdlib -Wl,-T,linker_mutation.ld -Wl,--build-id=none \
+		-Wl,--gc-sections -Wl,-Map,$(BUILD_DIR)/boundary160_data_install.map -o $@ $<
+$(BUILD_DIR)/boundary_pointer_install_retry.elf: restore_sector.c linker_mutation.ld | $(BUILD_DIR)
+	$(CC) $(CFLAGS) -DKW_RESTORE_BUFFER=0x20000a00 \
+		-DKW_MAILBOX_BASE=0x20002100 -DKW_STACK_TOP=0x20002300 \
+		-DKW_HELPER_MAGIC=0x4b575849u -DKW_ARM_MAGIC=0x41524d4fu \
+		-DKW_STATUS_CLEAR_ATTEMPTS=2u -DKW_BUFFER_CRC32=0x6f68933fu \
+		-DKW_EXPECTED_TARGET_CRC32=0xf5c23372u \
+		-DKW_EXPECTED_FINAL_CRC32=0x6f68933fu \
+		-nostdlib -Wl,-T,linker_mutation.ld -Wl,--build-id=none \
+		-Wl,--gc-sections -Wl,-Map,$(BUILD_DIR)/boundary_pointer_install_retry.map -o $@ $<
+$(BUILD_DIR)/boundary192_data_install.elf: restore_sector.c linker_mutation.ld | $(BUILD_DIR)
+	$(CC) $(CFLAGS) -DKW_RESTORE_BUFFER=0x20000a00 \
+		-DKW_MAILBOX_BASE=0x20002100 -DKW_STACK_TOP=0x20002300 \
+		-DKW_HELPER_MAGIC=0x4b573749u -DKW_ARM_MAGIC=0x41524d50u \
+		-DKW_STATUS_CLEAR_ATTEMPTS=2u -DKW_SECTOR_ADDRESS=0x0000c000u \
+		-DKW_BUFFER_CRC32=0x80fff2a8u -DKW_EXPECTED_TARGET_CRC32=0x0c91e3d5u \
+		-DKW_EXPECTED_FINAL_CRC32=0x80fff2a8u \
+		-nostdlib -Wl,-T,linker_mutation.ld -Wl,--build-id=none \
+		-Wl,--gc-sections -Wl,-Map,$(BUILD_DIR)/boundary192_data_install.map -o $@ $<
+$(BUILD_DIR)/boundary224_data_install.elf: restore_sector.c linker_mutation.ld | $(BUILD_DIR)
+	$(CC) $(CFLAGS) -DKW_RESTORE_BUFFER=0x20000a00 \
+		-DKW_MAILBOX_BASE=0x20002100 -DKW_STACK_TOP=0x20002300 \
+		-DKW_HELPER_MAGIC=0x4b574149u -DKW_ARM_MAGIC=0x41524d51u \
+		-DKW_STATUS_CLEAR_ATTEMPTS=2u -DKW_SECTOR_ADDRESS=0x0000c000u \
+		-DKW_BUFFER_CRC32=0xff988d5cu -DKW_EXPECTED_TARGET_CRC32=0x80fff2a8u \
+		-DKW_EXPECTED_FINAL_CRC32=0xff988d5cu \
+		-nostdlib -Wl,-T,linker_mutation.ld -Wl,--build-id=none \
+		-Wl,--gc-sections -Wl,-Map,$(BUILD_DIR)/boundary224_data_install.map -o $@ $<
+$(BUILD_DIR)/boundary_data_audit.elf: restore_sector.c linker_mutation.ld | $(BUILD_DIR)
+	$(CC) $(CFLAGS) -DKW_RESTORE_BUFFER=0x20000a00 \
+		-DKW_MAILBOX_BASE=0x20002100 -DKW_STACK_TOP=0x20002300 \
+		-DKW_HELPER_MAGIC=0x4b574144u -DKW_ARM_MAGIC=0x41524d52u \
+		-DKW_AUDIT_ONLY=1 -DKW_SECTOR_ADDRESS=0x0000c000u \
+		-DKW_BUFFER_CRC32=0x80fff2a8u \
+		-nostdlib -Wl,-T,linker_mutation.ld -Wl,--build-id=none \
+		-Wl,--gc-sections -Wl,-Map,$(BUILD_DIR)/boundary_data_audit.map -o $@ $<
+$(BUILD_DIR)/boundary224_data_install_erased.elf: restore_sector.c linker_mutation.ld | $(BUILD_DIR)
+	$(CC) $(CFLAGS) -DKW_RESTORE_BUFFER=0x20000a00 \
+		-DKW_MAILBOX_BASE=0x20002100 -DKW_STACK_TOP=0x20002300 \
+		-DKW_HELPER_MAGIC=0x4b574145u -DKW_ARM_MAGIC=0x41524d53u \
+		-DKW_STATUS_CLEAR_ATTEMPTS=2u -DKW_SECTOR_ADDRESS=0x0000c000u \
+		-DKW_BUFFER_CRC32=0xff988d5cu -DKW_EXPECTED_TARGET_CRC32=0xf154670au \
+		-DKW_EXPECTED_FINAL_CRC32=0xff988d5cu \
+		-nostdlib -Wl,-T,linker_mutation.ld -Wl,--build-id=none \
+		-Wl,--gc-sections -Wl,-Map,$(BUILD_DIR)/boundary224_data_install_erased.map -o $@ $<
+$(BUILD_DIR)/boundary240_data_install.elf: restore_sector.c linker_mutation.ld | $(BUILD_DIR)
+	$(CC) $(CFLAGS) -Oz -DKW_RESTORE_BUFFER=0x20000a00 \
+		-DKW_MAILBOX_BASE=0x20002100 -DKW_STACK_TOP=0x20002300 \
+		-DKW_HELPER_MAGIC=0x4b574249u -DKW_ARM_MAGIC=0x41524d54u \
+		-DKW_STATUS_CLEAR_ATTEMPTS=2u -DKW_STRICT_MUTATION_WAIT=1 \
+		-DKW_SECTOR_ADDRESS=0x0000c000u -DKW_BUFFER_CRC32=0xaba2265eu \
+		-DKW_EXPECTED_TARGET_CRC32=0xff988d5cu \
+		-DKW_EXPECTED_FINAL_CRC32=0xaba2265eu \
+		-nostdlib -Wl,-T,linker_mutation.ld -Wl,--build-id=none \
+		-Wl,--gc-sections -Wl,-Map,$(BUILD_DIR)/boundary240_data_install.map -o $@ $<
+$(BUILD_DIR)/boundary240_data_restore.elf: restore_sector.c linker_mutation.ld | $(BUILD_DIR)
+	$(CC) $(CFLAGS) -Oz -DKW_RESTORE_BUFFER=0x20000a00 \
+		-DKW_MAILBOX_BASE=0x20002100 -DKW_STACK_TOP=0x20002300 \
+		-DKW_HELPER_MAGIC=0x4b574346u -DKW_ARM_MAGIC=0x41524d55u \
+		-DKW_STATUS_CLEAR_ATTEMPTS=2u -DKW_STRICT_MUTATION_WAIT=1 \
+		-DKW_SECTOR_ADDRESS=0x0000c000u -DKW_BUFFER_CRC32=0xf154670au \
+		-DKW_EXPECTED_TARGET_CRC32=0xaba2265eu \
+		-DKW_EXPECTED_FINAL_CRC32=0xf154670au \
+		-nostdlib -Wl,-T,linker_mutation.ld -Wl,--build-id=none \
+		-Wl,--gc-sections -Wl,-Map,$(BUILD_DIR)/boundary240_data_restore.map -o $@ $<
+$(BUILD_DIR)/boundary_pointer_audit.elf: restore_sector.c linker_mutation.ld | $(BUILD_DIR)
+	$(CC) $(CFLAGS) -DKW_RESTORE_BUFFER=0x20000a00 \
+		-DKW_MAILBOX_BASE=0x20002100 -DKW_STACK_TOP=0x20002300 \
+		-DKW_HELPER_MAGIC=0x4b575041u -DKW_ARM_MAGIC=0x41524d56u \
+		-DKW_AUDIT_ONLY=1 -DKW_BUFFER_CRC32=0xf5c23372u \
+		-nostdlib -Wl,-T,linker_mutation.ld -Wl,--build-id=none \
+		-Wl,--gc-sections -Wl,-Map,$(BUILD_DIR)/boundary_pointer_audit.map -o $@ $<
+$(BUILD_DIR)/boundary_pointer_bitbang_audit.elf: restore_sector.c linker_mutation.ld | $(BUILD_DIR)
+	$(CC) $(CFLAGS) -Oz -DKW_RESTORE_BUFFER=0x20000a00 \
+		-DKW_MAILBOX_BASE=0x20002100 -DKW_STACK_TOP=0x20002300 \
+		-DKW_HELPER_MAGIC=0x4b574241u -DKW_ARM_MAGIC=0x41524d57u \
+		-DKW_AUDIT_ONLY=1 -DKW_BITBANG_SPI=1 -DKW_BUFFER_CRC32=0xf5c23372u \
+		-nostdlib -Wl,-T,linker_mutation.ld -Wl,--build-id=none \
+		-Wl,--gc-sections -Wl,-Map,$(BUILD_DIR)/boundary_pointer_bitbang_audit.map -o $@ $<
+$(BUILD_DIR)/boundary_pointer_interrupted_audit.elf: restore_sector.c linker_mutation.ld | $(BUILD_DIR)
+	$(CC) $(CFLAGS) -Oz -DKW_RESTORE_BUFFER=0x20000a00 \
+		-DKW_MAILBOX_BASE=0x20002100 -DKW_STACK_TOP=0x20002300 \
+		-DKW_HELPER_MAGIC=0x4b574249u -DKW_ARM_MAGIC=0x41524d59u \
+		-DKW_AUDIT_ONLY=1 -DKW_BITBANG_SPI=1 -DKW_EXPECTED_STATUS_BEFORE=0x02u \
+		-DKW_BUFFER_CRC32=0xf5c23372u \
+		-nostdlib -Wl,-T,linker_mutation.ld -Wl,--build-id=none \
+		-Wl,--gc-sections -Wl,-Map,$(BUILD_DIR)/boundary_pointer_interrupted_audit.map -o $@ $<
+$(BUILD_DIR)/boundary_pointer_interrupted_restore.elf: restore_sector.c linker_mutation.ld | $(BUILD_DIR)
+	$(CC) $(CFLAGS) -Oz -DKW_RESTORE_BUFFER=0x20000a00 \
+		-DKW_MAILBOX_BASE=0x20002100 -DKW_STACK_TOP=0x20002300 \
+		-DKW_HELPER_MAGIC=0x4b574952u -DKW_ARM_MAGIC=0x41524d5au \
+		-DKW_BITBANG_SPI=1 -DKW_STATUS_ALREADY_CLEAR=1 -DKW_STRICT_MUTATION_WAIT=1 \
+		-DKW_EXPECTED_STATUS_BEFORE=0x02u -DKW_BUFFER_CRC32=0xf5c23372u \
+		-DKW_EXPECTED_TARGET_CRC32=0x559db759u -DKW_EXPECTED_FINAL_CRC32=0xf5c23372u \
+		-nostdlib -Wl,-T,linker_mutation.ld -Wl,--build-id=none \
+		-Wl,--gc-sections -Wl,-Map,$(BUILD_DIR)/boundary_pointer_interrupted_restore.map -o $@ $<
+$(BUILD_DIR)/boundary_pointer_bitbang_restore.elf: restore_sector.c linker_mutation.ld | $(BUILD_DIR)
+	$(CC) $(CFLAGS) -Oz -DKW_RESTORE_BUFFER=0x20000a00 \
+		-DKW_MAILBOX_BASE=0x20002100 -DKW_STACK_TOP=0x20002300 \
+		-DKW_HELPER_MAGIC=0x4b574252u -DKW_ARM_MAGIC=0x41524d58u \
+		-DKW_BITBANG_SPI=1 -DKW_STATUS_CLEAR_ATTEMPTS=2u -DKW_STRICT_MUTATION_WAIT=1 \
+		-DKW_BUFFER_CRC32=0xf5c23372u -DKW_EXPECTED_TARGET_CRC32=0x33e293e2u \
+		-DKW_EXPECTED_FINAL_CRC32=0xf5c23372u \
+		-nostdlib -Wl,-T,linker_mutation.ld -Wl,--build-id=none \
+		-Wl,--gc-sections -Wl,-Map,$(BUILD_DIR)/boundary_pointer_bitbang_restore.map -o $@ $<
 $(BUILD_DIR)/protection_roundtrip.elf: protection_roundtrip.c linker_restore.ld | $(BUILD_DIR)
 	$(CC) $(CFLAGS) -nostdlib -Wl,-T,linker_restore.ld \
 		-Wl,--build-id=none -Wl,--gc-sections \
@@ -208,6 +376,22 @@ inspect: $(ELFS)
 	$(OBJDUMP) -h -d $(BUILD_DIR)/overmax_data_restore.elf
 	$(OBJDUMP) -h -d $(BUILD_DIR)/overmax_pointer_install.elf
 	$(OBJDUMP) -h -d $(BUILD_DIR)/overmax_pointer_restore.elf
+	$(OBJDUMP) -h -d $(BUILD_DIR)/boundary128_data_install.elf
+	$(OBJDUMP) -h -d $(BUILD_DIR)/boundary128_data_restore.elf
+	$(OBJDUMP) -h -d $(BUILD_DIR)/boundary128_pointer_restore_retry.elf
+	$(OBJDUMP) -h -d $(BUILD_DIR)/boundary160_data_install.elf
+	$(OBJDUMP) -h -d $(BUILD_DIR)/boundary_pointer_install_retry.elf
+	$(OBJDUMP) -h -d $(BUILD_DIR)/boundary192_data_install.elf
+	$(OBJDUMP) -h -d $(BUILD_DIR)/boundary224_data_install.elf
+	$(OBJDUMP) -h -d $(BUILD_DIR)/boundary_data_audit.elf
+	$(OBJDUMP) -h -d $(BUILD_DIR)/boundary224_data_install_erased.elf
+	$(OBJDUMP) -h -d $(BUILD_DIR)/boundary240_data_install.elf
+	$(OBJDUMP) -h -d $(BUILD_DIR)/boundary240_data_restore.elf
+	$(OBJDUMP) -h -d $(BUILD_DIR)/boundary_pointer_audit.elf
+	$(OBJDUMP) -h -d $(BUILD_DIR)/boundary_pointer_bitbang_audit.elf
+	$(OBJDUMP) -h -d $(BUILD_DIR)/boundary_pointer_interrupted_audit.elf
+	$(OBJDUMP) -h -d $(BUILD_DIR)/boundary_pointer_interrupted_restore.elf
+	$(OBJDUMP) -h -d $(BUILD_DIR)/boundary_pointer_bitbang_restore.elf
 	$(OBJDUMP) -h -d $(BUILD_DIR)/restore_sector.elf
 	$(OBJDUMP) -h -d $(BUILD_DIR)/pointer_probe.elf
 	$(OBJDUMP) -h -d $(BUILD_DIR)/pointer_restore.elf
@@ -223,6 +407,20 @@ clean:
 		$(BUILD_DIR)/maxrecord_probe.map $(BUILD_DIR)/maxrecord_restore.map \
 		$(BUILD_DIR)/overmax_data_install.map $(BUILD_DIR)/overmax_data_restore.map \
 		$(BUILD_DIR)/overmax_pointer_install.map $(BUILD_DIR)/overmax_pointer_restore.map \
+		$(BUILD_DIR)/boundary128_data_install.map $(BUILD_DIR)/boundary128_data_restore.map \
+		$(BUILD_DIR)/boundary128_pointer_restore_retry.map \
+		$(BUILD_DIR)/boundary160_data_install.map $(BUILD_DIR)/boundary_pointer_install_retry.map \
+		$(BUILD_DIR)/boundary192_data_install.map \
+		$(BUILD_DIR)/boundary224_data_install.map \
+		$(BUILD_DIR)/boundary_data_audit.map \
+		$(BUILD_DIR)/boundary224_data_install_erased.map \
+		$(BUILD_DIR)/boundary240_data_install.map \
+		$(BUILD_DIR)/boundary240_data_restore.map \
+		$(BUILD_DIR)/boundary_pointer_audit.map \
+		$(BUILD_DIR)/boundary_pointer_bitbang_audit.map \
+		$(BUILD_DIR)/boundary_pointer_interrupted_audit.map \
+		$(BUILD_DIR)/boundary_pointer_interrupted_restore.map \
+		$(BUILD_DIR)/boundary_pointer_bitbang_restore.map \
 		$(BUILD_DIR)/restore_sector.map $(BUILD_DIR)/pointer_probe.map \
 		$(BUILD_DIR)/pointer_restore.map \
 		$(BUILD_DIR)/crossbank_probe.map $(BUILD_DIR)/crossbank_restore.map \

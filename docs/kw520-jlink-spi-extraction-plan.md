@@ -241,6 +241,31 @@ förkortning. Proven gav ingen nivå E-primitiv. Längdförlängning, ogiltig of
 extern gränsöverskridande läsning och varje väg från D/E till internflashnivå F
 är fortfarande obevisade.
 
+## Fysisk allokeringsserie och slutåterställning 2026-11-01
+
+Den fixerade testposten provades med allokeringarna 114, 128, 160, 192, 224 och
+240 byte. Samtliga renderades av originalfirmwaren och motsvarande SRAM-payload
+kontrollerades; 240-byteprovet slutade exakt vid `0x20003a68`, följdes av tre
+nollbyte och lämnade den efterföljande kända SRAM-datan oförändrad. Detta är en
+fysiskt verifierad övre punkt, inte bevis för obegränsad längd eller en
+internflash-läsprimitiv.
+
+Vid den avslutande återställningen hann värdens ursprungliga femsekundersfönster
+halvera en sektoroperation. MCU:n hölls därför haltad och apparaten startades
+inte. En separat GPIO-bitbang-läsare på PA8/PB13/PB14/PB15 verifierade först
+JEDEC `1c3016` och den partiella sektor-CRC:n `33e293e2`. Nästa värdtimeout
+inträffade efter åtta färdiga sidor och del av nästa sida; den nya exakta CRC:n
+var `559db759` med flashstatus `0x02`. Den slutliga räddningshjälparen var låst
+till både denna CRC och status, började med Write Disable och använde ett
+40-sekunders övervakningsfönster.
+
+Slutbeviset för pekarsektor `0x003000` var 16 programmerade sidor, CRC
+`f5c23372`, status `0x18`, blockskydd `0xff` och noll SPI-fel. Den orefererade
+testsektorn `0x00c000` återställdes därefter från CRC `aba2265e` till originalets
+all-FF-CRC `f154670a`, också med 16 sidor, status `0x18` och noll SPI-fel. Efter
+kallstart visade apparaten `Huvudmeny` och knapparna svarade normalt. Detta är
+den fysiska acceptansen för att båda berörda externflashsektorerna är återställda.
+
 ## Referenser
 
 - Lokal formatbeskrivning: `docs/resource-format.md`

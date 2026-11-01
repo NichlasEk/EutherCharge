@@ -49,6 +49,260 @@ VARIANTS = {
         "noop": "ACCEPTED: original title pointer already present; no write",
         "refused": "REFUSED: fixed overmax pointer-restore gate did not pass",
     },
+    "boundary128-data-install": {
+        "stem": "boundary128-data-install", "chunk": "data-test-sector-00c000-chunk",
+        "binary": "boundary128_data_install", "arm": "0x41524d4b", "magic": "0x4b573849",
+        "directory": "kw520-boundary128-probe", "label": "BOUNDARY128_DATA_INSTALL",
+        "buffer": "0x1f18aa83", "target": "0xf154670a", "final": "0x1f18aa83",
+        "title": "Install only the fixed allocation-128 record in unused sector 0x00c000.",
+        "accepted": "ACCEPTED: exact allocation-128 data sector installed and verified",
+        "noop": "ACCEPTED: exact allocation-128 data sector already present; no write",
+        "refused": "REFUSED: fixed allocation-128 data-install gate did not pass",
+    },
+    "boundary128-data-restore": {
+        "stem": "boundary128-data-restore", "chunk": "data-original-sector-00c000-chunk",
+        "binary": "boundary128_data_restore", "arm": "0x41524d4c", "magic": "0x4b573852",
+        "directory": "kw520-boundary128-probe", "label": "BOUNDARY128_DATA_RESTORE",
+        "buffer": "0xf154670a", "target": "0x1f18aa83", "final": "0xf154670a",
+        "title": "Restore only fixed sector 0x00c000 from allocation 128 to exact all-FF.",
+        "accepted": "ACCEPTED: allocation-128 data sector restored to all-FF",
+        "noop": "ACCEPTED: allocation-128 data sector already all-FF; no write",
+        "refused": "REFUSED: fixed allocation-128 data-restore gate did not pass",
+    },
+    "boundary128-pointer-install": {
+        "stem": "boundary128-pointer-install", "chunk": "pointer-test-sector-003000-chunk",
+        "binary": "overmax_pointer_install", "arm": "0x41524d49", "magic": "0x4b574f50",
+        "directory": "kw520-boundary128-probe", "label": "BOUNDARY128_POINTER_INSTALL",
+        "buffer": "0x6f68933f", "target": "0xf5c23372", "final": "0x6f68933f",
+        "title": "Point the main title only to the fixed allocation-128 record at 0x00c000.",
+        "accepted": "ACCEPTED: exact allocation-128 title pointer installed and verified",
+        "noop": "ACCEPTED: exact allocation-128 title pointer already present; no write",
+        "refused": "REFUSED: fixed allocation-128 pointer-install gate did not pass",
+    },
+    "boundary128-pointer-restore": {
+        "stem": "boundary128-pointer-restore", "chunk": "pointer-original-sector-003000-chunk",
+        "binary": "overmax_pointer_restore", "arm": "0x41524d4a", "magic": "0x4b574f52",
+        "directory": "kw520-boundary128-probe", "label": "BOUNDARY128_POINTER_RESTORE",
+        "buffer": "0xf5c23372", "target": "0x6f68933f", "final": "0xf5c23372",
+        "title": "Restore the main-title pointer before erasing the allocation-128 data sector.",
+        "accepted": "ACCEPTED: exact allocation-128 title pointer restored and verified",
+        "noop": "ACCEPTED: original title pointer already present; no write",
+        "refused": "REFUSED: fixed allocation-128 pointer-restore gate did not pass",
+    },
+    "boundary128-pointer-restore-retry": {
+        "stem": "boundary128-pointer-restore-retry", "chunk": "pointer-original-sector-003000-chunk",
+        "binary": "boundary128_pointer_restore_retry", "arm": "0x41524d4d", "magic": "0x4b575852",
+        "directory": "kw520-boundary128-probe", "label": "BOUNDARY128_POINTER_RESTORE_RETRY",
+        "buffer": "0xf5c23372", "target": "0x6f68933f", "final": "0xf5c23372", "status_retry": True,
+        "title": "Restore the allocation-128 title pointer with at most two verified status-clear attempts.",
+        "accepted": "ACCEPTED: allocation-128 title pointer restored with bounded status retry",
+        "noop": "ACCEPTED: original title pointer already present; bounded helper made no write",
+        "refused": "REFUSED: bounded allocation-128 pointer-restore gate did not pass",
+    },
+    "boundary160-data-install": {
+        "stem": "boundary160-data-install", "chunk": "data-test-sector-00c000-chunk",
+        "binary": "boundary160_data_install", "arm": "0x41524d4e", "magic": "0x4b573649",
+        "directory": "kw520-boundary160-probe", "label": "BOUNDARY160_DATA_INSTALL",
+        "buffer": "0x0c91e3d5", "target": "0x1f18aa83", "final": "0x0c91e3d5", "status_retry": True,
+        "title": "Replace only the inactive allocation-128 record with fixed allocation 160.",
+        "accepted": "ACCEPTED: direct allocation-128 to allocation-160 transition verified",
+        "noop": "ACCEPTED: exact allocation-160 data sector already present; no write",
+        "refused": "REFUSED: fixed allocation-160 data-install gate did not pass",
+    },
+    "boundary160-pointer-install-retry": {
+        "stem": "boundary160-pointer-install-retry", "chunk": "pointer-test-sector-003000-chunk",
+        "binary": "boundary_pointer_install_retry", "arm": "0x41524d4f", "magic": "0x4b575849",
+        "directory": "kw520-boundary160-probe", "label": "BOUNDARY160_POINTER_INSTALL_RETRY",
+        "buffer": "0x6f68933f", "target": "0xf5c23372", "final": "0x6f68933f", "status_retry": True,
+        "title": "Point the main title to allocation 160 with at most two verified status-clear attempts.",
+        "accepted": "ACCEPTED: allocation-160 title pointer installed with bounded status retry",
+        "noop": "ACCEPTED: allocation-160 title pointer already present; bounded helper made no write",
+        "refused": "REFUSED: bounded allocation-160 pointer-install gate did not pass",
+    },
+    "boundary160-pointer-restore-retry": {
+        "stem": "boundary160-pointer-restore-retry", "chunk": "pointer-original-sector-003000-chunk",
+        "binary": "boundary128_pointer_restore_retry", "arm": "0x41524d4d", "magic": "0x4b575852",
+        "directory": "kw520-boundary160-probe", "label": "BOUNDARY160_POINTER_RESTORE_RETRY",
+        "buffer": "0xf5c23372", "target": "0x6f68933f", "final": "0xf5c23372", "status_retry": True,
+        "title": "Restore the allocation-160 title pointer with the qualified bounded helper.",
+        "accepted": "ACCEPTED: allocation-160 title pointer restored with bounded status retry",
+        "noop": "ACCEPTED: original title pointer already present; bounded helper made no write",
+        "refused": "REFUSED: bounded allocation-160 pointer-restore gate did not pass",
+    },
+    "boundary192-data-install": {
+        "stem": "boundary192-data-install", "chunk": "data-test-sector-00c000-chunk",
+        "binary": "boundary192_data_install", "arm": "0x41524d50", "magic": "0x4b573749",
+        "directory": "kw520-boundary192-probe", "label": "BOUNDARY192_DATA_INSTALL",
+        "buffer": "0x80fff2a8", "target": "0x0c91e3d5", "final": "0x80fff2a8", "status_retry": True,
+        "title": "Replace only the inactive allocation-160 record with fixed allocation 192.",
+        "accepted": "ACCEPTED: direct allocation-160 to allocation-192 transition verified",
+        "noop": "ACCEPTED: exact allocation-192 data sector already present; no write",
+        "refused": "REFUSED: fixed allocation-192 data-install gate did not pass",
+    },
+    "boundary192-pointer-install-retry": {
+        "stem": "boundary192-pointer-install-retry", "chunk": "pointer-test-sector-003000-chunk",
+        "binary": "boundary_pointer_install_retry", "arm": "0x41524d4f", "magic": "0x4b575849",
+        "directory": "kw520-boundary192-probe", "label": "BOUNDARY192_POINTER_INSTALL_RETRY",
+        "buffer": "0x6f68933f", "target": "0xf5c23372", "final": "0x6f68933f", "status_retry": True,
+        "title": "Point the main title to allocation 192 with the qualified bounded helper.",
+        "accepted": "ACCEPTED: allocation-192 title pointer installed with bounded status retry",
+        "noop": "ACCEPTED: allocation-192 title pointer already present; bounded helper made no write",
+        "refused": "REFUSED: bounded allocation-192 pointer-install gate did not pass",
+    },
+    "boundary192-pointer-restore-retry": {
+        "stem": "boundary192-pointer-restore-retry", "chunk": "pointer-original-sector-003000-chunk",
+        "binary": "boundary128_pointer_restore_retry", "arm": "0x41524d4d", "magic": "0x4b575852",
+        "directory": "kw520-boundary192-probe", "label": "BOUNDARY192_POINTER_RESTORE_RETRY",
+        "buffer": "0xf5c23372", "target": "0x6f68933f", "final": "0xf5c23372", "status_retry": True,
+        "title": "Restore the allocation-192 title pointer with the qualified bounded helper.",
+        "accepted": "ACCEPTED: allocation-192 title pointer restored with bounded status retry",
+        "noop": "ACCEPTED: original title pointer already present; bounded helper made no write",
+        "refused": "REFUSED: bounded allocation-192 pointer-restore gate did not pass",
+    },
+    "boundary224-data-install": {
+        "stem": "boundary224-data-install", "chunk": "data-test-sector-00c000-chunk",
+        "binary": "boundary224_data_install", "arm": "0x41524d51", "magic": "0x4b574149",
+        "directory": "kw520-boundary224-probe", "label": "BOUNDARY224_DATA_INSTALL",
+        "buffer": "0xff988d5c", "target": "0x80fff2a8", "final": "0xff988d5c", "status_retry": True,
+        "title": "Replace only the inactive allocation-192 record with fixed allocation 224.",
+        "accepted": "ACCEPTED: direct allocation-192 to allocation-224 transition verified",
+        "noop": "ACCEPTED: exact allocation-224 data sector already present; no write",
+        "refused": "REFUSED: fixed allocation-224 data-install gate did not pass",
+    },
+    "boundary224-data-audit": {
+        "stem": "boundary224-data-audit", "chunk": "data-previous-sector-00c000-chunk",
+        "binary": "boundary_data_audit", "arm": "0x41524d52", "magic": "0x4b574144",
+        "directory": "kw520-boundary224-probe", "label": "BOUNDARY224_DATA_AUDIT",
+        "buffer": "0x80fff2a8", "target": "0x00000000", "final": "0x00000000", "audit_only": True,
+        "title": "Read only the uncertain sector 0x00c000 CRC after the refused allocation-224 erase.",
+        "accepted": "ACCEPTED: read-only allocation-224 data-sector audit completed",
+        "noop": "ACCEPTED: read-only allocation-224 data-sector audit completed",
+        "refused": "REFUSED: read-only allocation-224 data-sector audit gate did not pass",
+    },
+    "boundary224-data-install-erased": {
+        "stem": "boundary224-data-install-erased", "chunk": "data-test-sector-00c000-chunk",
+        "binary": "boundary224_data_install_erased", "arm": "0x41524d53", "magic": "0x4b574145",
+        "directory": "kw520-boundary224-probe", "label": "BOUNDARY224_DATA_INSTALL_ERASED",
+        "buffer": "0xff988d5c", "target": "0xf154670a", "final": "0xff988d5c", "status_retry": True,
+        "title": "Install fixed allocation 224 only from the audited all-FF sector state.",
+        "accepted": "ACCEPTED: allocation-224 installed from audited all-FF sector",
+        "noop": "ACCEPTED: exact allocation-224 data sector already present; no write",
+        "refused": "REFUSED: all-FF to allocation-224 recovery gate did not pass",
+    },
+    "boundary224-pointer-install-retry": {
+        "stem": "boundary224-pointer-install-retry", "chunk": "pointer-test-sector-003000-chunk",
+        "binary": "boundary_pointer_install_retry", "arm": "0x41524d4f", "magic": "0x4b575849",
+        "directory": "kw520-boundary224-probe", "label": "BOUNDARY224_POINTER_INSTALL_RETRY",
+        "buffer": "0x6f68933f", "target": "0xf5c23372", "final": "0x6f68933f", "status_retry": True,
+        "title": "Point the main title to allocation 224 with the qualified bounded helper.",
+        "accepted": "ACCEPTED: allocation-224 title pointer installed with bounded status retry",
+        "noop": "ACCEPTED: allocation-224 title pointer already present; bounded helper made no write",
+        "refused": "REFUSED: bounded allocation-224 pointer-install gate did not pass",
+    },
+    "boundary224-pointer-restore-retry": {
+        "stem": "boundary224-pointer-restore-retry", "chunk": "pointer-original-sector-003000-chunk",
+        "binary": "boundary128_pointer_restore_retry", "arm": "0x41524d4d", "magic": "0x4b575852",
+        "directory": "kw520-boundary224-probe", "label": "BOUNDARY224_POINTER_RESTORE_RETRY",
+        "buffer": "0xf5c23372", "target": "0x6f68933f", "final": "0xf5c23372", "status_retry": True,
+        "title": "Restore the allocation-224 title pointer with the qualified bounded helper.",
+        "accepted": "ACCEPTED: allocation-224 title pointer restored with bounded status retry",
+        "noop": "ACCEPTED: original title pointer already present; bounded helper made no write",
+        "refused": "REFUSED: bounded allocation-224 pointer-restore gate did not pass",
+    },
+    "boundary240-data-install": {
+        "stem": "boundary240-data-install", "chunk": "data-test-sector-00c000-chunk",
+        "binary": "boundary240_data_install", "arm": "0x41524d54", "magic": "0x4b574249",
+        "directory": "kw520-boundary240-probe", "label": "BOUNDARY240_DATA_INSTALL",
+        "buffer": "0xaba2265e", "target": "0xff988d5c", "final": "0xaba2265e", "status_retry": True,
+        "title": "Replace only the inactive allocation-224 record with fixed allocation 240.",
+        "accepted": "ACCEPTED: direct allocation-224 to allocation-240 transition verified",
+        "noop": "ACCEPTED: exact allocation-240 data sector already present; no write",
+        "refused": "REFUSED: fixed allocation-240 data-install gate did not pass",
+    },
+    "boundary240-data-restore": {
+        "stem": "boundary240-data-restore", "chunk": "data-original-sector-00c000-chunk",
+        "binary": "boundary240_data_restore", "arm": "0x41524d55", "magic": "0x4b574346",
+        "directory": "kw520-boundary240-probe", "label": "BOUNDARY240_DATA_RESTORE",
+        "buffer": "0xf154670a", "target": "0xaba2265e", "final": "0xf154670a", "status_retry": True,
+        "long_wait": True,
+        "title": "Restore only the now-unreferenced allocation-240 data sector to exact all-FF.",
+        "accepted": "ACCEPTED: allocation-240 data sector restored to exact all-FF",
+        "noop": "ACCEPTED: allocation-240 data sector already exact all-FF; no write",
+        "refused": "REFUSED: fixed allocation-240 data-restore gate did not pass",
+    },
+    "boundary240-pointer-audit": {
+        "stem": "boundary240-pointer-audit", "chunk": "pointer-original-sector-003000-chunk",
+        "binary": "boundary_pointer_audit", "arm": "0x41524d56", "magic": "0x4b575041",
+        "directory": "kw520-boundary240-probe", "label": "BOUNDARY240_POINTER_AUDIT",
+        "buffer": "0xf5c23372", "target": "0x00000000", "final": "0x00000000", "audit_only": True, "recover_spi": True,
+        "title": "Read only the partial pointer-sector CRC after interrupted final restore.",
+        "accepted": "ACCEPTED: read-only partial pointer-sector audit completed",
+        "noop": "ACCEPTED: read-only partial pointer-sector audit completed",
+        "refused": "REFUSED: read-only partial pointer-sector audit gate did not pass",
+    },
+    "boundary240-pointer-bitbang-audit": {
+        "stem": "boundary240-pointer-bitbang-audit", "chunk": "pointer-original-sector-003000-chunk",
+        "binary": "boundary_pointer_bitbang_audit", "arm": "0x41524d57", "magic": "0x4b574241",
+        "directory": "kw520-boundary240-probe", "label": "BOUNDARY240_POINTER_BITBANG_AUDIT",
+        "buffer": "0xf5c23372", "target": "0x00000000", "final": "0x00000000", "audit_only": True, "recover_bitbang": True,
+        "title": "Read only the partial pointer-sector CRC through bounded GPIO SPI mode 0.",
+        "accepted": "ACCEPTED: read-only bitbang partial pointer-sector audit completed",
+        "noop": "ACCEPTED: read-only bitbang partial pointer-sector audit completed",
+        "refused": "REFUSED: read-only bitbang partial pointer-sector audit gate did not pass",
+    },
+    "boundary240-pointer-interrupted-audit": {
+        "stem": "boundary240-pointer-interrupted-audit", "chunk": "pointer-original-sector-003000-chunk",
+        "binary": "boundary_pointer_interrupted_audit", "arm": "0x41524d59", "magic": "0x4b574249",
+        "directory": "kw520-boundary240-probe", "label": "BOUNDARY240_POINTER_INTERRUPTED_AUDIT",
+        "buffer": "0xf5c23372", "target": "0x00000000", "final": "0x00000000",
+        "status": "0x02", "audit_only": True, "recover_bitbang": True,
+        "title": "Read the exact sector after a host-timeout halt with status 0x02.",
+        "accepted": "ACCEPTED: read-only interrupted pointer-sector audit completed",
+        "noop": "ACCEPTED: read-only interrupted pointer-sector audit completed",
+        "refused": "REFUSED: read-only interrupted pointer-sector audit gate did not pass",
+    },
+    "boundary240-pointer-interrupted-restore": {
+        "stem": "boundary240-pointer-interrupted-restore", "chunk": "pointer-original-sector-003000-chunk",
+        "binary": "boundary_pointer_interrupted_restore", "arm": "0x41524d5a", "magic": "0x4b574952",
+        "directory": "kw520-boundary240-probe", "label": "BOUNDARY240_POINTER_INTERRUPTED_RESTORE",
+        "buffer": "0xf5c23372", "target": "0x559db759", "final": "0xf5c23372",
+        "status": "0x02", "recover_bitbang": True, "long_wait": True,
+        "title": "Recover the exact status-0x02 interrupted pointer sector through bitbang SPI.",
+        "accepted": "ACCEPTED: interrupted pointer sector recovered and verified through bitbang SPI",
+        "noop": "ACCEPTED: original pointer sector already present; interrupted recovery made no write",
+        "refused": "REFUSED: interrupted pointer-sector recovery gate did not pass",
+    },
+    "boundary240-pointer-bitbang-restore": {
+        "stem": "boundary240-pointer-bitbang-restore", "chunk": "pointer-original-sector-003000-chunk",
+        "binary": "boundary_pointer_bitbang_restore", "arm": "0x41524d58", "magic": "0x4b574252",
+        "directory": "kw520-boundary240-probe", "label": "BOUNDARY240_POINTER_BITBANG_RESTORE",
+        "buffer": "0xf5c23372", "target": "0x33e293e2", "final": "0xf5c23372",
+        "status_retry": True, "recover_bitbang": True,
+        "title": "Recover the exact partially programmed pointer sector using fixed GPIO bitbang SPI.",
+        "accepted": "ACCEPTED: partial pointer sector recovered and verified through bitbang SPI",
+        "noop": "ACCEPTED: original pointer sector already present; recovery helper made no write",
+        "refused": "REFUSED: bitbang pointer-sector recovery gate did not pass",
+    },
+    "boundary240-pointer-install-retry": {
+        "stem": "boundary240-pointer-install-retry", "chunk": "pointer-test-sector-003000-chunk",
+        "binary": "boundary_pointer_install_retry", "arm": "0x41524d4f", "magic": "0x4b575849",
+        "directory": "kw520-boundary240-probe", "label": "BOUNDARY240_POINTER_INSTALL_RETRY",
+        "buffer": "0x6f68933f", "target": "0xf5c23372", "final": "0x6f68933f", "status_retry": True,
+        "title": "Point the main title to allocation 240 with the qualified bounded helper.",
+        "accepted": "ACCEPTED: allocation-240 title pointer installed with bounded status retry",
+        "noop": "ACCEPTED: allocation-240 title pointer already present; bounded helper made no write",
+        "refused": "REFUSED: bounded allocation-240 pointer-install gate did not pass",
+    },
+    "boundary240-pointer-restore-retry": {
+        "stem": "boundary240-pointer-restore-retry", "chunk": "pointer-original-sector-003000-chunk",
+        "binary": "boundary128_pointer_restore_retry", "arm": "0x41524d4d", "magic": "0x4b575852",
+        "directory": "kw520-boundary240-probe", "label": "BOUNDARY240_POINTER_RESTORE_RETRY",
+        "buffer": "0xf5c23372", "target": "0x6f68933f", "final": "0xf5c23372", "status_retry": True,
+        "title": "Restore the allocation-240 title pointer with the qualified bounded helper.",
+        "accepted": "ACCEPTED: allocation-240 title pointer restored with bounded status retry",
+        "noop": "ACCEPTED: original title pointer already present; bounded helper made no write",
+        "refused": "REFUSED: bounded allocation-240 pointer-restore gate did not pass",
+    },
 }
 
 
@@ -80,25 +334,196 @@ def derive(template: bytes, mode: str) -> str:
     text = replace_exact(
         text,
         "build/kw520-format-probe/restore-sector-003000-chunk",
-        f"build/kw520-overmax-probe/{cfg['chunk']}",
+        f"build/{cfg.get('directory', 'kw520-overmax-probe')}/{cfg['chunk']}",
         4,
     )
     text = replace_exact(text, "build/kw520-spi-patch/restore_sector.bin", f"build/kw520-spi-patch/{cfg['binary']}.bin", 1)
     text = replace_exact(text, "0x41524d32", cfg["arm"], 1)
     text = replace_exact(text, "RESTORE_NOOP", cfg["label"], 1)
+    if cfg.get("recover_spi"):
+        text = replace_exact(
+            text,
+            "init\nhalt 500\nrefresh_wdt",
+            "init\nhalt 500\n"
+            "set rec_acfgr [lindex [read_memory 0x48000000 32 1] 0]\n"
+            "set rec_aodt [lindex [read_memory 0x48000014 32 1] 0]\n"
+            "set rec_bcfgr [lindex [read_memory 0x48000400 32 1] 0]\n"
+            "set rec_bpull [lindex [read_memory 0x4800040c 32 1] 0]\n"
+            "set rec_bmuxh [lindex [read_memory 0x48000424 32 1] 0]\n"
+            "set rec_ctrl1 [lindex [read_memory 0x40003800 32 1] 0]\n"
+            "set rec_ctrl2 [lindex [read_memory 0x40003804 32 1] 0]\n"
+            "set rec_ahben [lindex [read_memory 0x40021014 32 1] 0]\n"
+            "set rec_apb1en [lindex [read_memory 0x4002101c 32 1] 0]\n"
+            "write_memory 0x40021014 32 [list [expr {$rec_ahben | 0x00060000}]]\n"
+            "write_memory 0x4002101c 32 [list [expr {$rec_apb1en | 0x00004000}]]\n"
+            "write_memory 0x48000000 32 [list [expr {($rec_acfgr & ~(3 << 16)) | (1 << 16)}]]\n"
+            "write_memory 0x48000018 32 {0x00000100}\n"
+            "write_memory 0x48000400 32 [list [expr {($rec_bcfgr & ~(0x3f << 26)) | (0x2a << 26)}]]\n"
+            "write_memory 0x4800040c 32 [list [expr {($rec_bpull & ~(0x3f << 26)) | (0x04 << 26)}]]\n"
+            "write_memory 0x48000424 32 [list [expr {$rec_bmuxh & 0x000fffff}]]\n"
+            "write_memory 0x40003800 32 {0x00000357}\n"
+            "refresh_wdt",
+            1,
+        )
+        text = replace_exact(
+            text,
+            'puts [format "RESTORED_VTOR=0x%08x" [lindex $old_vtor 0]]\nshutdown',
+            "write_memory 0x40003800 32 {0}\n"
+            "write_memory 0x48000424 32 [list $rec_bmuxh]\n"
+            "write_memory 0x4800040c 32 [list $rec_bpull]\n"
+            "write_memory 0x48000400 32 [list $rec_bcfgr]\n"
+            "write_memory 0x48000014 32 [list $rec_aodt]\n"
+            "write_memory 0x48000000 32 [list $rec_acfgr]\n"
+            "write_memory 0x40003804 32 [list $rec_ctrl2]\n"
+            "write_memory 0x40003800 32 [list $rec_ctrl1]\n"
+            "write_memory 0x4002101c 32 [list $rec_apb1en]\n"
+            "write_memory 0x40021014 32 [list $rec_ahben]\n"
+            'puts [format "RESTORED_VTOR=0x%08x" [lindex $old_vtor 0]]\nshutdown',
+            1,
+        )
+    if cfg.get("recover_bitbang"):
+        text = replace_exact(
+            text,
+            "init\nhalt 500\nrefresh_wdt",
+            "init\nhalt 500\n"
+            "set rec_acfgr [lindex [read_memory 0x48000000 32 1] 0]\n"
+            "set rec_aomode [lindex [read_memory 0x48000004 32 1] 0]\n"
+            "set rec_aodrvr [lindex [read_memory 0x48000008 32 1] 0]\n"
+            "set rec_apull [lindex [read_memory 0x4800000c 32 1] 0]\n"
+            "set rec_aodt [lindex [read_memory 0x48000014 32 1] 0]\n"
+            "set rec_bcfgr [lindex [read_memory 0x48000400 32 1] 0]\n"
+            "set rec_bomode [lindex [read_memory 0x48000404 32 1] 0]\n"
+            "set rec_bodrvr [lindex [read_memory 0x48000408 32 1] 0]\n"
+            "set rec_bpull [lindex [read_memory 0x4800040c 32 1] 0]\n"
+            "set rec_bodt [lindex [read_memory 0x48000414 32 1] 0]\n"
+            "set rec_ahben [lindex [read_memory 0x40021014 32 1] 0]\n"
+            "write_memory 0x40021014 32 [list [expr {$rec_ahben | 0x00060000}]]\n"
+            "write_memory 0x48000018 32 {0x00000100}\n"
+            "write_memory 0x48000428 32 {0x00002000}\n"
+            "write_memory 0x48000418 32 {0x00008000}\n"
+            "write_memory 0x48000004 32 [list [expr {$rec_aomode & ~0x00000100}]]\n"
+            "write_memory 0x48000008 32 [list [expr {($rec_aodrvr & ~(3 << 16)) | (1 << 16)}]]\n"
+            "write_memory 0x48000404 32 [list [expr {$rec_bomode & ~0x0000a000}]]\n"
+            "write_memory 0x48000408 32 [list [expr {($rec_bodrvr & ~(0x33 << 26)) | (0x11 << 26)}]]\n"
+            "write_memory 0x4800040c 32 [list [expr {($rec_bpull & ~(0x3f << 26)) | (0x04 << 26)}]]\n"
+            "write_memory 0x48000000 32 [list [expr {($rec_acfgr & ~(3 << 16)) | (1 << 16)}]]\n"
+            "write_memory 0x48000400 32 [list [expr {($rec_bcfgr & ~(0x3f << 26)) | (0x11 << 26)}]]\n"
+            "refresh_wdt",
+            1,
+        )
+        text = replace_exact(
+            text,
+            "set acfgr [lindex [read_memory 0x48000000 32 1] 0]\n"
+            "set aodt [lindex [read_memory 0x48000014 32 1] 0]\n"
+            "set bcfgr [lindex [read_memory 0x48000400 32 1] 0]\n"
+            "set ctrl1 [lindex [read_memory 0x40003800 32 1] 0]\n"
+            "set sts [lindex [read_memory 0x40003808 32 1] 0]\n"
+            "set ahben [lindex [read_memory 0x40021014 32 1] 0]\n"
+            "set apb1en [lindex [read_memory 0x4002101c 32 1] 0]\n"
+            "set live_ok [expr {\n"
+            "    (($acfgr >> 16) & 3) == 1 && ($aodt & 0x100) != 0 &&\n"
+            "    (($bcfgr >> 26) & 3) == 2 && (($bcfgr >> 28) & 3) == 2 &&\n"
+            "    (($bcfgr >> 30) & 3) == 2 && ($ctrl1 & 0xffff) == 0x357 &&\n"
+            "    ($sts & 2) != 0 && ($ahben & 0x40000) != 0 && ($apb1en & 0x4000) != 0\n"
+            "}]\n"
+            "puts [format \"LIVE_REGS ok=%u acfgr=%08x aodt=%08x bcfgr=%08x ctrl1=%08x sts=%08x\" $live_ok $acfgr $aodt $bcfgr $ctrl1 $sts]\n"
+            "if {!$live_ok} {\n"
+            "    puts \"REFUSED: live PA8/SPI2 configuration is not present\"\n"
+            "    shutdown\n"
+            "}",
+            "set acfgr [lindex [read_memory 0x48000000 32 1] 0]\n"
+            "set aodt [lindex [read_memory 0x48000014 32 1] 0]\n"
+            "set bcfgr [lindex [read_memory 0x48000400 32 1] 0]\n"
+            "set bodt [lindex [read_memory 0x48000414 32 1] 0]\n"
+            "set ahben [lindex [read_memory 0x40021014 32 1] 0]\n"
+            "set live_ok [expr {\n"
+            "    (($acfgr >> 16) & 3) == 1 && ($aodt & 0x100) != 0 &&\n"
+            "    (($bcfgr >> 26) & 3) == 1 && (($bcfgr >> 28) & 3) == 0 &&\n"
+            "    (($bcfgr >> 30) & 3) == 1 && ($bodt & 0x2000) == 0 &&\n"
+            "    ($bodt & 0x8000) != 0 && ($ahben & 0x60000) == 0x60000\n"
+            "}]\n"
+            "puts [format \"BITBANG_REGS ok=%u acfgr=%08x aodt=%08x bcfgr=%08x bodt=%08x\" $live_ok $acfgr $aodt $bcfgr $bodt]\n"
+            "if {!$live_ok} {\n"
+            "    puts \"REFUSED: fixed PA8/PB13/PB14/PB15 bitbang roles are not present\"\n"
+            "    shutdown\n"
+            "}",
+            1,
+        )
+        text = replace_exact(
+            text,
+            'puts [format "RESTORED_VTOR=0x%08x" [lindex $old_vtor 0]]\nshutdown',
+            "write_memory 0x48000400 32 [list $rec_bcfgr]\n"
+            "write_memory 0x48000000 32 [list $rec_acfgr]\n"
+            "write_memory 0x4800040c 32 [list $rec_bpull]\n"
+            "write_memory 0x48000408 32 [list $rec_bodrvr]\n"
+            "write_memory 0x48000404 32 [list $rec_bomode]\n"
+            "write_memory 0x48000414 32 [list $rec_bodt]\n"
+            "write_memory 0x4800000c 32 [list $rec_apull]\n"
+            "write_memory 0x48000008 32 [list $rec_aodrvr]\n"
+            "write_memory 0x48000004 32 [list $rec_aomode]\n"
+            "write_memory 0x48000014 32 [list $rec_aodt]\n"
+            "write_memory 0x40021014 32 [list $rec_ahben]\n"
+            'puts [format "RESTORED_VTOR=0x%08x" [lindex $old_vtor 0]]\nshutdown',
+            1,
+        )
+    if cfg.get("audit_only"):
+        text = replace_exact(
+            text,
+            "if {$state == 0x41 || $state == 0x42 || $state >= 0xe0} {",
+            "if {$state == 0x41 || $state == 0x42 || $state == 0x43 || $state >= 0xe0} {",
+            1,
+        )
+    if cfg.get("long_wait"):
+        text = replace_exact(text, "for {set i 0} {$i < 500} {incr i} {", "for {set i 0} {$i < 4000} {incr i} {", 1)
     noop = OLD_NOOP.replace("0x4b575052", cfg["magic"]).replace(
         "0xf5c23372 && $target_crc == 0xf5c23372",
         f"{cfg['buffer']} && $target_crc == {cfg['final']}",
     )
+    expected_status = cfg.get("status", "0x18")
+    noop = noop.replace("$status == 0x18", f"$status == {expected_status}")
     write = (
         "set restore_ok [expr {$core_ok && $done && $magic == " + cfg["magic"]
-        + " && $state == 0x41 && $jedec == 0x1c3016 && $status == 0x18 && $protection == 0xff && $buffer_crc == " + cfg["buffer"]
+        + " && $state == 0x41 && $jedec == 0x1c3016 && $status == " + expected_status + " && $protection == 0xff && $buffer_crc == " + cfg["buffer"]
         + " && $target_crc == " + cfg["target"]
         + " && $erased_crc == 0xf154670a && $final_crc == " + cfg["final"]
         + " && $pages == 16 && $status_last == 0 && $spi_error == 0 && $status_cleared == 0 && $status_restored == 0x18 && $cleanup == 0}]"
     )
+    if cfg.get("audit_only"):
+        noop = (
+            "set noop_ok [expr {$core_ok && $done && $magic == " + cfg["magic"]
+            + " && $state == 0x43 && $jedec == 0x1c3016 && $status == " + expected_status + " && $protection == 0xff && $buffer_crc == " + cfg["buffer"]
+            + " && $erased_crc == 0 && $final_crc == 0 && $pages == 0 && $status_last == 0 && $spi_error == 0 && $status_cleared == 0 && $status_restored == 0 && $cleanup == 0}]"
+        )
+        write = "set restore_ok 0"
+    if cfg.get("status_retry"):
+        text = replace_exact(
+            text,
+            "set cleanup [lindex [read_memory 0x20002158 32 1] 0]",
+            "set cleanup [lindex [read_memory 0x20002158 32 1] 0]\n"
+            "set status_attempts [lindex [read_memory 0x2000215c 32 1] 0]\n"
+            "set status_wren_last [lindex [read_memory 0x20002160 32 1] 0]",
+            1,
+        )
+        noop = noop.replace("&& $cleanup == 0}]", "&& $cleanup == 0 && $status_attempts == 0 && $status_wren_last == 0}]")
+        write = write.replace(
+            "&& $cleanup == 0}]",
+            "&& $cleanup == 0 && $status_attempts >= 1 && $status_attempts <= 2 && $status_wren_last == 0x1a}]",
+        )
     text = replace_exact(text, OLD_NOOP, noop, 1)
     text = replace_exact(text, OLD_WRITE, write, 1)
+    if cfg.get("status_retry"):
+        lines = text.splitlines()
+        result: list[str] = []
+        inserted = 0
+        prefix = f'puts [format "{cfg["label"]} '
+        for line in lines:
+            result.append(line)
+            if line.startswith(prefix):
+                result.append('puts [format "STATUS_CLEAR_RETRY attempts=%u wren_last=%02x" $status_attempts $status_wren_last]')
+                inserted += 1
+        if inserted != 1:
+            raise ValueError(f"retry telemetry insertion count {inserted}, expected 1")
+        text = "\n".join(result) + "\n"
     text = replace_exact(text, 'puts "ACCEPTED: fixed restore helper exited before Write Enable"', f'puts "{cfg["noop"]}"', 1)
     text = replace_exact(text, 'puts "ACCEPTED: exact format-probe sector restored and verified"', f'puts "{cfg["accepted"]}"', 1)
     text = replace_exact(text, 'puts "REFUSED: fixed restore no-op gate did not pass"', f'puts "{cfg["refused"]}"', 1)
