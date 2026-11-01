@@ -1700,3 +1700,68 @@ language banks. The pointer is not source-bank bounded. This does not establish
 invalid/out-of-range pointer behavior or internal-flash disclosure. Next safe
 parser discriminator is a fixed shortening of one declared allocation/length;
 do not combine it with a pointer change or attempt a length extension first.
+
+### 2026-11-01: conservative declared-length shortening prepared
+
+The next fixed probe changes only the main-title record length at003892 from
+big-endian000a to0008. Payload `Huvudmeny\0` at003894 remains byte-exact. The
+only changed byte003893 is0a->08, a NOR-safe1->0 transition, so the KWLN/ARM9
+forward helper uses one fixed two-byte Page Program and no erase. It requires
+original sector CRCf5c23372 and final CRC5e1e3b15; helper SHA256
+c2807513f45fe679357bb2582eeb41e0191548413dee0da05ae911b7a6e3fd1b.
+No physical forward write has occurred yet.
+
+The separate KWLR/ARMA recovery helper accepts only length-patch target
+CRC5e1e3b15, original buffer CRCf5c23372 and final CRCf5c23372. Its physical
+no-op qualification passed at VTarget3.290V: state42, JEDEC1c3016, status18,
+protectionff, buffer/target CRCf5c23372, pages0 and spi_error0. Helper readback
+matched SHA256
+56e96f438c652c1053a753e9223e18f05c92dbdd2f3f7e75fa10381e526c330b;
+code/mailbox/all four buffer chunks/stack restored exactly and VTOR returned
+08000000. Evidence:
+`artifacts/kw520-jlink/20261101-spi-length-restore-noop-qualified.json`.
+Cold-start normally before running ARM9.
+
+After that cold start the KWLN/ARM9 forward helper passed physically at
+VTarget3.290V. It required original bytes0a00 (little-packed readback of
+external bytes000a), original sector CRCf5c23372, JEDEC1c3016, status18 and
+protectionff. It cleared status, issued one fixed Page Program for bytes0008,
+verified readback0800 and final sector CRC5e1e3b15, then restored status18;
+state41, spi_error0, cleanup0. No erase occurred. Helper readback matched
+SHA256 c2807513f45fe679357bb2582eeb41e0191548413dee0da05ae911b7a6e3fd1b;
+code/mailbox/stack restored exactly and VTOR returned08000000. Evidence:
+`artifacts/kw520-jlink/20261101-spi-length-probe-programmed.json`. Target is
+halted and the length8 patch is live. Next action is normal cold start and exact
+title observation; then run only the KWLR/ARMA restore.
+
+The user performed two separate normal physical cold starts with no intervening
+flash mutation. Both displayed exactly `Huvudmen`. Original payload remains
+`Huvudmeny\0`; only declared length0008 is changed. This rules out NUL-only
+rendering on this path and shows that the firmware reproducibly uses exactly8
+visible payload bytes rather than treating the value as length-including-NUL
+and showing7. It proves bounded declared-length consumption, not unsafe length
+extension, out-of-bounds access or internal-flash disclosure. Evidence:
+`artifacts/kw520-jlink/20261101-spi-length-probe-physical-observation.json`.
+Length patch CRC5e1e3b15 remains live. Run only KWLR/ARMA restoration next.
+
+The fixed KWLR/ARMA restoration then passed physically at VTarget3.290V. It
+accepted only length-patch target CRC5e1e3b15 and original buffer CRCf5c23372,
+verified erased CRCf154670a, programmed exactly16 pages, verified final sector
+CRCf5c23372 and restored status18; state41, spi_error0, cleanup0. Helper
+readback matched SHA256
+56e96f438c652c1053a753e9223e18f05c92dbdd2f3f7e75fa10381e526c330b;
+code/mailbox/all four buffer chunks/stack restored exactly and VTOR returned
+08000000. Evidence:
+`artifacts/kw520-jlink/20261101-spi-length-probe-restored.json`. Target is
+halted. Final required gate is normal cold start showing full working
+`Huvudmeny` before closing the length cycle.
+
+The user performed the final normal cold start and confirmed full `Huvudmeny`
+with responsive buttons. The cycle is closed: declared length10 -> fixed
+length8 -> physical `Huvudmen` twice -> exact sector/status restore -> physical
+working `Huvudmeny`. Evidence:
+`artifacts/kw520-jlink/20261101-spi-length-probe-cycle-complete.json`.
+Level D now includes reproducible declared-length consumption: value8 yields
+exactly8 visible payload bytes even though unchanged `y\0` follows. Do not infer
+that extension is safe. Length extension or invalid pointer testing is a new
+risk class and requires a separately reviewed bounded output/recovery design.

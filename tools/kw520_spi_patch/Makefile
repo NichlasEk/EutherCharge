@@ -5,11 +5,13 @@ OBJCOPY := $(CROSS)objcopy
 OBJDUMP := $(CROSS)objdump
 SIZE := $(CROSS)size
 ELFS := $(BUILD_DIR)/format_probe.elf $(BUILD_DIR)/restore_sector.elf \
+	$(BUILD_DIR)/length_probe.elf $(BUILD_DIR)/length_restore.elf \
 	$(BUILD_DIR)/pointer_probe.elf $(BUILD_DIR)/pointer_restore.elf \
 	$(BUILD_DIR)/crossbank_probe.elf $(BUILD_DIR)/crossbank_restore.elf \
 	$(BUILD_DIR)/protection_roundtrip.elf \
 	$(BUILD_DIR)/status_roundtrip.elf
 BINS := $(BUILD_DIR)/format_probe.bin $(BUILD_DIR)/restore_sector.bin \
+	$(BUILD_DIR)/length_probe.bin $(BUILD_DIR)/length_restore.bin \
 	$(BUILD_DIR)/pointer_probe.bin $(BUILD_DIR)/pointer_restore.bin \
 	$(BUILD_DIR)/crossbank_probe.bin $(BUILD_DIR)/crossbank_restore.bin \
 	$(BUILD_DIR)/protection_roundtrip.bin \
@@ -70,6 +72,23 @@ $(BUILD_DIR)/format_probe.elf: format_probe.c linker_mutation.ld | $(BUILD_DIR)
 		-DKW_STACK_TOP=0x20002300 -nostdlib -Wl,-T,linker_mutation.ld \
 		-Wl,--build-id=none -Wl,--gc-sections \
 		-Wl,-Map,$(BUILD_DIR)/format_probe.map -o $@ $<
+$(BUILD_DIR)/length_probe.elf: format_probe.c linker_mutation.ld | $(BUILD_DIR)
+	$(CC) $(CFLAGS) -DKW_MAILBOX_BASE=0x20002100 \
+		-DKW_STACK_TOP=0x20002300 -DKW_HELPER_MAGIC=0x4b574c4eu \
+		-DKW_ARM_MAGIC=0x41524d39u -DKW_PATCH_ADDRESS=0x00003892u \
+		-DKW_EXPECTED_BEFORE=0x00000a00u -DKW_EXPECTED_AFTER=0x00000800u \
+		-DKW_ORIGINAL_CRC32=0xf5c23372u -DKW_PATCHED_CRC32=0x5e1e3b15u \
+		-nostdlib -Wl,-T,linker_mutation.ld -Wl,--build-id=none \
+		-Wl,--gc-sections -Wl,-Map,$(BUILD_DIR)/length_probe.map -o $@ $<
+$(BUILD_DIR)/length_restore.elf: restore_sector.c linker_mutation.ld | $(BUILD_DIR)
+	$(CC) $(CFLAGS) -DKW_RESTORE_BUFFER=0x20000a00 \
+		-DKW_MAILBOX_BASE=0x20002100 -DKW_STACK_TOP=0x20002300 \
+		-DKW_HELPER_MAGIC=0x4b574c52u -DKW_ARM_MAGIC=0x41524d41u \
+		-DKW_BUFFER_CRC32=0xf5c23372u \
+		-DKW_EXPECTED_TARGET_CRC32=0x5e1e3b15u \
+		-DKW_EXPECTED_FINAL_CRC32=0xf5c23372u \
+		-nostdlib -Wl,-T,linker_mutation.ld -Wl,--build-id=none \
+		-Wl,--gc-sections -Wl,-Map,$(BUILD_DIR)/length_restore.map -o $@ $<
 $(BUILD_DIR)/protection_roundtrip.elf: protection_roundtrip.c linker_restore.ld | $(BUILD_DIR)
 	$(CC) $(CFLAGS) -nostdlib -Wl,-T,linker_restore.ld \
 		-Wl,--build-id=none -Wl,--gc-sections \
@@ -86,6 +105,8 @@ $(BUILD_DIR)/%.bin: $(BUILD_DIR)/%.elf
 	sha256sum $@
 inspect: $(ELFS)
 	$(OBJDUMP) -h -d $(BUILD_DIR)/format_probe.elf
+	$(OBJDUMP) -h -d $(BUILD_DIR)/length_probe.elf
+	$(OBJDUMP) -h -d $(BUILD_DIR)/length_restore.elf
 	$(OBJDUMP) -h -d $(BUILD_DIR)/restore_sector.elf
 	$(OBJDUMP) -h -d $(BUILD_DIR)/pointer_probe.elf
 	$(OBJDUMP) -h -d $(BUILD_DIR)/pointer_restore.elf
@@ -95,6 +116,7 @@ inspect: $(ELFS)
 	$(OBJDUMP) -h -d $(BUILD_DIR)/status_roundtrip.elf
 clean:
 	rm -f $(ELFS) $(BINS) $(BUILD_DIR)/format_probe.map \
+		$(BUILD_DIR)/length_probe.map $(BUILD_DIR)/length_restore.map \
 		$(BUILD_DIR)/restore_sector.map $(BUILD_DIR)/pointer_probe.map \
 		$(BUILD_DIR)/pointer_restore.map \
 		$(BUILD_DIR)/crossbank_probe.map $(BUILD_DIR)/crossbank_restore.map \

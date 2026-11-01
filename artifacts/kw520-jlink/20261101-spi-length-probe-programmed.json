@@ -1,0 +1,52 @@
+{
+  "date": "2026-11-01",
+  "operation": "Fixed main-title declared-length shortening",
+  "result": "pass",
+  "vtarget_volts": 3.290,
+  "helper": {
+    "magic": "0x4b574c4e",
+    "arm": "0x41524d39",
+    "size_bytes": 1680,
+    "sha256": "c2807513f45fe679357bb2582eeb41e0191548413dee0da05ae911b7a6e3fd1b",
+    "readback_exact_match": true,
+    "state": "0x41"
+  },
+  "controlled_change": {
+    "record_offset": "0x003892",
+    "changed_byte_offset": "0x003893",
+    "length_before": 10,
+    "length_after": 8,
+    "bytes_before": "00 0a",
+    "bytes_after": "00 08",
+    "payload": "Huvudmeny\\0",
+    "payload_modified": false,
+    "bit_transitions": "1-to-0-only"
+  },
+  "gates": {
+    "jedec_id": "1c 30 16",
+    "status_before": "0x18",
+    "block_protection_readback": "0xff",
+    "sector_crc_before": "0xf5c23372"
+  },
+  "programming_result": {
+    "sector_erase_performed": false,
+    "page_program_bytes": 2,
+    "sector_crc_after": "0x5e1e3b15",
+    "status_cleared": "0x00",
+    "status_restored": "0x18",
+    "spi_error": 0,
+    "cleanup_attempted": false
+  },
+  "sram_restoration": {
+    "code_exact": true,
+    "mailbox_exact": true,
+    "stack_exact": true,
+    "vtor": "0x08000000"
+  },
+  "predicted_physical_observation": {
+    "nul_only_reader": "Huvudmeny",
+    "eight_byte_copy_without_added_nul": "Huvudmen",
+    "length_minus_nul_copy": "Huvudme"
+  },
+  "conclusion": "Only the declared allocation was shortened and the full sector verified. A physical cold-start observation and then the qualified ARMA restoration remain required."
+}

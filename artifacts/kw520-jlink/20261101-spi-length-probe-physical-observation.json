@@ -1,0 +1,29 @@
+{
+  "date": "2026-11-01",
+  "operation": "Repeated physical cold-start observation of declared-length shortening",
+  "result": "declared_length_controls_visible_payload_count",
+  "controlled_change": {
+    "record_offset": "0x003892",
+    "length_before": 10,
+    "length_after": 8,
+    "payload": "Huvudmeny\\0",
+    "payload_modified": false,
+    "pointer_modified": false
+  },
+  "predictions": {
+    "nul_only_reader": "Huvudmeny",
+    "eight_byte_copy_without_required_stored_nul": "Huvudmen",
+    "length_minus_nul_copy": "Huvudme"
+  },
+  "observations": [
+    {
+      "method": "normal physical cold start",
+      "display": "Huvudmen"
+    },
+    {
+      "method": "second independent normal physical cold start without another flash mutation",
+      "display": "Huvudmen"
+    }
+  ],
+  "conclusion": "The original firmware reproducibly uses the declared value 8 as the visible payload-byte boundary for this ordinary string. It does not require the stored NUL at the original tenth payload position to stop this display path. This proves bounded length consumption, not unsafe extension, out-of-bounds access, or internal-flash disclosure. The exact original sector must now be restored with ARMA."
+}

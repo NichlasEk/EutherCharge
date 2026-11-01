@@ -1,0 +1,44 @@
+{
+  "date": "2026-11-01",
+  "operation": "Exact restoration after declared-length shortening",
+  "result": "pass",
+  "vtarget_volts": 3.290,
+  "helper": {
+    "magic": "0x4b574c52",
+    "arm": "0x41524d41",
+    "size_bytes": 1740,
+    "sha256": "56e96f438c652c1053a753e9223e18f05c92dbdd2f3f7e75fa10381e526c330b",
+    "readback_exact_match": true,
+    "state": "0x41"
+  },
+  "gates": {
+    "jedec_id": "1c 30 16",
+    "status_before": "0x18",
+    "block_protection_readback": "0xff",
+    "restore_buffer_crc32b": "0xf5c23372",
+    "target_crc_before": "0x5e1e3b15"
+  },
+  "restoration_result": {
+    "erased_sector_crc32b": "0xf154670a",
+    "pages_programmed": 16,
+    "final_sector_crc32b": "0xf5c23372",
+    "status_cleared": "0x00",
+    "status_restored": "0x18",
+    "spi_error": 0,
+    "cleanup_attempted": false
+  },
+  "sram_restoration": {
+    "code_exact": true,
+    "mailbox_exact": true,
+    "all_four_buffer_chunks_exact": true,
+    "stack_exact": true,
+    "vtor": "0x08000000"
+  },
+  "physical_cold_start": {
+    "result": "pass",
+    "observed_display": "Huvudmeny",
+    "normal_button_response": true,
+    "reported_by": "user"
+  },
+  "conclusion": "The exact declared-length probe sector was accepted and reconstructed from the qualified original-sector payload. Final CRC is 0xf5c23372 and status protection is 0x18. A subsequent physical cold start restored the full working Huvudmeny UI."
+}

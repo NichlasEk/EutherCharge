@@ -1,0 +1,36 @@
+{
+  "date": "2026-11-01",
+  "operation": "Declared-length-probe-specific restoration helper no-op qualification",
+  "result": "pass",
+  "vtarget_volts": 3.290,
+  "helper": {
+    "magic": "0x4b574c52",
+    "arm": "0x41524d41",
+    "size_bytes": 1740,
+    "sha256": "56e96f438c652c1053a753e9223e18f05c92dbdd2f3f7e75fa10381e526c330b",
+    "readback_exact_match": true,
+    "state": "0x42"
+  },
+  "gates": {
+    "jedec_id": "1c 30 16",
+    "status": "0x18",
+    "block_protection_readback": "0xff",
+    "restore_buffer_crc32b": "0xf5c23372",
+    "target_sector_crc32b": "0xf5c23372"
+  },
+  "mutation_counters": {
+    "erased_crc32b": "0x00000000",
+    "final_crc32b": "0x00000000",
+    "pages_programmed": 0,
+    "spi_error": 0,
+    "cleanup_attempted": false
+  },
+  "restoration": {
+    "code_exact": true,
+    "mailbox_exact": true,
+    "all_four_buffer_chunks_exact": true,
+    "stack_exact": true,
+    "vtor": "0x08000000"
+  },
+  "conclusion": "The ARMA recovery helper validated its exact original-sector payload and the already-original live sector, then exited before Write Enable. It is ready to accept only declared-length probe CRC 0x5e1e3b15."
+}

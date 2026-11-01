@@ -49,6 +49,10 @@ måste visa en ny, tydligt avgränsad förmåga innan nästa steg påbörjas.
   Français-banken. Displayen visade exakt den franska texten och återgick till
   fungerande `Huvudmeny` efter exakt återställning. Pekaren begränsas alltså
   inte till den aktiva språkbankens intervall.
+- Rubrikpostens deklarerade längd kortades därefter från 10 till 8 utan ändrad
+  payload eller pekare. Två separata kallstarter visade exakt `Huvudmen`.
+  Originalfirmwaren använder alltså längdvärdet som synlig payloadgräns och
+  skannar inte enbart fram till det oförändrade avslutande NUL-tecknet.
 
 ## Arbetsordning och beslutspunkter
 
@@ -153,9 +157,10 @@ Nästa prov omdirigerade endast tabellpostens 32-bitars relativa pekare
 `0x00000692 -> 0x0000069e`; inga payload- eller längdbyte ändrades. Displayen
 visade den förutsagda befintliga texten `Testa`. Exakt originalsektor och
 statusskydd återställdes, varefter `Huvudmeny` och knappar fungerade normalt.
-Punkt 1 och 2 nedan är alltså genomförda. Nästa diskriminerande prov bör vara
-en konservativ förkortning av deklarerad längd enligt punkt 4. En förlängning
-eller ogiltig offset kräver en separat riskgranskning och görs inte samtidigt.
+Punkt 1, 2, 3 och den konservativa förkortningen i punkt 4 är genomförda. En
+förlängning av längden eller ogiltig offset är en ny riskklass: det kan få
+firmware att läsa utanför postens allokering och kräver separat riskgranskning,
+nytt utdataargument och ny återställningsplan.
 
 Tester görs ett i taget i stigande intrångsgrad:
 
@@ -231,9 +236,10 @@ Det som kan göras utan mer fysisk mätning är:
 
 Planen står nu på nivå D: transport, fixerad sektorskrivning/återställning,
 literal payloadkonsumtion samt pekarföljning inom och mellan språkbanker är
-fysiskt bevisade. Literal- och pekarproven gav ingen nivå E-primitiv. Ogiltig
-offset, extern gränsöverskridande läsning och varje väg från D/E till
-internflashnivå F är fortfarande obevisade.
+fysiskt bevisade. Deklarerad längd styr dessutom den synliga payloadgränsen vid
+förkortning. Proven gav ingen nivå E-primitiv. Längdförlängning, ogiltig offset,
+extern gränsöverskridande läsning och varje väg från D/E till internflashnivå F
+är fortfarande obevisade.
 
 ## Referenser
 

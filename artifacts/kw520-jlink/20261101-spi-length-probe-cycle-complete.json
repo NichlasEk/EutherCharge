@@ -1,0 +1,32 @@
+{
+  "date": "2026-11-01",
+  "operation": "Complete physical declared-length-shortening cycle",
+  "result": "pass",
+  "controlled_change": {
+    "record_offset": "0x003892",
+    "length_before": 10,
+    "length_after": 8,
+    "changed_byte_offset": "0x003893",
+    "payload": "Huvudmeny\\0",
+    "payload_modified": false,
+    "pointer_modified": false,
+    "copy_length_only_decreased": true
+  },
+  "forward_result": {
+    "sector_erase_performed": false,
+    "sector_crc_before": "0xf5c23372",
+    "sector_crc_after": "0x5e1e3b15",
+    "status_final": "0x18",
+    "physical_observations": ["Huvudmen", "Huvudmen"]
+  },
+  "restoration_result": {
+    "input_sector_crc32b": "0x5e1e3b15",
+    "erased_sector_crc32b": "0xf154670a",
+    "pages_programmed": 16,
+    "final_sector_crc32b": "0xf5c23372",
+    "status_final": "0x18",
+    "observed_display_after_cold_start": "Huvudmeny",
+    "normal_button_response": true
+  },
+  "conclusion": "Original firmware reproducibly uses the declared value 8 as the visible payload-byte boundary for this ordinary string. It does not merely scan through the unchanged payload to its stored NUL. The complete change-observe-repeat-restore cycle passed. This proves bounded declared-length consumption, not unsafe extension, out-of-bounds access, or protected internal-flash disclosure."
+}

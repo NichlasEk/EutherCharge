@@ -20,15 +20,37 @@
 #define SCB_HFSR 0xe000ed2cu
 #define PA8 0x00000100u
 
-#define HELPER_MAGIC 0x4b575050u /* KWPP */
-#define ARM_MAGIC 0x41524d31u    /* ARM1 */
-#define PATCH_ADDRESS 0x00003899u
-#define EXPECTED_BEFORE 0x0000656du
-#define EXPECTED_AFTER 0x00002525u
+#ifndef KW_HELPER_MAGIC
+#define KW_HELPER_MAGIC 0x4b575050u /* KWPP */
+#endif
+#ifndef KW_ARM_MAGIC
+#define KW_ARM_MAGIC 0x41524d31u /* ARM1 */
+#endif
+#ifndef KW_PATCH_ADDRESS
+#define KW_PATCH_ADDRESS 0x00003899u
+#endif
+#ifndef KW_EXPECTED_BEFORE
+#define KW_EXPECTED_BEFORE 0x0000656du
+#endif
+#ifndef KW_EXPECTED_AFTER
+#define KW_EXPECTED_AFTER 0x00002525u
+#endif
+#ifndef KW_ORIGINAL_CRC32
+#define KW_ORIGINAL_CRC32 0xf5c23372u
+#endif
+#ifndef KW_PATCHED_CRC32
+#define KW_PATCHED_CRC32 0x7985c2f6u
+#endif
+
+#define HELPER_MAGIC KW_HELPER_MAGIC
+#define ARM_MAGIC KW_ARM_MAGIC
+#define PATCH_ADDRESS KW_PATCH_ADDRESS
+#define EXPECTED_BEFORE KW_EXPECTED_BEFORE
+#define EXPECTED_AFTER KW_EXPECTED_AFTER
 #define SECTOR_ADDRESS 0x00003000u
 #define SECTOR_SIZE 4096u
-#define ORIGINAL_CRC32 0xf5c23372u
-#define PATCHED_CRC32 0x7985c2f6u
+#define ORIGINAL_CRC32 KW_ORIGINAL_CRC32
+#define PATCHED_CRC32 KW_PATCHED_CRC32
 
 struct mailbox {
     volatile uint32_t magic;
@@ -205,8 +227,10 @@ static int read_patch_bytes(uint32_t *value) {
     uint8_t ignored, byte0, byte1;
     drain_receive();
     cs_low();
-    int ok = spi_xfer(0x03u, &ignored) && spi_xfer(0x00u, &ignored) &&
-             spi_xfer(0x38u, &ignored) && spi_xfer(0x99u, &ignored) &&
+    int ok = spi_xfer(0x03u, &ignored) &&
+             spi_xfer((uint8_t)(PATCH_ADDRESS >> 16), &ignored) &&
+             spi_xfer((uint8_t)(PATCH_ADDRESS >> 8), &ignored) &&
+             spi_xfer((uint8_t)PATCH_ADDRESS, &ignored) &&
              spi_xfer(0xffu, &byte0) && spi_xfer(0xffu, &byte1) &&
              wait_spi_idle();
     cs_high();
@@ -220,9 +244,12 @@ static int program_fixed_bytes(void) {
     uint8_t ignored;
     drain_receive();
     cs_low();
-    int ok = spi_xfer(0x02u, &ignored) && spi_xfer(0x00u, &ignored) &&
-             spi_xfer(0x38u, &ignored) && spi_xfer(0x99u, &ignored) &&
-             spi_xfer(0x25u, &ignored) && spi_xfer(0x25u, &ignored) &&
+    int ok = spi_xfer(0x02u, &ignored) &&
+             spi_xfer((uint8_t)(PATCH_ADDRESS >> 16), &ignored) &&
+             spi_xfer((uint8_t)(PATCH_ADDRESS >> 8), &ignored) &&
+             spi_xfer((uint8_t)PATCH_ADDRESS, &ignored) &&
+             spi_xfer((uint8_t)EXPECTED_AFTER, &ignored) &&
+             spi_xfer((uint8_t)(EXPECTED_AFTER >> 8), &ignored) &&
              wait_spi_idle();
     cs_high();
     return ok;

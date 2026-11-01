@@ -127,3 +127,26 @@ read, not an out-of-bounds or internal-flash disclosure.
 
 Machine-readable evidence is in
 `artifacts/kw520-jlink/20261031-spi-crossbank-probe-cycle-complete.json`.
+
+## Qualified declared-length shortening
+
+The next probe changes only the main-title record's big-endian allocation from
+`0x000a` to `0x0008` at `0x003892`; payload `Huvudmeny\0` remains byte-exact.
+The only changed byte is `0x0a -> 0x08`, a NOR-safe 1-to-0 transition, so the
+forward `KWLN`/`ARM9` helper uses one fixed two-byte Page Program and no erase.
+It requires original sector CRC `f5c23372` and final CRC `5e1e3b15`.
+
+The separate `KWLR`/`ARMA` recovery helper accepts only live CRC `5e1e3b15`,
+the exact original 4 KiB payload CRC `f5c23372`, and final CRC `f5c23372`. It
+must pass a physical no-op qualification before the forward probe. The length
+only decreases; an extension is deliberately not part of this experiment.
+
+The complete physical cycle passed on 2026-11-01. With declared length 8 and
+unchanged payload `Huvudmeny\0`, two independent cold starts displayed exactly
+`Huvudmen`. ARMA then restored sector CRC `f5c23372` and status `0x18`; the
+final cold start displayed working `Huvudmeny`. Thus this path uses the declared
+length as the visible payload-byte boundary rather than relying only on the
+stored NUL. This says nothing yet about the safety of length extension.
+
+Machine-readable evidence is in
+`artifacts/kw520-jlink/20261101-spi-length-probe-cycle-complete.json`.
