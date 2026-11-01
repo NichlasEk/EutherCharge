@@ -160,6 +160,37 @@ flash. Nästa prov måste därför skapa en ny observerbar skillnad utan att ant
 att en krasch eller frysning är en läsprimitiv. Den befintliga DTC-posten är
 fortsatt en bättre kandidat än en godtycklig ogiltig pekare.
 
+## Språklistans separata åttagräns, 2026-11-01
+
+En separat startpost vid `0x003040` identifierades efter det första negativa
+niopostprovet:
+
+```text
+0x003040  01 08 03 03 04 05 06 07 08 0a 0e
+              ^^ ^^ -----------------------
+              antal valt       åtta ID
+```
+
+Det första provet ändrade directoryräknaren och installerade en fullt giltig
+slot 9 som dubblett av slot 8. Menyn visade fortfarande bara originalspråken.
+Sektorn återställdes därefter exakt från CRC `fa2d76bb` till `f5c23372`.
+
+Det andra provet höll båda strukturerna konsekventa: antal 9, sorterad ID-lista
+`3,4,5,6,7,8,9,10,14`, samt samma giltiga slot 9. Sektor-CRC var
+`4779b7f4`. Menyn visade ett extra `Italiano`, men fortfarande exakt åtta
+poster. En parad SRAM-fångst förklarade resultatet:
+
+```text
+original @ 0x20000930: 08 03 03 04 05 06 07 08 0a 0e
+prov     @ 0x20000930: 08 03 03 04 05 06 07 08 09 0a
+```
+
+Firmware behåller alltså internräknaren 8 och kopierar endast de första åtta
+ID-värdena. ID 9 trängde undan ID 14; någon nionde intern descriptor skrevs
+inte. Originalsektorn återställdes exakt från `4779b7f4` till `f5c23372`, och
+de ursprungliga åtta språkvalen återkom. Språklistan är därmed en verifierad,
+klampad parsergräns och inte en fortsatt overflowkandidat.
+
 En efterföljande read-only-jämförelse av två fulla 16 KiB-SRAM-bilder kartlade
 dessutom strängvägen. `Huvudmeny` och `SAFEWXYZ` använder samma källbuffert
 `0x20003978` och renderkopia `0x20003728`. Slutpekaren vid `0x20003710` ändras

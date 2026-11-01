@@ -130,3 +130,21 @@ addresses are not a justified extraction strategy. The next route must enter
 through normally booted main-flash firmware, such as a demonstrated external
 parser or updater path, rather than branching from a debugger-loaded SRAM
 helper.
+
+## Normally booted language-directory gate
+
+The external language directory and its separate active-ID list were extended
+from eight to nine using only a duplicate of an already valid descriptor. The
+normally booted firmware consumed ID 9, but its SRAM representation at
+`0x20000930` retained count 8 and only the first eight IDs. The ninth external
+ID displaced the former eighth item instead of extending the internal array.
+This closes the language-count overflow route while proving that paired
+external-flash and SRAM observations can expose a main-flash parser boundary.
+
+The earlier cyclic string frontier remains more relevant to control flow. Its
+buffer starts at `0x20003978`; byte offsets 252--255 overlap the recurrent
+main-flash value at `0x20003a74`, normally `0x080093f3` in the qualified
+capture. Allocation 256/320 overwrote that word and the device faulted. Before
+any chosen return target is attempted, an embedded-NUL diagnostic must preserve
+the original word and distinguish fixed-size copy, stop-at-NUL copy and
+zero-padding behavior. A crash alone is not code-execution evidence.

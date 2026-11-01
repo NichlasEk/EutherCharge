@@ -364,6 +364,51 @@ VARIANTS["frontier-pointer-bitbang-restore"] = {
     "refused": "REFUSED: stack-frontier bitbang pointer-restore gate did not pass",
 }
 
+VARIANTS["language9-install"] = {
+    "stem": "language9-install", "chunk": "language9-test-sector-003000-chunk",
+    "binary": "language9_install", "arm": "0x41524d5c", "magic": "0x4b574e49",
+    "directory": "kw520-language-gate", "label": "LANGUAGE9_INSTALL",
+    "buffer": "0xfa2d76bb", "target": "0xf5c23372", "final": "0xfa2d76bb",
+    "status_retry": True, "long_wait": True, "helper_readback": "0x700",
+    "title": "Install one valid duplicate language descriptor and change only the declared count from 8 to 9.",
+    "accepted": "ACCEPTED: exact valid language-9 directory sector installed",
+    "noop": "ACCEPTED: exact language-9 directory sector already present; no write",
+    "refused": "REFUSED: language-9 install gate did not pass",
+}
+VARIANTS["language9-restore"] = {
+    "stem": "language9-restore", "chunk": "original-sector-003000-chunk",
+    "binary": "language9_restore", "arm": "0x41524d5d", "magic": "0x4b574e52",
+    "directory": "kw520-language-gate", "label": "LANGUAGE9_RESTORE",
+    "buffer": "0xf5c23372", "target": "0xfa2d76bb", "final": "0xf5c23372",
+    "status_retry": True, "long_wait": True, "helper_readback": "0x700",
+    "title": "Restore the exact original 8-language directory sector after one observation.",
+    "accepted": "ACCEPTED: exact original 8-language directory sector restored",
+    "noop": "ACCEPTED: exact original 8-language directory sector already present; no write",
+    "refused": "REFUSED: language-9 restore gate did not pass",
+}
+VARIANTS["language9-list-install"] = {
+    "stem": "language9-list-install", "chunk": "language9-listed-test-sector-003000-chunk",
+    "binary": "language9_list_install", "arm": "0x41524d5e", "magic": "0x4b574c49",
+    "directory": "kw520-language-list-gate", "label": "LANGUAGE9_LIST_INSTALL",
+    "buffer": "0x4779b7f4", "target": "0xf5c23372", "final": "0x4779b7f4",
+    "status_retry": True, "long_wait": True, "helper_readback": "0x700",
+    "title": "Install a consistent ninth language in both the active-ID list and sparse descriptor directory.",
+    "accepted": "ACCEPTED: exact consistent language-9 list sector installed",
+    "noop": "ACCEPTED: exact consistent language-9 list sector already present; no write",
+    "refused": "REFUSED: consistent language-9 list install gate did not pass",
+}
+VARIANTS["language9-list-restore"] = {
+    "stem": "language9-list-restore", "chunk": "original-sector-003000-chunk",
+    "binary": "language9_list_restore", "arm": "0x41524d5f", "magic": "0x4b574c52",
+    "directory": "kw520-language-list-gate", "label": "LANGUAGE9_LIST_RESTORE",
+    "buffer": "0xf5c23372", "target": "0x4779b7f4", "final": "0xf5c23372",
+    "status_retry": True, "long_wait": True, "helper_readback": "0x700",
+    "title": "Restore the exact original sector after the consistent ninth-language SRAM observation.",
+    "accepted": "ACCEPTED: exact original sector restored after language-list probe",
+    "noop": "ACCEPTED: exact original language sector already present; no write",
+    "refused": "REFUSED: language-list restore gate did not pass",
+}
+
 
 def sha256(data: bytes) -> str:
     return hashlib.sha256(data).hexdigest()
