@@ -452,6 +452,50 @@ VARIANTS["nulcopy-pointer-bitbang-restore"] = {
     "noop": "ACCEPTED: original title pointer already present; bitbang helper made no write",
     "refused": "REFUSED: embedded-NUL bitbang pointer restore gate did not pass",
 }
+VARIANTS["stack-exec-data-install"] = {
+    "stem": "stack-exec-data-install", "chunk": "exec-data-test-sector-00c000-chunk",
+    "binary": "stack_exec_data_install", "arm": "0x41524d62", "magic": "0x4b574549",
+    "directory": "kw520-stack-exec-probe", "label": "STACK_EXEC_DATA_INSTALL",
+    "buffer": "0x041ae9b0", "target": "0xf154670a", "final": "0x041ae9b0",
+    "status_retry": True, "long_wait": True, "helper_readback": "0x700",
+    "title": "Install only the inactive SRAM-marker control-flow record in sector 0x00c000.",
+    "accepted": "ACCEPTED: exact SRAM-marker data sector installed",
+    "noop": "ACCEPTED: exact SRAM-marker data sector already present; no write",
+    "refused": "REFUSED: SRAM-marker data install gate did not pass",
+}
+VARIANTS["stack-exec-data-restore"] = {
+    "stem": "stack-exec-data-restore", "chunk": "data-original-sector-00c000-chunk",
+    "binary": "stack_exec_data_restore", "arm": "0x41524d63", "magic": "0x4b574552",
+    "directory": "kw520-stack-exec-probe", "label": "STACK_EXEC_DATA_RESTORE",
+    "buffer": "0xf154670a", "target": "0x041ae9b0", "final": "0xf154670a",
+    "status_retry": True, "long_wait": True, "helper_readback": "0x700",
+    "title": "Restore the unreferenced SRAM-marker data sector to exact all-FF.",
+    "accepted": "ACCEPTED: SRAM-marker data sector restored to exact all-FF",
+    "noop": "ACCEPTED: SRAM-marker data sector already exact all-FF; no write",
+    "refused": "REFUSED: SRAM-marker data restore gate did not pass",
+}
+VARIANTS["stack-exec-pointer-install"] = {
+    "stem": "stack-exec-pointer-install", "chunk": "pointer-test-sector-003000-chunk",
+    "binary": "boundary_pointer_install_retry", "arm": "0x41524d4f", "magic": "0x4b575849",
+    "directory": "kw520-stack-exec-probe", "label": "STACK_EXEC_POINTER_INSTALL",
+    "buffer": "0x6f68933f", "target": "0xf5c23372", "final": "0x6f68933f",
+    "status_retry": True, "long_wait": True, "helper_readback": "0x700",
+    "title": "Activate only the qualified SRAM-marker control-flow record.",
+    "accepted": "ACCEPTED: SRAM-marker title pointer installed and verified",
+    "noop": "ACCEPTED: SRAM-marker title pointer already present; no write",
+    "refused": "REFUSED: SRAM-marker pointer install gate did not pass",
+}
+VARIANTS["stack-exec-pointer-bitbang-restore"] = {
+    "stem": "stack-exec-pointer-bitbang-restore", "chunk": "pointer-original-sector-003000-chunk",
+    "binary": "frontier_pointer_bitbang_restore", "arm": "0x41524d5b", "magic": "0x4b574652",
+    "directory": "kw520-stack-exec-probe", "label": "STACK_EXEC_POINTER_BITBANG_RESTORE",
+    "buffer": "0xf5c23372", "target": "0x6f68933f", "final": "0xf5c23372",
+    "status_retry": True, "recover_bitbang": True, "long_wait": True, "helper_readback": "0x700",
+    "title": "Restore the SRAM-marker title pointer while the injected stub is looping.",
+    "accepted": "ACCEPTED: SRAM-marker title pointer restored through bitbang SPI",
+    "noop": "ACCEPTED: original title pointer already present; bitbang helper made no write",
+    "refused": "REFUSED: SRAM-marker bitbang pointer restore gate did not pass",
+}
 
 
 def sha256(data: bytes) -> str:

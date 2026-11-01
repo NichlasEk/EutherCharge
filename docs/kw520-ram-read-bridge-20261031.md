@@ -162,3 +162,19 @@ payload itself, but must initially do nothing except write fixed magic to an
 otherwise backed-up SRAM mailbox and loop. No internal-flash source, peripheral
 access or external-flash write belongs in that first control-flow test. Only a
 post-boot MEM-AP read of the exact magic can qualify SRAM code execution.
+
+The fixed marker gate was run and did not qualify. The 32-byte stub at
+`0x20003978`, the entire 256-byte copied prefix and the selected little-endian
+word `79 39 00 20` at offset 252 all matched exactly in two runtime SRAM
+captures. Nevertheless the mailbox at `0x20001700` remained twelve zero bytes,
+both immediately after boot and after one successful menu-navigation button
+event. No selected SRAM code execution occurred.
+
+This also changes the interpretation of the older cyclic frontier fault. The
+register-reading capture method itself observed HardFault even on a clean
+baseline, whereas the later MEM-AP-only captures preserve an interactive menu.
+The cyclic fault therefore cannot prove that the word at `0x20003a74` is a
+return address. It is a stable code-shaped value in the copied region, but it
+is not consumed as control flow in the tested paths. Blind address or button
+sweeps are stopped. Pointer sector and inactive data sector were restored in
+that order to CRCs `f5c23372` and `f154670a`.
