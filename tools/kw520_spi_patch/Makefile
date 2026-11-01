@@ -4,6 +4,15 @@ CC := $(CROSS)gcc
 OBJCOPY := $(CROSS)objcopy
 OBJDUMP := $(CROSS)objdump
 SIZE := $(CROSS)size
+FRONTIER_ALLOCATIONS := 256 320 384 448 480 512
+FRONTIER_CRC_256 := 0x28017863
+FRONTIER_CRC_320 := 0x41b76a28
+FRONTIER_CRC_384 := 0x52fdfc69
+FRONTIER_CRC_448 := 0x7cfe1846
+FRONTIER_CRC_480 := 0xebdaf776
+FRONTIER_CRC_512 := 0x72628a3a
+FRONTIER_ELFS := $(foreach allocation,$(FRONTIER_ALLOCATIONS),$(BUILD_DIR)/frontier$(allocation)_data_install.elf $(BUILD_DIR)/frontier$(allocation)_data_restore.elf)
+FRONTIER_BINS := $(FRONTIER_ELFS:.elf=.bin)
 ELFS := $(BUILD_DIR)/format_probe.elf $(BUILD_DIR)/restore_sector.elf \
 	$(BUILD_DIR)/length_probe.elf $(BUILD_DIR)/length_restore.elf \
 	$(BUILD_DIR)/boundary_baseline.elf $(BUILD_DIR)/boundary_extend.elf \
@@ -25,6 +34,7 @@ ELFS := $(BUILD_DIR)/format_probe.elf $(BUILD_DIR)/restore_sector.elf \
 	$(BUILD_DIR)/boundary_pointer_interrupted_audit.elf \
 	$(BUILD_DIR)/boundary_pointer_interrupted_restore.elf \
 	$(BUILD_DIR)/boundary_pointer_bitbang_restore.elf \
+	$(BUILD_DIR)/frontier_pointer_bitbang_restore.elf \
 	$(BUILD_DIR)/pointer_probe.elf $(BUILD_DIR)/pointer_restore.elf \
 	$(BUILD_DIR)/crossbank_probe.elf $(BUILD_DIR)/crossbank_restore.elf \
 	$(BUILD_DIR)/protection_roundtrip.elf \
@@ -50,10 +60,13 @@ BINS := $(BUILD_DIR)/format_probe.bin $(BUILD_DIR)/restore_sector.bin \
 	$(BUILD_DIR)/boundary_pointer_interrupted_audit.bin \
 	$(BUILD_DIR)/boundary_pointer_interrupted_restore.bin \
 	$(BUILD_DIR)/boundary_pointer_bitbang_restore.bin \
+	$(BUILD_DIR)/frontier_pointer_bitbang_restore.bin \
 	$(BUILD_DIR)/pointer_probe.bin $(BUILD_DIR)/pointer_restore.bin \
 	$(BUILD_DIR)/crossbank_probe.bin $(BUILD_DIR)/crossbank_restore.bin \
 	$(BUILD_DIR)/protection_roundtrip.bin \
 	$(BUILD_DIR)/status_roundtrip.bin
+ELFS += $(FRONTIER_ELFS)
+BINS += $(FRONTIER_BINS)
 
 CFLAGS := -mcpu=cortex-m4 -mthumb -Os -ffreestanding -fno-builtin \
 	-ffunction-sections -fdata-sections -Wall -Wextra -Werror
@@ -349,6 +362,37 @@ $(BUILD_DIR)/boundary_pointer_bitbang_restore.elf: restore_sector.c linker_mutat
 		-DKW_EXPECTED_FINAL_CRC32=0xf5c23372u \
 		-nostdlib -Wl,-T,linker_mutation.ld -Wl,--build-id=none \
 		-Wl,--gc-sections -Wl,-Map,$(BUILD_DIR)/boundary_pointer_bitbang_restore.map -o $@ $<
+$(BUILD_DIR)/frontier_pointer_bitbang_restore.elf: restore_sector.c linker_mutation.ld | $(BUILD_DIR)
+	$(CC) $(CFLAGS) -Oz -DKW_RESTORE_BUFFER=0x20000a00 \
+		-DKW_MAILBOX_BASE=0x20002100 -DKW_STACK_TOP=0x20002300 \
+		-DKW_HELPER_MAGIC=0x4b574652u -DKW_ARM_MAGIC=0x41524d5bu \
+		-DKW_BITBANG_SPI=1 -DKW_STATUS_CLEAR_ATTEMPTS=2u -DKW_STRICT_MUTATION_WAIT=1 \
+		-DKW_BUFFER_CRC32=0xf5c23372u -DKW_EXPECTED_TARGET_CRC32=0x6f68933fu \
+		-DKW_EXPECTED_FINAL_CRC32=0xf5c23372u \
+		-nostdlib -Wl,-T,linker_mutation.ld -Wl,--build-id=none \
+		-Wl,--gc-sections -Wl,-Map,$(BUILD_DIR)/frontier_pointer_bitbang_restore.map -o $@ $<
+
+define FRONTIER_RULES
+$(BUILD_DIR)/frontier$(1)_data_install.elf: restore_sector.c linker_mutation.ld | $(BUILD_DIR)
+	$$(CC) $$(CFLAGS) -Oz -DKW_RESTORE_BUFFER=0x20000a00 \
+		-DKW_MAILBOX_BASE=0x20002100 -DKW_STACK_TOP=0x20002300 \
+		-DKW_HELPER_MAGIC=0x4b46$(shell printf '%04x' $(1))u -DKW_ARM_MAGIC=0x4149$(shell printf '%04x' $(1))u \
+		-DKW_STATUS_CLEAR_ATTEMPTS=2u -DKW_STRICT_MUTATION_WAIT=1 \
+		-DKW_SECTOR_ADDRESS=0x0000c000u -DKW_BUFFER_CRC32=$$(FRONTIER_CRC_$(1))u \
+		-DKW_EXPECTED_TARGET_CRC32=0xf154670au -DKW_EXPECTED_FINAL_CRC32=$$(FRONTIER_CRC_$(1))u \
+		-nostdlib -Wl,-T,linker_mutation.ld -Wl,--build-id=none \
+		-Wl,--gc-sections -Wl,-Map,$$(BUILD_DIR)/frontier$(1)_data_install.map -o $$@ $$<
+$(BUILD_DIR)/frontier$(1)_data_restore.elf: restore_sector.c linker_mutation.ld | $(BUILD_DIR)
+	$$(CC) $$(CFLAGS) -Oz -DKW_RESTORE_BUFFER=0x20000a00 \
+		-DKW_MAILBOX_BASE=0x20002100 -DKW_STACK_TOP=0x20002300 \
+		-DKW_HELPER_MAGIC=0x4b52$(shell printf '%04x' $(1))u -DKW_ARM_MAGIC=0x4152$(shell printf '%04x' $(1))u \
+		-DKW_STATUS_CLEAR_ATTEMPTS=2u -DKW_STRICT_MUTATION_WAIT=1 \
+		-DKW_SECTOR_ADDRESS=0x0000c000u -DKW_BUFFER_CRC32=0xf154670au \
+		-DKW_EXPECTED_TARGET_CRC32=$$(FRONTIER_CRC_$(1))u -DKW_EXPECTED_FINAL_CRC32=0xf154670au \
+		-nostdlib -Wl,-T,linker_mutation.ld -Wl,--build-id=none \
+		-Wl,--gc-sections -Wl,-Map,$$(BUILD_DIR)/frontier$(1)_data_restore.map -o $$@ $$<
+endef
+$(foreach allocation,$(FRONTIER_ALLOCATIONS),$(eval $(call FRONTIER_RULES,$(allocation))))
 $(BUILD_DIR)/protection_roundtrip.elf: protection_roundtrip.c linker_restore.ld | $(BUILD_DIR)
 	$(CC) $(CFLAGS) -nostdlib -Wl,-T,linker_restore.ld \
 		-Wl,--build-id=none -Wl,--gc-sections \
@@ -392,6 +436,8 @@ inspect: $(ELFS)
 	$(OBJDUMP) -h -d $(BUILD_DIR)/boundary_pointer_interrupted_audit.elf
 	$(OBJDUMP) -h -d $(BUILD_DIR)/boundary_pointer_interrupted_restore.elf
 	$(OBJDUMP) -h -d $(BUILD_DIR)/boundary_pointer_bitbang_restore.elf
+	$(OBJDUMP) -h -d $(BUILD_DIR)/frontier_pointer_bitbang_restore.elf
+	$(foreach elf,$(FRONTIER_ELFS),$(OBJDUMP) -h -d $(elf);)
 	$(OBJDUMP) -h -d $(BUILD_DIR)/restore_sector.elf
 	$(OBJDUMP) -h -d $(BUILD_DIR)/pointer_probe.elf
 	$(OBJDUMP) -h -d $(BUILD_DIR)/pointer_restore.elf
@@ -421,6 +467,8 @@ clean:
 		$(BUILD_DIR)/boundary_pointer_interrupted_audit.map \
 		$(BUILD_DIR)/boundary_pointer_interrupted_restore.map \
 		$(BUILD_DIR)/boundary_pointer_bitbang_restore.map \
+		$(BUILD_DIR)/frontier_pointer_bitbang_restore.map \
+		$(foreach allocation,$(FRONTIER_ALLOCATIONS),$(BUILD_DIR)/frontier$(allocation)_data_install.map $(BUILD_DIR)/frontier$(allocation)_data_restore.map) \
 		$(BUILD_DIR)/restore_sector.map $(BUILD_DIR)/pointer_probe.map \
 		$(BUILD_DIR)/pointer_restore.map \
 		$(BUILD_DIR)/crossbank_probe.map $(BUILD_DIR)/crossbank_restore.map \

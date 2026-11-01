@@ -305,6 +305,65 @@ VARIANTS = {
     },
 }
 
+FRONTIER_CRCS = {
+    256: "0x28017863",
+    320: "0x41b76a28",
+    384: "0x52fdfc69",
+    448: "0x7cfe1846",
+    480: "0xebdaf776",
+    512: "0x72628a3a",
+}
+for allocation, crc in FRONTIER_CRCS.items():
+    suffix = f"{allocation:04x}"
+    VARIANTS[f"frontier{allocation}-data-install"] = {
+        "stem": f"frontier{allocation}-data-install",
+        "chunk": f"alloc-{allocation}-data-test-sector-00c000-chunk",
+        "binary": f"frontier{allocation}_data_install",
+        "arm": f"0x4149{suffix}", "magic": f"0x4b46{suffix}",
+        "directory": "kw520-stack-frontier", "label": f"FRONTIER{allocation}_DATA_INSTALL",
+        "buffer": crc, "target": "0xf154670a", "final": crc,
+        "status_retry": True, "long_wait": True, "helper_readback": "0x700",
+        "title": f"Install only the fixed cyclic allocation-{allocation} record in the inactive data sector.",
+        "accepted": f"ACCEPTED: cyclic allocation-{allocation} data sector installed and verified",
+        "noop": f"ACCEPTED: cyclic allocation-{allocation} data sector already present; no write",
+        "refused": f"REFUSED: cyclic allocation-{allocation} data-install gate did not pass",
+    }
+    VARIANTS[f"frontier{allocation}-data-restore"] = {
+        "stem": f"frontier{allocation}-data-restore", "chunk": "data-original-sector-00c000-chunk",
+        "binary": f"frontier{allocation}_data_restore",
+        "arm": f"0x4152{suffix}", "magic": f"0x4b52{suffix}",
+        "directory": "kw520-stack-frontier", "label": f"FRONTIER{allocation}_DATA_RESTORE",
+        "buffer": "0xf154670a", "target": crc, "final": "0xf154670a",
+        "status_retry": True, "long_wait": True, "helper_readback": "0x700",
+        "title": f"Restore only the inactive allocation-{allocation} data sector to exact all-FF.",
+        "accepted": f"ACCEPTED: allocation-{allocation} data sector restored to exact all-FF",
+        "noop": f"ACCEPTED: allocation-{allocation} data sector already exact all-FF; no write",
+        "refused": f"REFUSED: allocation-{allocation} data-restore gate did not pass",
+    }
+
+VARIANTS["frontier-pointer-install"] = {
+    "stem": "frontier-pointer-install", "chunk": "pointer-test-sector-003000-chunk",
+    "binary": "boundary_pointer_install_retry", "arm": "0x41524d4f", "magic": "0x4b575849",
+    "directory": "kw520-stack-frontier", "label": "FRONTIER_POINTER_INSTALL",
+    "buffer": "0x6f68933f", "target": "0xf5c23372", "final": "0x6f68933f",
+    "status_retry": True, "long_wait": True, "helper_readback": "0x700",
+    "title": "Activate the fixed stack-frontier record only after its data sector is verified.",
+    "accepted": "ACCEPTED: stack-frontier title pointer installed and verified",
+    "noop": "ACCEPTED: stack-frontier title pointer already present; no write",
+    "refused": "REFUSED: stack-frontier pointer-install gate did not pass",
+}
+VARIANTS["frontier-pointer-bitbang-restore"] = {
+    "stem": "frontier-pointer-bitbang-restore", "chunk": "pointer-original-sector-003000-chunk",
+    "binary": "frontier_pointer_bitbang_restore", "arm": "0x41524d5b", "magic": "0x4b574652",
+    "directory": "kw520-stack-frontier", "label": "FRONTIER_POINTER_BITBANG_RESTORE",
+    "buffer": "0xf5c23372", "target": "0x6f68933f", "final": "0xf5c23372",
+    "status_retry": True, "recover_bitbang": True, "long_wait": True, "helper_readback": "0x700",
+    "title": "Restore the stack-frontier pointer without depending on the crashed firmware SPI setup.",
+    "accepted": "ACCEPTED: stack-frontier title pointer restored through bitbang SPI",
+    "noop": "ACCEPTED: original title pointer already present; bitbang helper made no write",
+    "refused": "REFUSED: stack-frontier bitbang pointer-restore gate did not pass",
+}
+
 
 def sha256(data: bytes) -> str:
     return hashlib.sha256(data).hexdigest()
@@ -340,6 +399,13 @@ def derive(template: bytes, mode: str) -> str:
     text = replace_exact(text, "build/kw520-spi-patch/restore_sector.bin", f"build/kw520-spi-patch/{cfg['binary']}.bin", 1)
     text = replace_exact(text, "0x41524d32", cfg["arm"], 1)
     text = replace_exact(text, "RESTORE_NOOP", cfg["label"], 1)
+    if cfg.get("helper_readback"):
+        text = replace_exact(
+            text,
+            "helper-readback.bin 0x20001a00 0x6cc",
+            f"helper-readback.bin 0x20001a00 {cfg['helper_readback']}",
+            1,
+        )
     if cfg.get("recover_spi"):
         text = replace_exact(
             text,

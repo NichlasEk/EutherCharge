@@ -266,6 +266,62 @@ all-FF-CRC `f154670a`, också med 16 sidor, status `0x18` och noll SPI-fel. Efte
 kallstart visade apparaten `Huvudmeny` och knapparna svarade normalt. Detta är
 den fysiska acceptansen för att båda berörda externflashsektorerna är återställda.
 
+## Förberedd stack-frontier efter 240 byte
+
+Nästa serie är avsiktligt fixerad till 256, 320, 384, 448, 480 och 512 byte och
+körs aldrig automatiskt. Varje synlig payload består av ett cykliskt
+De Bruijn-mönster av ordning fyra med enbart gemener och siffror, utan `%` eller
+inre NUL. Alla fyrabytesfönster är unika genom 512 och inget sådant ord ligger i MCU:ns SRAM-, internflash- eller
+periferadressintervall. Ett eventuellt PC/LR-värde kan därför mappas tillbaka
+till exakt payloadoffset utan att provet avsiktligt tillhandahåller en användbar
+hoppadress.
+
+En read-only-baslinje från normal `Huvudmeny` gav SRAM-hash
+`89e5cba18e7940ee6ed0b4a72371d0408590f5233599e85a264c552db6e5a18d`.
+J-Link-anslutningen utlöste den kända FAP/debug-faulten: MSP `0x20003b88`,
+stackad LR `0x08008037` och PC `0x08010000`. Avståndet från den verifierade
+källbufferten `0x20003978` till detta MSP-värde är 528 byte. En 512-bytepost
+slutar därför 16 byte före den fångade undantagsramen och en 480-bytepost 48
+byte före. Detta är ett prioriteringsmått, inte bevis för var den normala
+funktionens stackobjekt eller returadress låg före debugfaulten.
+
+Varje steg börjar från all-FF i `0x00c000`, fångar hela SRAM plus kärn- och
+faultregister, återställer alltid pekaren först genom en separat GPIO-bitbang-
+hjälpare och kallstartar normalmenyn innan datasektorn rensas. Serien stoppas
+vid första cykliska kontrollvärdet, ofullständig payloadkopia eller misslyckad
+återställning. Verktyg och körordning finns i
+`tools/kw520_stack_frontier/README.md`.
+
+### Fysiskt frontierresultat: stopp vid 320 byte
+
+256-byteprovet kopierades byteexakt till `0x20003978`; en andra kopia av
+mönstermarkören fanns vid `0x2000059b`. Inget cykliskt fyrabytesvärde fanns i
+kärnregistren eller den fångade undantagsramen och
+`control_candidate=false`. Pekarsektor och datasektor återställdes därefter
+exakt, följt av normal `Huvudmeny` och fungerande knappar.
+
+320-byteprovet gav den diskriminerande gränsen. Displaytexten rullade och
+knapparna svarade, men SRAM matchade endast nyttolastens byte 0--255. Byte 256
+vid `0x20003a78` var NUL; den efterföljande befintliga SRAM-strukturen började
+direkt därefter i stället för de återstående 64 testbytena. Inga cykliska
+värden nådde PC, LR, MSP, PSP, MMFAR, BFAR eller undantagsramen och
+`control_candidate=false`. Fångstens SRAM-SHA-256 var
+`f7548bc9baadf1b2469d1429c75ec27b815565079f92acc5909796d4d5917fcc`.
+
+Återställningen utfördes i säker ordning medan kärnan var stoppad: pekarsektor
+`0x003000` gick från test-CRC `6f68933f` till original-CRC `f5c23372`, därefter
+gick den orefererade datasektorn `0x00c000` från `41b76a28` till exakt all-FF
+`f154670a`. Båda operationerna programmerade 16 sidor, slutade med status
+`0x18` och noll SPI-fel. Slutlig kallstart gav normal `Huvudmeny` och fungerande
+knappar.
+
+Detta stänger just denna stack-frontier: resursvägen terminerar kopian vid 256
+byte och större deklarerade allokeringar 384--512 skulle därför inte föra
+kontrollgränsen närmare stacken. Resultatet bevisar inte att alla parser- eller
+resursvägar har samma gräns och det ger fortfarande ingen nivå E- eller
+internflash-läsprimitiv. Nästa firmwareutvinningsspår måste använda en annan
+primitiv än att enbart öka denna posts deklarerade längd.
+
 ## Referenser
 
 - Lokal formatbeskrivning: `docs/resource-format.md`

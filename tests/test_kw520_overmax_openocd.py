@@ -221,3 +221,26 @@ def test_boundary240_data_restore_keeps_long_host_wait():
     assert "{$i < 4000}" in output
     assert "$target_crc == 0xaba2265e" in output
     assert "$final_crc == 0xf154670a" in output
+
+
+def test_fixed_stack_frontier_modes_are_crc_locked_and_long_running():
+    template = (ROOT / "tools" / "kw520_spi_patch" / "restore-noop.cfg").read_bytes()
+    for allocation, crc in MODULE.FRONTIER_CRCS.items():
+        install = MODULE.derive(template, f"frontier{allocation}-data-install")
+        restore = MODULE.derive(template, f"frontier{allocation}-data-restore")
+        assert f"frontier{allocation}_data_install.bin" in install
+        assert f"frontier{allocation}_data_restore.bin" in restore
+        assert f"$final_crc == {crc}" in install
+        assert f"$target_crc == {crc}" in restore
+        assert "{$i < 4000}" in install and "{$i < 4000}" in restore
+        assert "helper-readback.bin 0x20001a00 0x700" in install
+
+
+def test_frontier_pointer_recovery_uses_bitbang_and_long_wait():
+    template = (ROOT / "tools" / "kw520_spi_patch" / "restore-noop.cfg").read_bytes()
+    install = MODULE.derive(template, "frontier-pointer-install")
+    restore = MODULE.derive(template, "frontier-pointer-bitbang-restore")
+    assert "$target_crc == 0xf5c23372" in install and "$final_crc == 0x6f68933f" in install
+    assert "$target_crc == 0x6f68933f" in restore and "$final_crc == 0xf5c23372" in restore
+    assert "BITBANG_REGS ok=%u" in restore
+    assert "{$i < 4000}" in restore
