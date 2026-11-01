@@ -1,0 +1,311 @@
+{
+  "candidate_count": 11,
+  "capture_count": 21,
+  "captures": [
+    {
+      "candidate_count": 0,
+      "candidates": [],
+      "capture": "build/kw520-runtime-sram/boundary128-20261101.bin",
+      "sha256": "17e05bcd10869ca3dc322aff0a43024a9861398d806f0ac3bb28bd1540eb443a"
+    },
+    {
+      "candidate_count": 0,
+      "candidates": [],
+      "capture": "build/kw520-runtime-sram/boundary160-20261101.bin",
+      "sha256": "77b1e772cbe9567464d64789ea510521756ef104750e5c2380e0e68a5fc01c56"
+    },
+    {
+      "candidate_count": 0,
+      "candidates": [],
+      "capture": "build/kw520-runtime-sram/boundary192-20261101.bin",
+      "sha256": "cc39df92ea1531cf363dc2c86fc08ab132f7c682ac93d3b5c53f502577d40071"
+    },
+    {
+      "candidate_count": 1,
+      "candidates": [
+        {
+          "address": "0x20003b88",
+          "ipsr": 0,
+          "words": {
+            "lr": "0x08008037",
+            "pc": "0x0800cf60",
+            "r0": "0x00000000",
+            "r1": "0x00000000",
+            "r12": "0x20003b44",
+            "r2": "0x00007317",
+            "r3": "0x00000000",
+            "xpsr": "0x41000000"
+          }
+        }
+      ],
+      "capture": "build/kw520-runtime-sram/boundary224-20261101.bin",
+      "sha256": "3d26bc01842fdc2d92ee916b3f39ad74fff0b85a0cb0513c1a7a405118ab97a3"
+    },
+    {
+      "candidate_count": 0,
+      "candidates": [],
+      "capture": "build/kw520-runtime-sram/boundary240-20261101.bin",
+      "sha256": "4b99f0667d9b7cae239ec96da09579e43fe05dd97c097dfa56a7a0241ee3aa1a"
+    },
+    {
+      "candidate_count": 1,
+      "candidates": [
+        {
+          "address": "0x20003680",
+          "ipsr": 0,
+          "words": {
+            "lr": "0x0800a9dd",
+            "pc": "0x0800aada",
+            "r0": "0x00000010",
+            "r1": "0x00000033",
+            "r12": "0x00000000",
+            "r2": "0x00000001",
+            "r3": "0x00000006",
+            "xpsr": "0x41000000"
+          }
+        }
+      ],
+      "capture": "build/kw520-runtime-sram/glyph-missing-exact-a.bin",
+      "sha256": "46d1bb53342af3bc0e1f2c74690c74a89e0148f014c1d2302c2639921d2f4f2f"
+    },
+    {
+      "candidate_count": 1,
+      "candidates": [
+        {
+          "address": "0x20003680",
+          "ipsr": 0,
+          "words": {
+            "lr": "0x0800a9dd",
+            "pc": "0x0800aaea",
+            "r0": "0x0000033b",
+            "r1": "0x00000001",
+            "r12": "0x00000000",
+            "r2": "0x00000000",
+            "r3": "0x00000006",
+            "xpsr": "0x61000000"
+          }
+        }
+      ],
+      "capture": "build/kw520-runtime-sram/glyph-page1-exact-a.bin",
+      "sha256": "847ed364b64633fc80391d335a7eeadfc4945b8841f41e0f9361364f5cd7ab90"
+    },
+    {
+      "candidate_count": 1,
+      "candidates": [
+        {
+          "address": "0x20003b90",
+          "ipsr": 0,
+          "words": {
+            "lr": "0x0800a04d",
+            "pc": "0x0800f40a",
+            "r0": "0x000000ff",
+            "r1": "0x20000005",
+            "r12": "0x20003b44",
+            "r2": "0x00000003",
+            "r3": "0x00000003",
+            "xpsr": "0x21000000"
+          }
+        }
+      ],
+      "capture": "build/kw520-runtime-sram/glyph-page2-exact-a.bin",
+      "sha256": "46946c8dab132ced5fe61fd5940c2948e288324340bf903b486b97d494c12aff"
+    },
+    {
+      "candidate_count": 1,
+      "candidates": [
+        {
+          "address": "0x20003b70",
+          "ipsr": 0,
+          "words": {
+            "lr": "0x0800a0b3",
+            "pc": "0x0800a894",
+            "r0": "0x0000af7a",
+            "r1": "0x0001d4c0",
+            "r12": "0x20003b44",
+            "r2": "0x00000003",
+            "r3": "0x00000003",
+            "xpsr": "0x8100a000"
+          }
+        }
+      ],
+      "capture": "build/kw520-runtime-sram/language-list8-runtime-20261101.bin",
+      "sha256": "a24b78b378cd8f805557075f3c5f6e81bf7718fa17794e5d20f9d9e518fe3ae5"
+    },
+    {
+      "candidate_count": 0,
+      "candidates": [],
+      "capture": "build/kw520-runtime-sram/language-list9-runtime-20261101.bin",
+      "sha256": "fc33100746269d90387423b7275f5b26aeecc6924ffcc59a338b36c86d49acc4"
+    },
+    {
+      "candidate_count": 2,
+      "candidates": [
+        {
+          "address": "0x20003680",
+          "ipsr": 0,
+          "words": {
+            "lr": "0x0800a9dd",
+            "pc": "0x0800aac8",
+            "r0": "0x0000002d",
+            "r1": "0x00000025",
+            "r12": "0x00000000",
+            "r2": "0x00000000",
+            "r3": "0x00000004",
+            "xpsr": "0x81000000"
+          }
+        },
+        {
+          "address": "0x20003a58",
+          "ipsr": 0,
+          "words": {
+            "lr": "0x0800012b",
+            "pc": "0x08000946",
+            "r0": "0x00000001",
+            "r1": "0x00000000",
+            "r12": "0x00000000",
+            "r2": "0x0000000b",
+            "r3": "0x0000000a",
+            "xpsr": "0x21000000"
+          }
+        }
+      ],
+      "capture": "build/kw520-runtime-sram/maxrecord112-20261101.bin",
+      "sha256": "5f767456a6b080fda8a876f4ec2af164686416e85ec779ae0017b767c6935627"
+    },
+    {
+      "candidate_count": 0,
+      "candidates": [],
+      "capture": "build/kw520-runtime-sram/nulcopy-20261101.bin",
+      "sha256": "38d89cbc12af83629ba3c20ac6e8b1f89d74d08fc155955d4bb9972c9d3a9fdb"
+    },
+    {
+      "candidate_count": 0,
+      "candidates": [],
+      "capture": "build/kw520-runtime-sram/original-restored-20261101.bin",
+      "sha256": "02e807707fef2946e5ac7177202423b6097942c14c63004825f20d4725a8f167"
+    },
+    {
+      "candidate_count": 1,
+      "candidates": [
+        {
+          "address": "0x20003a58",
+          "ipsr": 0,
+          "words": {
+            "lr": "0x0800012b",
+            "pc": "0x0800012e",
+            "r0": "0x00000000",
+            "r1": "0x00000000",
+            "r12": "0x00000000",
+            "r2": "0x00000000",
+            "r3": "0x0000000a",
+            "xpsr": "0x41000000"
+          }
+        }
+      ],
+      "capture": "build/kw520-runtime-sram/overmax114-20261101.bin",
+      "sha256": "64538cb320a9026b0d63e6b002ef073ad2700441bb52da630d11860b7307c569"
+    },
+    {
+      "candidate_count": 1,
+      "candidates": [
+        {
+          "address": "0x20003b88",
+          "ipsr": 0,
+          "words": {
+            "lr": "0x08008037",
+            "pc": "0x0800a1a0",
+            "r0": "0x00009c20",
+            "r1": "0x00000000",
+            "r12": "0x20003b44",
+            "r2": "0x00000003",
+            "r3": "0x00000003",
+            "xpsr": "0x21000000"
+          }
+        }
+      ],
+      "capture": "build/kw520-runtime-sram/safewxyz-20261101.bin",
+      "sha256": "414f043f56d9de930ace78f24743f66a939cb3e6bc9e6ab2dedb69920fca19ff"
+    },
+    {
+      "candidate_count": 0,
+      "candidates": [],
+      "capture": "build/kw520-runtime-sram/stack-exec-marker-20261101.bin",
+      "sha256": "b4ad382d6d48d3d171ef2ff2fdd05b6fa499a01fddc97864be289a8714e4386f"
+    },
+    {
+      "candidate_count": 0,
+      "candidates": [],
+      "capture": "build/kw520-runtime-sram/stack-exec-marker-after-button-20261101.bin",
+      "sha256": "262a1933511c414dda66b099989057a37ac4e9d44a944123c180689b4e4cd72a"
+    },
+    {
+      "candidate_count": 1,
+      "candidates": [
+        {
+          "address": "0x20003b88",
+          "ipsr": 0,
+          "words": {
+            "lr": "0x0800802f",
+            "pc": "0x08009176",
+            "r0": "0x48000400",
+            "r1": "0x00000100",
+            "r12": "0x20003b44",
+            "r2": "0x0001323b",
+            "r3": "0x00000000",
+            "xpsr": "0x01000000"
+          }
+        }
+      ],
+      "capture": "build/kw520-stack-frontier/captures/frontier-256-b.bin",
+      "sha256": "22574a3ef405fd2de7e11b001e4c5da4a6cf8c0bbb027bfec912d6a986ff326c"
+    },
+    {
+      "candidate_count": 0,
+      "candidates": [],
+      "capture": "build/kw520-stack-frontier/captures/frontier-320-a.bin",
+      "sha256": "f7548bc9baadf1b2469d1429c75ec27b815565079f92acc5909796d4d5917fcc"
+    },
+    {
+      "candidate_count": 0,
+      "candidates": [],
+      "capture": "build/kw520-stack-frontier/captures/frontier-clean-a.bin",
+      "sha256": "89e5cba18e7940ee6ed0b4a72371d0408590f5233599e85a264c552db6e5a18d"
+    },
+    {
+      "candidate_count": 1,
+      "candidates": [
+        {
+          "address": "0x20003630",
+          "ipsr": 0,
+          "words": {
+            "lr": "0x0800a9dd",
+            "pc": "0x0800aafa",
+            "r0": "0x0000019d",
+            "r1": "0x00000003",
+            "r12": "0x0000000a",
+            "r2": "0x00000000",
+            "r3": "0x00000003",
+            "xpsr": "0x61000000"
+          }
+        }
+      ],
+      "capture": "build/kw520-stack-frontier/captures/language-list8-20261101.bin",
+      "sha256": "e8c7d6d1e8b1f02ddbc0c012a80597c16ff5fb5e1186cc220651c4bfc568d489"
+    }
+  ],
+  "format": 1,
+  "limits": [
+    "Candidates can be active frames, stale stack frames, or coincidental data.",
+    "No candidate contains instruction bytes or proves that its PC is a callable function entry.",
+    "Raw SRAM remains local and ignored."
+  ],
+  "lr_histogram": {
+    "0x0800012b": 2,
+    "0x0800802f": 1,
+    "0x08008037": 2,
+    "0x0800a04d": 1,
+    "0x0800a0b3": 1,
+    "0x0800a9dd": 4
+  },
+  "method": "aligned Cortex-M basic exception-frame shape scan"
+}

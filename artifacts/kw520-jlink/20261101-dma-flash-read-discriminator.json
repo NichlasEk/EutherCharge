@@ -1,0 +1,82 @@
+{
+  "date": "2026-11-01",
+  "target": "KONNWEI KW520 / AT32F421C8T7",
+  "transport": {
+    "probe": "SEGGER J-Link V9",
+    "serial": "69401338",
+    "interface": "SWD",
+    "speed_khz": 50,
+    "vtarget_mv": 3293,
+    "dpidr": "0x2ba01477"
+  },
+  "protection": {
+    "fap_enabled": true,
+    "flash_usd_observed": "0x03fffffe"
+  },
+  "inventory": {
+    "dma_clock_enabled": true,
+    "status": "0x00000007",
+    "channel_1": {
+      "enabled": true,
+      "ctrl": "0x000015a1",
+      "count": 32,
+      "source": "0x4001244c",
+      "destination": "0x20002380",
+      "interpretation": "active ADC-to-SRAM transfer"
+    },
+    "channels_2_through_5": "disabled with zero-filled registers",
+    "registers_sha256": "6ee965a3ab03617fc6c5a92d7f312a4e762e83a13b4d9998827648dc51eab352",
+    "session_sha256": "9b15895b41cd0d5b18ac64a2007f18be3b376b5924a23a20cced0911028e6b2f"
+  },
+  "first_flash_word_probe": {
+    "channel": 2,
+    "source": "0x08000000",
+    "destination": "0x200016b4",
+    "count_words": 1,
+    "width_bits": 32,
+    "transfer_complete": true,
+    "transfer_error": false,
+    "result": "0x00000000",
+    "restored": true,
+    "result_sha256": "69261340cfdd25f1d332ad2a36e1d6d6487d027827dee35389e66333768b971f",
+    "session_sha256": "c28f8d375fbbc6cce813d436a92be21690d92348c4e5d12e541faefae378e275"
+  },
+  "positive_control_and_repeat": {
+    "channel": 2,
+    "positive_control": {
+      "source": "0x200016b0",
+      "destination": "0x200016b4",
+      "expected": "0x13579bdf",
+      "observed": "0x13579bdf",
+      "transfer_complete": true,
+      "transfer_error": false,
+      "passed": true
+    },
+    "protected_flash_repeat": {
+      "source": "0x08000000",
+      "destination": "0x200016b4",
+      "observed": "0x00000000",
+      "transfer_complete": true,
+      "transfer_error": false,
+      "plausible_initial_stack_pointer": false
+    },
+    "restored": true,
+    "result_sha256": "7993ca63cc1c5e6eaaa8948707febbf73aabe13d9da1aa28f22731c8a4b98615",
+    "session_sha256": "1c9c9f0b18cfa20999e130e4225b847f31212b093e303404fc1aabf25af32545"
+  },
+  "conclusion": "DMA itself was proven with a nonzero SRAM-to-SRAM positive control. The same channel completed two protected-main-flash reads without a DMA error but returned zero. Active FAP therefore masks the main-flash data from this DMA/SWD path; this is not a firmware read primitive.",
+  "restoration_scope": [
+    "DMA1 channel 2 CTRL, DTCNT, PADDR and MADDR",
+    "DMA1 channel 2 status flags",
+    "SRAM words 0x200016b0 and 0x200016b4"
+  ],
+  "forbidden_operations_not_used": [
+    "FAP disable",
+    "flash unlock",
+    "internal or external flash program",
+    "internal or external flash erase",
+    "option-byte modification",
+    "mass erase"
+  ],
+  "postcondition": "Original core remains locked by debug initialization and requires a target 3.3 V cold start."
+}

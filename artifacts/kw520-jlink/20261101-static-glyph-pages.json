@@ -1,0 +1,266 @@
+{
+  "date": "2026-11-01",
+  "experiment": "kw520-static-high-byte-glyph-pages",
+  "base_image": {
+    "path": "dumps/readback/kw520-after-euthercharge-2026-10-18.bin",
+    "size_bytes": 4194304,
+    "sha256": "4a4947e116dc405e577c97e965c342cc89f7f8b3f517babee9a8105e400d0329"
+  },
+  "page_1": {
+    "planned_ranges": [
+      "0x80-0x8f",
+      "0x90-0x9f",
+      "0xa0-0xaf",
+      "0xb0-0xbf",
+      "0xc0-0xcf",
+      "0xd0-0xdf"
+    ],
+    "physically_visible_ranges_on_main_menu": [
+      "0x80-0x8f",
+      "0x90-0x9f",
+      "0xb0-0xbf",
+      "0xc0-0xcf"
+    ],
+    "not_visible_on_main_menu": {
+      "0xa0-0xaf": "redirected the Skriv resource, which is not a visible main-menu row",
+      "0xd0-0xdf": "redirected the Info resource, which is not a visible main-menu row"
+    },
+    "resource_mapping_explanation": "The six adjacent records are Huvudmeny, Testa, Skriv, Visa, Inst. and Info; they are not six consecutive visible rows. Ladda batteri and Reparera batt. therefore remained original as expected.",
+    "pointer_test_crc32b": "45ed24ae",
+    "pointer_test_sha256": "58150eebed30e01c5d2aac1261b0b52fa144a7833ab60a8ecff5f41eb2d3ab3c",
+    "data_test_crc32b": "0bd16929",
+    "data_test_sha256": "30d620b8d7366038c696a7e7ed7c81d9cdfd2e4646d01f21722594405d55f524",
+    "photo": {
+      "path": "artifacts/kw520-jlink/20261101-glyph-page1-static.png",
+      "dimensions": "1536x1152",
+      "size_bytes": 1923910,
+      "sha256": "0f2d6477cd10e3d35e5672354da960035ce17dec4ec80c8079347d2651632e33"
+    },
+    "physical_cycle": {
+      "data_install": {
+        "target_crc32b": "f154670a",
+        "final_crc32b": "0bd16929",
+        "pages": 16,
+        "spi_error": 0,
+        "log_sha256": "680570a29aa356670c32077c5ec103279f1edee1da10faf1c7b0586e73a049ba"
+      },
+      "pointer_install": {
+        "target_crc32b": "f5c23372",
+        "final_crc32b": "45ed24ae",
+        "pages": 16,
+        "spi_error": 0,
+        "log_sha256": "eb0cf77fc651c5105f570f83895553c64a905bc8f5a92661a9f4d13427b14e28"
+      },
+      "pointer_restore": {
+        "target_crc32b": "45ed24ae",
+        "final_crc32b": "f5c23372",
+        "pages": 16,
+        "spi_error": 0,
+        "log_sha256": "0d1b72fe771b6ba6cc029f6ba31e74882c0c4134064b6e9624c81e3489c285a8"
+      },
+      "data_restore": {
+        "target_crc32b": "0bd16929",
+        "final_crc32b": "f154670a",
+        "pages": 16,
+        "spi_error": 0,
+        "log_sha256": "8bf76bcd3ff1cf633df656ece6cd40cb3ba4c3d620584a5889af9492035f45f2"
+      },
+      "final_cold_start": "user confirmed normal Huvudmeny and responsive buttons"
+    }
+  },
+  "page_2": {
+    "physically_visible_ranges_on_main_menu": [
+      "0xe0-0xef",
+      "0xf0-0xff"
+    ],
+    "pointer_test_crc32b": "8aa29def",
+    "pointer_test_sha256": "24c94e81d88af60cb8d1dbd356895ed88334535872d29ffd746f357f1aa2238d",
+    "data_test_crc32b": "4dc45cf8",
+    "data_test_sha256": "84e52b2e194ae46f628dc35fcec0e53b925e71813476b20270843c1eb443873d",
+    "photo": {
+      "path": "artifacts/kw520-jlink/20261101-glyph-page2-static.png",
+      "dimensions": "1536x1152",
+      "size_bytes": 1859945,
+      "sha256": "a2e684d3f54b9c7974e8ac8caca71d01afd4edf2c06a0af2d1297f5de23c05a9"
+    },
+    "physical_cycle": {
+      "data_install": {
+        "target_crc32b": "f154670a",
+        "final_crc32b": "4dc45cf8",
+        "pages": 16,
+        "spi_error": 0,
+        "log_sha256": "91de2e176086865ee5fefc0a31a18ed7a8ef9a38b8ba2089146132873b0cfac8"
+      },
+      "pointer_install": {
+        "target_crc32b": "f5c23372",
+        "final_crc32b": "8aa29def",
+        "pages": 16,
+        "spi_error": 0,
+        "log_sha256": "37f78bd0db87b3a7e31d26af0287552057246e75819f2ec223940da3dafbbdd7"
+      },
+      "pointer_restore": {
+        "target_crc32b": "8aa29def",
+        "final_crc32b": "f5c23372",
+        "pages": 16,
+        "spi_error": 0,
+        "log_sha256": "d2603e5fbc93782f489c8a562a1df4e8f70f18c167d43dedc6baee2f4820fa99"
+      },
+      "data_restore": {
+        "target_crc32b": "4dc45cf8",
+        "final_crc32b": "f154670a",
+        "pages": 16,
+        "spi_error": 0,
+        "log_sha256": "4f21c3c7c60932080605bce75abaf12b27b64f7ec02aad865c4b9683f36b8659"
+      },
+      "final_cold_start": "user confirmed normal Huvudmeny and responsive buttons"
+    }
+  },
+  "encoding_discriminator": {
+    "observed_matches": {
+      "0xc0-0xcf": "Latin-1 uppercase accented sequence",
+      "0xe0-0xef": "Latin-1 lowercase a through i accented sequence",
+      "0xf0-0xff": "Latin-1 eth through y-diaeresis sequence"
+    },
+    "independent_external_resource_evidence": "The original Western language records use ISO-8859-1 byte values, including French c-cedilla 0xe7 and e-acute 0xe9 and Spanish n-tilde 0xf1.",
+    "result": "The varied high-byte output follows an intended ISO-8859-1-compatible glyph asset table rather than uncontrolled adjacent bytes. External-flash analysis found no corresponding font atlas, so the renderer is a fixed indirect oracle for assets that are most likely held in protected MCU flash.",
+    "remaining_uncertainty": "The device-specific 0x80-0x9f range is now captured exactly from SRAM and includes coherent UI icons and line assets. The installed 0xa0-0xaf and 0xd0-0xdf groups were not visible on these screens and remain uncaptured. No result establishes arbitrary address control or code extraction."
+  },
+  "interpretation": {
+    "fixed_internal_asset_oracle": "demonstrated through the normal renderer",
+    "arbitrary_address_firmware_read_oracle": "not supported",
+    "proves": "Normally booted firmware renders selected 8-bit glyph assets through an extended Latin-1-compatible font while external resource pointers remain controllable. Existing SRAM captures independently contain a 128x128 page-major backing canvas at 0x20000000; canvas rows 24-87 are the exact visible 128x64 LCD window.",
+    "does_not_prove": "Any control of the internal font-table base, access beyond the fixed 8-bit glyph domain, an internal-flash address, or extraction of arbitrary protected firmware.",
+    "next_safe_step": "Use one new visible-row-only profile to capture the missing 0xa0-0xaf and 0xd0-0xdf groups, then search for a font-base, index-width or renderer-address discriminator before claiming any code readout."
+  },
+  "sram_framebuffer_discovery": {
+    "method": "offline decode of the already captured original-restored and SAFEWXYZ 16 KiB SRAM pair",
+    "address": "0x20000000",
+    "storage_bytes": 2048,
+    "layout": "128x128 backing canvas, sixteen 128-byte pages, vertical LSB-first bits",
+    "visible_window": "canvas rows 24-87, pages 3-10, exact 128x64 LCD image",
+    "original_capture_sha256": "02e807707fef2946e5ac7177202423b6097942c14c63004825f20d4725a8f167",
+    "controlled_capture_sha256": "414f043f56d9de930ace78f24743f66a939cb3e6bc9e6ab2dedb69920fca19ff",
+    "baseline_framebuffer_sha256": "383948afa344e541fbb3a1448608d567f57cadcc69b93f3b020e9d963d4122ea",
+    "baseline_visible_png": {
+      "path": "artifacts/kw520-jlink/20261101-sram-framebuffer-huvudmeny.png",
+      "dimensions": "512x256",
+      "size_bytes": 1204,
+      "sha256": "0c07a8e7bd9703a121729955db4faa09f20a948676ac0c917e7cfd9c73019030"
+    },
+    "verification": "The baseline reconstructs exact Huvudmeny and the paired capture reconstructs SAFEWXYZ with the same remaining screen.",
+    "decoder": "tools/kw520_framebuffer.py",
+    "decoder_tests": "3 passed"
+  },
+  "exact_internal_asset_captures": {
+    "page_1": {
+      "exact_ranges": [
+        "0x80-0x9f",
+        "0xb0-0xcf"
+      ],
+      "sram_capture_sha256": "847ed364b64633fc80391d335a7eeadfc4945b8841f41e0f9361364f5cd7ab90",
+      "capture_log_sha256": "66da4fc088af27fe29ed09416c853fa55fe9cf2e331be5f8f7200b6d540a2069",
+      "backing_canvas_sha256": "b2e3b8cc93bcf7572a33a8bc34f0659726e04ed1139fbbbc82d9a9115910eb6b",
+      "visible_png": {
+        "path": "artifacts/kw520-jlink/20261101-glyph-page1-exact-framebuffer.png",
+        "size_bytes": 1462,
+        "sha256": "a01dc5697fd75c1c4b5d626560e87b7c0a4e283b6e83528da6e0ac7a5114ea51"
+      },
+      "glyph_count": 64,
+      "glyph_bytes": 384,
+      "glyph_binary_sha256": "3b3db7884290e62e4cbb8050ce5a4b35c23892a4ad1aadc396026cd9c26d90dd",
+      "glyph_manifest_sha256": "e2ea1e75858be78d3293822f981b2769876b056e3f92fd8876a4ff2d27063f34",
+      "glyph_atlas_sha256": "16b4be236079b660f81faa8ad3082975dac277caac7a99ee4e9881fbba6e8b63"
+    },
+    "page_2": {
+      "exact_ranges": [
+        "0xe0-0xff"
+      ],
+      "sram_capture_sha256": "46946c8dab132ced5fe61fd5940c2948e288324340bf903b486b97d494c12aff",
+      "capture_log_sha256": "57a50588ad2399ac0eeee06fcceb20988c7c7054a08e498adc708417191c403d",
+      "backing_canvas_sha256": "58750687750e8f9622b7a267b74355089b9304bc68063e2907ae620644353737",
+      "visible_png": {
+        "path": "artifacts/kw520-jlink/20261101-glyph-page2-exact-framebuffer.png",
+        "size_bytes": 1368,
+        "sha256": "dbb34e0200594c3444e0f8bf976711cf771b78e70b6af9969470af705538630a"
+      },
+      "glyph_count": 32,
+      "glyph_bytes": 192,
+      "glyph_binary_sha256": "4f87d87c282b4b67056c26b4bc55ced8f0de7bb68688d30c962e77c34aa96967",
+      "glyph_manifest_sha256": "7c2a247d070f7946a4556c3ad7fc954a1019c5e097429e18474591c5103a3ac6",
+      "glyph_atlas_sha256": "1bcb0a5f061df311d9812c2f0b3d8bb853f912e87f831de2408ae80588f60d3d"
+    },
+    "missing_profile": {
+      "exact_ranges": [
+        "0xa0-0xaf",
+        "0xd0-0xdf"
+      ],
+      "pointer_test_crc32b": "a5a32722",
+      "pointer_test_sha256": "47c964a6eb7fac9831325801f4558ed8011e9d5e9584ce55dd187732f44b1b52",
+      "sram_capture_sha256": "46d1bb53342af3bc0e1f2c74690c74a89e0148f014c1d2302c2639921d2f4f2f",
+      "capture_log_sha256": "66da4fc088af27fe29ed09416c853fa55fe9cf2e331be5f8f7200b6d540a2069",
+      "backing_canvas_sha256": "d4005fcbd2340ae07abc28a539c286839a7fbde06b9ce57f1ec7dbeda0791fc6",
+      "visible_png": {
+        "path": "artifacts/kw520-jlink/20261101-glyph-missing-exact-framebuffer.png",
+        "size_bytes": 1404,
+        "sha256": "1d50749ad62915e79c901d5a355a6678b494fa49c8936e1d6c71fc83331328fb"
+      },
+      "glyph_count": 32,
+      "glyph_bytes": 192,
+      "glyph_binary_sha256": "2d7470abf5de03a508894c5d541c80381783cbf83ca86638e170ab78d75cdc77",
+      "glyph_manifest_sha256": "9c8f1ad763addf97fc92271249a243713a2be754b00b6366b934e8f162c324a2",
+      "glyph_atlas_sha256": "f384a08b0208da0a415d6ba015b780b1f1a545939326fe395be3affe7feef24b",
+      "cycle_logs": {
+        "data_install_sha256": "a27e36a0f9811206a3e156364b091abb4fdee8d86d2879c2999ae73a52fa479a",
+        "pointer_install_sha256": "36040a4dbd0342dd65f8c7c7b75ea67dde77c2ad60f443b04af4390ffbc6a225",
+        "pointer_restore_sha256": "e96e63fb20123d6b975a4797a11fd2af05bd966e5ea047a49046cdf673aef101",
+        "data_restore_sha256": "6225a3aa2726974fe1ad605072285514d6d2abc2129ebfa1b776bafb74c0430d"
+      }
+    },
+    "complete_table": {
+      "range": "0x80-0xff",
+      "glyph_count": 128,
+      "glyph_bytes": 768,
+      "binary_sha256": "75b9cd129912998c50dfd283973d458d89657b1f32ac325c2beeedd0adbabf4f",
+      "manifest_sha256": "2e66b12dfeffd31d7887d1720550c97eea08b938e673998637671a14ea0f4982",
+      "atlas_png_sha256": "6271a1ff72da81a4e8c76c138c33b3ff36d5a98d2046228f7f77355f253e3598",
+      "coverage": "every code occurred exactly once",
+      "storage": "derived proprietary table remains local under ignored build/kw520-glyph-assets/complete"
+    },
+    "total_exact_glyphs": 128,
+    "total_exact_glyph_bytes": 768,
+    "missing_high_byte_ranges": [],
+    "raw_sram_policy": "raw 16 KiB captures remain local under ignored build; only hashes and derived framebuffer evidence are retained",
+    "extraction_verification": "all 128 six-byte glyphs reconstructed their exact 6x8 source cells and combined with no gaps or duplicates; centered title groups use x=32 while numbered menu rows use x=28",
+    "test_result": "8 passed"
+  },
+  "corrected_fingerprint_search": {
+    "input_binary_sha256": "75b9cd129912998c50dfd283973d458d89657b1f32ac325c2beeedd0adbabf4f",
+    "files_scanned": 11397,
+    "excluded": [
+      "the derived glyph-output directory itself",
+      "raw SRAM captures",
+      "toolchains and generated Android build trees",
+      "Git metadata"
+    ],
+    "representations": [
+      "raw six-column LSB-top",
+      "bit-reversed bytes",
+      "inverted bytes",
+      "per-glyph reversed columns",
+      "reversed columns plus bit reversal",
+      "left/right eight-column padding variants",
+      "six-bit row-major LSB",
+      "six-bit row-major MSB"
+    ],
+    "full_table_hits": [],
+    "nontrivial_16_glyph_group_hits": [],
+    "interpretation": "No uncompressed matching font table was found in the external dumps, locally retained updater binaries, extracted updater files or other scanned repository artifacts."
+  },
+  "recovery": {
+    "pointer_crc32b": "f5c23372",
+    "data_crc32b": "f154670a",
+    "status_register_restored": "0x18",
+    "all_spi_errors": 0,
+    "final_physical_state": "normal Huvudmeny and responsive buttons confirmed after page-2 data restore"
+  }
+}

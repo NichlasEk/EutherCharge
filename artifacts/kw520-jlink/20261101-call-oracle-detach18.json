@@ -1,0 +1,51 @@
+{
+  "date": "2026-11-01",
+  "gate": "detach-candidate-18-sram-copy",
+  "target": {
+    "mcu": "AT32F421C8T7",
+    "jlink_serial": "69401338",
+    "vtarget_mv": 3293,
+    "swd_khz": 50
+  },
+  "oracle": {
+    "size": 860,
+    "sha256": "9fb2cb3c8459fdee2980da1d552d1de470dc371e5a7f1c4c03dc6956d097d1a4",
+    "load_readback_exact": true,
+    "candidate_index": 18,
+    "candidate_address": "0x0800ad8f",
+    "source": "0x20001800",
+    "destination": "0x20001900",
+    "requested_bytes": 32
+  },
+  "detach": {
+    "wait_state": "0x00000040",
+    "dhcsr_write": "0xa05f0000",
+    "dp_ctrl_stat_request": "0x40000000",
+    "dp_ctrl_stat_readback": "0xc0000040",
+    "guard_loop_iterations": 2000000,
+    "branch_state": "0x00000021",
+    "debug_detach_observed_by_target": true
+  },
+  "observation": {
+    "core_mode_on_reconnect": "Thread User",
+    "pc": "0x08010000",
+    "msp": "0x20002300",
+    "psp": "0x20002300",
+    "xpsr": "0x21000000",
+    "local_fault_handler_ran": false,
+    "destination_unchanged": true,
+    "source_guard": "0xdeadbeef",
+    "destination_guard": "0xbaadf00d",
+    "classified_outcome": "no-return-after-branch"
+  },
+  "restore": {
+    "vtor": "0x08000000",
+    "affected_sram_start": "0x20001000",
+    "affected_sram_size": 4864,
+    "before_sha256": "1730c2dbe10678fb0203beaac7c2ae6609435887a18169e3f1e51658f74e2175",
+    "after_sha256": "1730c2dbe10678fb0203beaac7c2ae6609435887a18169e3f1e51658f74e2175",
+    "exact": true
+  },
+  "destructive_operations": false,
+  "conclusion": "The target observed core-debug disable and DP debug-power release before branching, but candidate 18 still did not return or copy SRAM and execution ended at 0x08010000. This cannot distinguish FAP execution-origin enforcement from an invalid return-address candidate, so blind candidate sweeping is stopped."
+}

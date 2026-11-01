@@ -1,0 +1,72 @@
+{
+  "date": "2026-11-01",
+  "experiment": "kw520-high-byte-lcd-glyph-census",
+  "video": {
+    "path": "artifacts/kw520-jlink/VID_20261101_124042.mp4",
+    "size_bytes": 172110399,
+    "duration_seconds": 38.172756,
+    "codec": "h264",
+    "stored_dimensions": "3840x2160",
+    "rotation_degrees": -90,
+    "sha256": "712d3e1248c4726ff37297c0397aee9e11e5473ac7d58a0011a77fa746f18568"
+  },
+  "profile": {
+    "name": "high",
+    "tested_byte_plan": "marked groups covering 0x80-0xff",
+    "sector_address": "0x00c000",
+    "test_sector_crc32b": "803172b3",
+    "test_sector_sha256": "d3f2b4152310e88f73893b9c72e7b8b19af33eb8234b7401b1a9950ff088eafe",
+    "pointer_test_crc32b": "6f68933f",
+    "pointer_test_sha256": "665aa311188576ffc9389f05f035656e12d1980007706c9dda095da2de126ba3"
+  },
+  "physical_cycle": {
+    "data_install": {
+      "accepted": true,
+      "target_crc32b": "f154670a",
+      "final_crc32b": "803172b3",
+      "pages": 16,
+      "spi_error": 0,
+      "log_sha256": "58a2a575a1007249c8635edfcd004ca5b2000d0701507540311682fb78471d12"
+    },
+    "pointer_install": {
+      "accepted": true,
+      "target_crc32b": "f5c23372",
+      "final_crc32b": "6f68933f",
+      "pages": 16,
+      "spi_error": 0,
+      "log_sha256": "c0adbd88cbd19be15d2bb63e964476ff60e86853d867c6314e8d6ed69274a828"
+    },
+    "pointer_restore": {
+      "accepted": true,
+      "target_crc32b": "6f68933f",
+      "final_crc32b": "f5c23372",
+      "pages": 16,
+      "spi_error": 0,
+      "log_sha256": "daea0f3e199cf05c677f9d146b4dc39d24d6e6949d227efe7b6dc3c254753196"
+    },
+    "data_restore": {
+      "accepted": true,
+      "target_crc32b": "803172b3",
+      "final_crc32b": "f154670a",
+      "pages": 16,
+      "spi_error": 0,
+      "log_sha256": "8b8e0e1f57a83ad26c65d8b2b0cfc08a14423c446824f8893cc9e4a7f450ee6b"
+    },
+    "final_cold_start_confirmation": "user confirmed normal Huvudmeny and responsive buttons after data restore"
+  },
+  "video_observation": {
+    "normal_menu_rows_remained_visible": true,
+    "readable_anchor_seen": "GLYPH-HIGH and [80]",
+    "high_byte_output_blank_only": false,
+    "single_replacement_glyph_only": false,
+    "varied_stable_bitmap_patterns_seen": true,
+    "entire_0x80_0xff_sequence_captured": false,
+    "reason": "the 38-second recording does not conservatively prove a complete pass of every marked group"
+  },
+  "interpretation": {
+    "result": "positive candidate LCD read oracle near or beyond the internal font table",
+    "proves": "controlled high input bytes select multiple stable rendered bitmaps while normally booted firmware remains operational",
+    "does_not_prove": "the internal address, table stride, whether the bytes are intended extended glyphs, or a complete internal-firmware dump",
+    "next_discriminator": "capture short fixed marked groups or a full long stable pass and reconstruct exact bitmap rows per byte"
+  }
+}

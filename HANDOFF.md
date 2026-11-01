@@ -1893,3 +1893,206 @@ working `Huvudmeny` and button response. Only then was the now-unreferenced data
 sector restored6417ecbd->all-FF f154670a. Final cold start again showed working
 `Huvudmeny` and responsive button. Both sectors are restored. Evidence:
 `artifacts/kw520-jlink/20261101-overmax114-cycle-complete.json`.
+
+### 2026-11-01: DMA protected-main-flash route closed with positive control
+
+A read-only DMA inventory at VTarget3.293V found DMA1 channel1 active for an
+ADC transfer: CTRL000015a1, count32, source4001244c and destination20002380.
+Channels2--5 were disabled with zero-filled registers. FAP remained enabled
+and the DMA clock was active. No channel was modified by the inventory.
+
+The first fixed one-word discriminator used only idle channel2, source
+08000000 and previously qualified SRAM destination200016b4. It completed with
+count0 and no DMA error but replaced the sentinel with00000000. Channel2,
+flags and the SRAM word restored exactly.
+
+An independent cold-started control run first copied fixed nonzero13579bdf
+from SRAM200016b0 to SRAM200016b4. Transfer-complete asserted, count reached0,
+no error asserted and the exact word arrived, proving the DMA configuration.
+Only after that pass did the same channel repeat one word from08000000. It too
+completed with count0 and no error, but again returned00000000 rather than a
+plausible Cortex-M initial stack pointer. All four channel2 registers, its
+flags and both SRAM words then restored exactly.
+
+This closes the J-Link/DMA route: under active FAP the DMA transaction can
+complete while protected main-Flash data is masked to zero. Do not scale this
+into a zero-filled dump. No FAP disable, unlock, option-byte change, flash
+program/erase or mass erase occurred. The core remains debug-locked after the
+session and needs one normal target-power cold start. Evidence:
+`artifacts/kw520-jlink/20261101-dma-flash-read-discriminator.json`.
+
+### 2026-11-01: high-byte LCD glyph census produced a candidate read oracle
+
+After the DMA path returned protected zeros, a bounded normally booted renderer
+test used the existing external-title path. A fixed allocation-256 record in
+inactive sector `0x00c000` contained readable `GLYPH-HIGH`/group markers and
+controlled bytes `0x80..0xff`. Both original sectors first passed physical
+no-write gates: data CRC `f154670a`, pointer CRC `f5c23372`, pages 0 and no SPI
+error. The data sector was installed and verified as CRC `803172b3` while still
+unreferenced; a cold start retained normal `Huvudmeny` and button response.
+Pointer activation then verified CRC `6f68933f`.
+
+The 38.17-second 4K video
+`artifacts/kw520-jlink/VID_20261101_124042.mp4` has SHA-256
+`712d3e1248c4726ff37297c0397aee9e11e5473ac7d58a0011a77fa746f18568`.
+It shows the normal Swedish menu rows remaining visible while the title row
+contains the readable `GLYPH-HIGH`/`[80]` anchor followed by multiple different,
+stable bitmap patterns. The result is neither blank-only nor one replacement
+glyph. The recording is not long/controlled enough to claim that every group
+through `0xff` was captured, and varied glyphs do not yet distinguish an
+intended extended font from reads adjacent to the font table.
+
+Recovery completed in the required order. The bounded hardware-SPI helper
+restored pointer CRC `6f68933f -> f5c23372`, then after the user confirmed normal
+menu/button behavior the now-unreferenced data sector was restored
+`803172b3 -> f154670a`. Both programmed 16 pages, restored status `0x18` and
+reported zero SPI errors. A first bitbang no-op qualification had safely refused
+before helper execution because its GPIO-role check did not latch on a normal
+cold boot; it was not used for the physical recovery. The final cold start
+showed normal `Huvudmeny` and responsive buttons, so the cycle is fully closed.
+
+This is a positive candidate LCD read oracle, not an internal firmware dump.
+The next discriminator should use short fixed marked groups or a full long,
+stable recording and reconstruct exact bitmap rows for each controlled byte.
+Evidence and exact hashes are in
+`artifacts/kw520-jlink/20261101-glyph-high-video-oracle.json`; tooling is under
+`tools/kw520_glyph_oracle/`.
+
+### 2026-11-01: static pages prove a fixed asset oracle, not arbitrary address control
+
+Two bounded static pages replaced the scrolling census so every visible byte
+had a known position. Page 1 installed data CRC `0bd16929` and pointer CRC
+`45ed24ae`; page 2 installed data CRC `4dc45cf8` and pointer CRC `8aa29def`.
+Every install and restore programmed 16 pages, reported zero SPI errors and
+restored flash status `0x18`.
+
+The page-1 photo also corrected the resource-map assumption. Pointer records
+`0x3604..0x3618` name `Huvudmeny`, `Testa`, `Skriv`, `Visa`, `Inst.` and `Info`;
+they are not six consecutive visible menu rows. The start screen therefore
+showed the controlled `0x80..0x9f` title/first row and `0xb0..0xcf` fourth/fifth
+rows, while normal `Ladda batteri` and `Reparera batt.` remained in rows 2–3.
+The `0xa0..0xaf` and `0xd0..0xdf` records were installed but their `Skriv` and
+`Info` resources were not visible on that screen. Page 2 cleanly showed
+`0xe0..0xef` in the title and `0xf0..0xff` in row 1 with all other rows normal.
+
+The visible `0xc0..0xcf`, `0xe0..0xef` and `0xf0..0xff` groups match
+ISO-8859-1 order. This independently agrees with original external Western
+resources such as French `ç=0xe7`, `é=0xe9` and Spanish `ñ=0xf1`. The earlier
+varied high-byte result is therefore an intended extended glyph table rather
+than uncontrolled adjacent bytes. The `0x80..0x8f` photo also shows coherent
+UI icons. External-flash analysis found no corresponding font/icon atlas, so
+the normally booted renderer is a fixed indirect oracle for assets most likely
+held in protected MCU flash. This is real protected-asset disclosure, but it
+does not establish control of the font-table base, an arbitrary internal
+address or code readout.
+
+Recovery was completed in strict order for both pages. After page 2 the pointer
+sector was verified back at CRC `f5c23372`, the all-FF data sector at
+`f154670a`, and the user confirmed normal `Huvudmeny` and responsive buttons
+after the final cold start. Photos and all hashes/CRC transitions are in
+`artifacts/kw520-jlink/20261101-static-glyph-pages.json`; tooling and corrected
+display expectations are in `tools/kw520_glyph_pages/`.
+
+Follow-up offline analysis of the already captured 16 KiB SRAM pairs found the
+complete LCD backing canvas at `0x20000000`. Bytes `0x000..0x7ff` decode as
+128×128 pixels in sixteen 128-byte pages with vertical LSB-first bits. The
+physical 128×64 window is canvas rows 24–87, pages 3–10; rows 0–23 contain
+non-displayed prior/work data. The `original-restored` capture reconstructs
+exact `Huvudmeny`; the paired capture reconstructs exact `SAFEWXYZ`, including
+the otherwise identical menu. Thus a
+repeated qualified static page plus one read-only SRAM capture can recover the
+selected internal glyph/icon rasters exactly, not photographically. Added
+`tools/kw520_framebuffer.py` and a coordinate/polarity test. This strengthens
+the result to a fixed internal asset oracle; arbitrary firmware-address access
+remains unproven.
+
+The two qualified pages were then repeated solely for exact read-only SRAM
+captures. Page 1 capture SHA256
+`847ed364b64633fc80391d335a7eeadfc4945b8841f41e0f9361364f5cd7ab90`
+yielded exact groups `0x80..0x9f` and `0xb0..0xcf`; page 2 capture SHA256
+`46946c8dab132ced5fe61fd5940c2948e288324340bf903b486b97d494c12aff`
+yielded `0xe0..0xff`. `tools/extract_kw520_glyphs.py` removed title/selection
+polarity, packed every cell as six LSB-top column bytes and reconstructed every
+source cell exactly. This recovered 96 internal glyphs, 576 exact asset bytes.
+The derived binary hashes are page 1
+`3b3db7884290e62e4cbb8050ce5a4b35c23892a4ad1aadc396026cd9c26d90dd`
+and page 2
+`4f87d87c282b4b67056c26b4bc55ced8f0de7bb68688d30c962e77c34aa96967`.
+Raw 16 KiB SRAM remains local/ignored; hashes and derived PNG evidence are in
+`artifacts/kw520-jlink/20261101-static-glyph-pages.json`.
+
+Both repeat cycles were recovered pointer-first. Final pointer/data CRCs are
+again `f5c23372`/`f154670a`, all helper runs reported zero SPI errors, and the
+user confirmed normal `Huvudmeny` and responsive buttons after the final cold
+start. The only high-byte glyph gaps are `0xa0..0xaf` and `0xd0..0xdf`, whose
+resources were not visible on the captured main screen. A new profile may map
+only those ranges onto visible rows. More importantly, turning the asset oracle
+into a firmware-code oracle still requires control of font base, index width or
+another renderer address; the J-Link capture side is now solved.
+
+The remaining two groups were then closed with a third minimal pointer profile.
+It reused the qualified page-1 data sector and redirected only visible resources
+`Visa` and `Inst.` to the existing `A0` and `D0` records. Pointer-sector CRC was
+`a5a32722`; the physical screen showed the two groups on rows 4 and 5. Read-only
+SRAM capture SHA256
+`46d1bb53342af3bc0e1f2c74690c74a89e0148f014c1d2302c2639921d2f4f2f`
+yielded the final 32 glyphs. Pointer and data were restored in order to exact
+CRCs `f5c23372` and `f154670a`, and the user again confirmed normal menu and
+buttons after the final cold start.
+
+`tools/combine_kw520_glyphs.py` now requires every code `0x80..0xff` exactly
+once and emits one 768-byte six-column table. The complete local binary SHA256
+is `75b9cd129912998c50dfd283973d458d89657b1f32ac325c2beeedd0adbabf4f`;
+the combined atlas SHA256 is
+`6271a1ff72da81a4e8c76c138c33b3ff36d5a98d2046228f7f77355f253e3598`.
+All eight framebuffer/extraction/combination tests pass. This completes exact
+recovery of the entire high-byte internal asset domain. It still does not grant
+an arbitrary protected-flash address: the next research target is a renderer
+base-pointer, index-width or alternate drawing primitive that can address bytes
+outside this fixed 128-glyph table.
+
+Correction after rechecking the exact framebuffer geometry: the centered title
+glyph run begins at x=32, while numbered menu rows begin at x=28. The original
+extractor incorrectly reused x=28 for title groups 0x80 and 0xe0, so its cells
+were exact image crops but mapped four columns early. The corrected complete
+768-byte table SHA256 is
+`75b9cd129912998c50dfd283973d458d89657b1f32ac325c2beeedd0adbabf4f`.
+The physical captures and recovery state are unchanged; only offline glyph
+segmentation and derived hashes changed.
+
+The corrected table was searched across 11,397 local files in nine raw,
+bit/column-reversed, inverted, padded and row-major representations. Excluding
+the derived output itself and trivial all-line groups, neither the full table
+nor any nontrivial 16-glyph group matched. This includes the retained UPLINK/
+BTLINK trees and external dumps. A web search for several exact distinctive
+glyph sequences also found no matching source table.
+
+UPLINK's exact embedded control tuple `Kw850`/`1.2` was then used for bounded
+read-only metadata checks. The current OSS list call returned failure; the
+regular call returned syntactic success but empty ROM/FLS/other lists; the
+legacy endpoint returned only `|||0||0|0|`. The installers contain no local
+`.rom` or `.fls`. Evidence is in
+`artifacts/kw520-jlink/20261101-updater-control-query.json`. This yields no
+firmware sample and no KW520 updater path. The remaining viable software-only
+route still requires a normally booted parser/renderer primitive; direct SWD,
+DMA, SRAM-origin calls and the vendor-service route do not currently expose
+protected main flash.
+
+### 2026-11-01: separate self-leak findings package
+
+Added `docs/KW520-SELF-LEAK-FINDINGS-20261101.md` as a shareable technical
+brief for external review. It consolidates the verified SRAM string path,
+exact framebuffer geometry, 768-byte protected glyph disclosure, closed
+readout/parser routes, device recovery state and bounded next experiments.
+Raw SRAM and derived proprietary glyph binaries remain ignored/local.
+
+Added `tools/analyze_kw520_sram_frames.py` and metadata-only evidence
+`artifacts/kw520-jlink/20261101-sram-frame-candidates.json`. A strict aligned
+Cortex-M frame-shape scan across 21 retained 16-KiB captures found 11
+candidates. The strongest repeated cluster has LR `0x0800a9dd` with PCs
+`0x0800aac8`, `0x0800aada`, `0x0800aaea` and `0x0800aafa` in four
+menu/language/glyph captures. One page-2 candidate has R0 `0xff`, R1
+`0x20000005`, LR `0x0800a04d` and PC `0x0800f40a`. These are correlation
+targets, not proven active frames, callable entries or instruction disclosure.
+The recommended next bounded input discriminator is a static low/control-byte
+renderer census, followed only by deterministic frame sampling if needed.

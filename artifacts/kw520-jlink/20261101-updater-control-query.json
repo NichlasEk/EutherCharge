@@ -1,0 +1,41 @@
+{
+  "date": "2026-11-01",
+  "scope": "read-only updater metadata control using the exact tuple embedded in UPLINK",
+  "tuple": {
+    "types": "Kw850",
+    "subtype": "1.2",
+    "source": "hard-coded strings passed to the metadata helper in the locally retained UPLINK binary"
+  },
+  "oss_list_request": {
+    "getlist": true,
+    "http_response": {
+      "code": "101",
+      "message": "failure",
+      "data": null
+    }
+  },
+  "oss_metadata_request": {
+    "getlist": false,
+    "http_response": {
+      "code": "100",
+      "message": "Get successful",
+      "data": {
+        "rom": {
+          "list": [],
+          "ver": ""
+        },
+        "fls": {
+          "list": [],
+          "ver": ""
+        },
+        "other": {
+          "list": [],
+          "ver": "1.0.0"
+        }
+      }
+    }
+  },
+  "legacy_endpoint_response": "|||0||0|0|",
+  "privacy": "No KW520 serial number, pairing data or device traffic was used.",
+  "conclusion": "Even UPLINK's own embedded Kw850/1.2 control tuple currently yields no ROM or FLS package. The service path supplies no firmware-format sample and does not establish KW520 updater support."
+}
