@@ -173,6 +173,11 @@ contains coherent UI icons and line assets. A corrected search scanned 11,397
 local files in nine byte/bit/column representations and found neither the full
 table nor any nontrivial 16-glyph group outside the derived output.
 
+The public reproduction chain is `tools/kw520_framebuffer.py` for decoding the
+SRAM canvas, `tools/extract_kw520_glyphs.py` for exact six-byte cells and
+`tools/combine_kw520_glyphs.py` for strict `0x80..0xff` coverage. Their three
+focused test modules use synthetic inputs and require no proprietary dump.
+
 What this proves: normally booted protected firmware can be used as a fixed
 asset oracle and SRAM/LCD can exfiltrate the result exactly.
 
