@@ -1,0 +1,99 @@
+{
+  "date": "2026-11-01",
+  "operation": "Two-sector allocation-114 ordinary-string boundary cycle",
+  "result": "pass",
+  "controlled_record": {
+    "sector": "0x00c000",
+    "sector_was_all_ff": true,
+    "relative_pointer": "0x00008e00",
+    "allocation": 114,
+    "known_legitimate_maximum": 113,
+    "visible_ascii_bytes": 113,
+    "nul_inside_allocation": true,
+    "visible_prefix": "E114-",
+    "visible_suffix": "Z",
+    "payload_sha256": "183cba30fb52899c93cc86d71766d8f6c5d12976f19fd7e6b7719b6127f3f840",
+    "record_sha256": "c2c8cdf917c1aa6bf0d8a1aa63160e1562cc5321d249d3c9b2962624d69965d4"
+  },
+  "restore_noop_gates": {
+    "data_sector": {
+      "vtarget_volts": 3.290,
+      "target_crc32b": "0xf154670a",
+      "pages_programmed": 0,
+      "erase_or_program_executed": false,
+      "spi_error": 0
+    },
+    "pointer_sector": {
+      "vtarget_volts": 3.291,
+      "target_crc32b": "0xf5c23372",
+      "pages_programmed": 0,
+      "erase_or_program_executed": false,
+      "spi_error": 0
+    }
+  },
+  "data_install": {
+    "vtarget_volts": 3.290,
+    "sector": "0x00c000",
+    "crc_before": "0xf154670a",
+    "erased_crc32b": "0xf154670a",
+    "crc_after": "0x6417ecbd",
+    "pages_programmed": 16,
+    "status_final": "0x18",
+    "spi_error": 0,
+    "helper_sha256": "5b90951a7c0b645239fdc2066bcd2a0e94850c831a1930d7388e5a9879f46e19",
+    "session_log_sha256": "2f7543d1b29dfe13959c616b56f2bd0811b12a1e45be17f886bf1b8db06d80b7",
+    "physical_cold_start_before_pointer_change": "Huvudmeny with responsive button"
+  },
+  "pointer_install": {
+    "vtarget_volts": 3.291,
+    "sector": "0x003000",
+    "changed_offsets": ["0x003606", "0x003607"],
+    "crc_before": "0xf5c23372",
+    "erased_crc32b": "0xf154670a",
+    "crc_after": "0x6f68933f",
+    "pages_programmed": 16,
+    "status_final": "0x18",
+    "spi_error": 0,
+    "helper_sha256": "ac3a3c8159b8512acda2f6114c86dd06bb425f0a52ea1fea3c10e82be2ce1715",
+    "session_log_sha256": "1eae497840731a1be5fb1f245fea02d99c57d2da0dba61055ba0117d1a1440b0"
+  },
+  "physical_observation": {
+    "title": "the complete controlled alphabet sequence scrolled as the first row",
+    "cold_start_repeated_after_sram_capture": true,
+    "reported_crash_or_reboot": false
+  },
+  "runtime_sram": {
+    "capture_size_bytes": 16384,
+    "capture_sha256": "64538cb320a9026b0d63e6b002ef073ad2700441bb52da630d11860b7307c569",
+    "capture_log_sha256": "5a8722eedb78a7cd8fa3eb4d828caa356f479af85f79ad1831887f733b754ab9",
+    "vtarget_volts": 3.291,
+    "raw_dump_committed": false,
+    "full_113_visible_bytes_plus_nul_found_at": ["0x20003978"],
+    "full_payload_occurrence_count": 1,
+    "transient_copy_0x20003728": "zero at capture time"
+  },
+  "recovery": {
+    "pointer_restored_first": {
+      "vtarget_volts": 3.291,
+      "crc_before": "0x6f68933f",
+      "crc_after": "0xf5c23372",
+      "pages_programmed": 16,
+      "spi_error": 0,
+      "helper_sha256": "5b6a5a1a687764ece1f3783b80fa0fea847fd73d2457442b74b80ebc814c28b1",
+      "session_log_sha256": "36624dcf2d4dee2a05980d2e53d5c21d3122529f8511dc6248d691244f884a3f",
+      "cold_start_after": "Huvudmeny with responsive button"
+    },
+    "data_sector_restored_last": {
+      "vtarget_volts": 3.291,
+      "crc_before": "0x6417ecbd",
+      "crc_after": "0xf154670a",
+      "pages_programmed": 16,
+      "status_final": "0x18",
+      "spi_error": 0,
+      "helper_sha256": "0f9786eaba3c3589d2f60fb36723fe246f0a710a99185dc06e0167c69fd96044",
+      "session_log_sha256": "d4fe363a6a55192ed7fd83730b55fd651a320cb5714405ad9943439660b23c02",
+      "final_cold_start": "Huvudmeny with responsive button"
+    }
+  },
+  "conclusion": "The original firmware accepted an ordinary-string allocation of 114, one byte above the largest record in the installed resource set. It stored all 113 controlled visible bytes plus NUL at the stable source buffer 0x20003978 and scrolled the controlled text on the first display row without a reported crash or reboot. This proves acceptance at 114 on this path, not the buffer capacity, an overflow, code execution, an out-of-range read, or protected internal-flash disclosure. Both modified sectors were restored in the safe pointer-first order."
+}

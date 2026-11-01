@@ -162,3 +162,22 @@ stored NUL. This says nothing yet about the safety of length extension.
 
 Machine-readable evidence is in
 `artifacts/kw520-jlink/20261101-spi-length-probe-cycle-complete.json`.
+
+## Qualified two-sector allocation-114 probe
+
+This boundary probe uses four address-and-CRC-locked commands. Run the two
+restore commands as no-ops before any write. During recovery always restore the
+pointer first, cold-start and confirm normal `Huvudmeny`, then restore the now
+unreferenced data sector:
+
+```sh
+./tools/kw520_spi_patch/run-overmax-data-restore.sh --restore-overmax-data
+./tools/kw520_spi_patch/run-overmax-pointer-restore.sh --restore-overmax-pointer
+./tools/kw520_spi_patch/run-overmax-data-install.sh --write-overmax-data
+./tools/kw520_spi_patch/run-overmax-pointer-install.sh --write-overmax-pointer
+```
+
+Data sector `0x00c000` is fixed to CRC `6417ecbd`; its original is exact all-FF
+CRC `f154670a`. The active pointer sector is fixed to CRC `6f68933f`; its
+original is `f5c23372`. These helpers are not generic sector writers. The full
+physical cycle passed and both sectors were restored on 2026-11-01.

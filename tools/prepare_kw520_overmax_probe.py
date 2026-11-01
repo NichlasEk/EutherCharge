@@ -1,0 +1,180 @@
+#!/usr/bin/env python3
+"""Prepare a two-sector, one-byte-over-format-maximum string probe."""
+
+from __future__ import annotations
+
+import argparse
+import hashlib
+import json
+import struct
+import zlib
+from pathlib import Path
+
+
+IMAGE_SIZE = 4 * 1024 * 1024
+INSTALLED_SHA256 = "4a4947e116dc405e577c97e965c342cc89f7f8b3f517babee9a8105e400d0329"
+POINTER_BASE = 0x003200
+POINTER_OFFSET = 0x003604
+POINTER_BEFORE = 0x00000692
+TEST_RECORD = 0x00C000
+POINTER_AFTER = TEST_RECORD - POINTER_BASE
+POINTER_SECTOR = 0x003000
+DATA_SECTOR = 0x00C000
+SECTOR_SIZE = 0x1000
+VISIBLE = (b"E114-" + (b"0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ" * 4))[:112] + b"Z"
+PAYLOAD = VISIBLE + b"\0"
+RECORD = struct.pack(">H", len(PAYLOAD)) + PAYLOAD
+POINTER_ORIGINAL_CRC32B = 0xF5C23372
+POINTER_TEST_CRC32B = 0x6F68933F
+DATA_ORIGINAL_CRC32B = 0xF154670A
+DATA_TEST_CRC32B = 0x6417ECBD
+
+assert len(VISIBLE) == 113
+assert len(PAYLOAD) == 114
+assert POINTER_AFTER == 0x00008E00
+
+
+def sha256(data: bytes) -> str:
+    return hashlib.sha256(data).hexdigest()
+
+
+def crc32b(data: bytes) -> int:
+    return zlib.crc32(data) & 0xFFFFFFFF
+
+
+def prepare(image: bytes) -> tuple[bytes, bytes, bytes, bytes, bytes, dict[str, object]]:
+    if len(image) != IMAGE_SIZE:
+        raise ValueError(f"image is {len(image)} bytes, expected {IMAGE_SIZE}")
+    digest = sha256(image)
+    if digest != INSTALLED_SHA256:
+        raise ValueError(f"refusing unknown base image SHA-256 {digest}")
+    pointer = struct.unpack_from(">I", image, POINTER_OFFSET)[0]
+    if pointer != POINTER_BEFORE:
+        raise ValueError(f"title pointer is 0x{pointer:08x}, expected 0x{POINTER_BEFORE:08x}")
+
+    pointer_original = image[POINTER_SECTOR : POINTER_SECTOR + SECTOR_SIZE]
+    data_original = image[DATA_SECTOR : DATA_SECTOR + SECTOR_SIZE]
+    if crc32b(pointer_original) != POINTER_ORIGINAL_CRC32B:
+        raise ValueError("pointer-sector CRC precondition failed")
+    if data_original != b"\xff" * SECTOR_SIZE or crc32b(data_original) != DATA_ORIGINAL_CRC32B:
+        raise ValueError("data-sector all-FF precondition failed")
+
+    pointer_test = bytearray(pointer_original)
+    struct.pack_into(">I", pointer_test, POINTER_OFFSET - POINTER_SECTOR, POINTER_AFTER)
+    data_test = bytearray(data_original)
+    data_test[: len(RECORD)] = RECORD
+    if crc32b(pointer_test) != POINTER_TEST_CRC32B:
+        raise AssertionError("pointer-test CRC no longer matches fixed helper")
+    if crc32b(data_test) != DATA_TEST_CRC32B:
+        raise AssertionError("data-test CRC no longer matches fixed helper")
+
+    patched_image = bytearray(image)
+    patched_image[POINTER_SECTOR : POINTER_SECTOR + SECTOR_SIZE] = pointer_test
+    patched_image[DATA_SECTOR : DATA_SECTOR + SECTOR_SIZE] = data_test
+    changes = [index for index, pair in enumerate(zip(image, patched_image)) if pair[0] != pair[1]]
+    pointer_changes = [POINTER_OFFSET + 2, POINTER_OFFSET + 3]
+    if [index for index in changes if POINTER_SECTOR <= index < POINTER_SECTOR + SECTOR_SIZE] != pointer_changes:
+        raise AssertionError("unexpected pointer-sector changes")
+    if [index for index in changes if DATA_SECTOR <= index < DATA_SECTOR + SECTOR_SIZE] != list(range(DATA_SECTOR, DATA_SECTOR + len(RECORD))):
+        raise AssertionError("unexpected data-sector changes")
+
+    manifest: dict[str, object] = {
+        "format": 1,
+        "operation": "kw520-one-byte-over-maximum-two-sector-string-probe",
+        "source": {"size_bytes": len(image), "sha256": digest},
+        "record": {
+            "offset": f"0x{TEST_RECORD:06x}",
+            "relative_pointer": f"0x{POINTER_AFTER:08x}",
+            "allocation": len(PAYLOAD),
+            "visible_payload_bytes": len(VISIBLE),
+            "visible_ascii": VISIBLE.decode("ascii"),
+            "payload_sha256": sha256(PAYLOAD),
+            "record_sha256": sha256(RECORD),
+            "terminator_inside_allocation": True,
+            "known_legitimate_maximum": 113,
+            "bytes_above_known_maximum": 1,
+        },
+        "pointer": {
+            "offset": f"0x{POINTER_OFFSET:06x}",
+            "before": f"0x{POINTER_BEFORE:08x}",
+            "after": f"0x{POINTER_AFTER:08x}",
+            "changed_offsets": [f"0x{value:06x}" for value in pointer_changes],
+        },
+        "hashes": {
+            "pointer_original_crc32b": f"{crc32b(pointer_original):08x}",
+            "pointer_original_sha256": sha256(pointer_original),
+            "pointer_test_crc32b": f"{crc32b(pointer_test):08x}",
+            "pointer_test_sha256": sha256(pointer_test),
+            "data_original_crc32b": f"{crc32b(data_original):08x}",
+            "data_original_sha256": sha256(data_original),
+            "data_test_crc32b": f"{crc32b(data_test):08x}",
+            "data_test_sha256": sha256(data_test),
+            "patched_full_image_sha256": sha256(bytes(patched_image)),
+        },
+        "invariants": {
+            "data_sector_was_all_ff": True,
+            "data_sector_is_outside_all_active_resource_banks": True,
+            "pointer_sector_only_two_bytes_differ": True,
+            "active_neighbor_record_modified": False,
+            "power_or_calibration_data_modified": False,
+            "source_image_modified": False,
+        },
+        "recovery_order": [
+            "restore pointer sector 0x003000 first",
+            "cold-start and confirm normal Huvudmeny",
+            "restore data sector 0x00c000 to exact all-FF",
+        ],
+        "safety": {
+            "write_not_authorized_by_manifest": True,
+            "each_sector_requires_distinct_address-and-CRC-locked-helper": True,
+            "raw_runtime_sram_must_remain_ignored": True,
+        },
+    }
+    return bytes(patched_image), pointer_original, bytes(pointer_test), data_original, bytes(data_test), manifest
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("image", type=Path)
+    parser.add_argument("output_dir", type=Path)
+    parser.add_argument("--force", action="store_true")
+    args = parser.parse_args()
+    patched_image, pointer_original, pointer_test, data_original, data_test, manifest = prepare(args.image.read_bytes())
+    outputs = {
+        "patched_image": args.output_dir / "overmax-full.bin",
+        "pointer_original": args.output_dir / "pointer-original-sector-003000.bin",
+        "pointer_test": args.output_dir / "pointer-test-sector-003000.bin",
+        "data_original": args.output_dir / "data-original-sector-00c000.bin",
+        "data_test": args.output_dir / "data-test-sector-00c000.bin",
+        "manifest": args.output_dir / "manifest.json",
+    }
+    for prefix in ("pointer-original", "pointer-test", "data-original", "data-test"):
+        sector_name = "003000" if prefix.startswith("pointer") else "00c000"
+        for index in range(4):
+            outputs[f"{prefix}_chunk_{index}"] = args.output_dir / f"{prefix}-sector-{sector_name}-chunk{index}.bin"
+    existing = [str(path) for path in outputs.values() if path.exists()]
+    if existing and not args.force:
+        raise SystemExit("refusing to replace existing output(s): " + ", ".join(existing))
+    args.output_dir.mkdir(parents=True, exist_ok=True)
+    outputs["patched_image"].write_bytes(patched_image)
+    sectors = {
+        "pointer-original": pointer_original,
+        "pointer-test": pointer_test,
+        "data-original": data_original,
+        "data-test": data_test,
+    }
+    outputs["pointer_original"].write_bytes(pointer_original)
+    outputs["pointer_test"].write_bytes(pointer_test)
+    outputs["data_original"].write_bytes(data_original)
+    outputs["data_test"].write_bytes(data_test)
+    for prefix, sector in sectors.items():
+        for index in range(4):
+            outputs[f"{prefix}_chunk_{index}"].write_bytes(sector[index * 0x400 : (index + 1) * 0x400])
+    manifest["outputs"] = {name: str(path) for name, path in outputs.items()}
+    outputs["manifest"].write_text(json.dumps(manifest, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    print(json.dumps(manifest, indent=2, sort_keys=True))
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

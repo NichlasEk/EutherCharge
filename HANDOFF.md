@@ -1860,3 +1860,36 @@ f5c23372/status18 with spi_error0, and the user cold-started to working
 This proves the legitimate maximum reaches the stable source buffer; it does
 not prove render-buffer capacity, overflow, code execution or internal-flash
 disclosure.
+
+### 2026-11-01: first value above format maximum passed and both sectors restored
+
+A fixed two-sector probe avoided consuming any active neighboring record.
+Previously all-FF sector00c000 received one ordinary-string record with
+big-endian allocation114, exactly113 controlled ASCII bytes beginning `E114-`
+and ending `Z`, followed by NUL inside the allocation. Data-sector CRC changed
+f154670a->6417ecbd. Main-title pointer bytes003606..003607 then changed from
+relative00000692 to00008e00; pointer-sector CRC changed
+f5c23372->6f68933f. No power/calibration data or existing payload was modified.
+
+Before writing, both independent recovery helpers passed physical no-op gates:
+the address-parameterized data restore read sector00c000 as CRCf154670a with
+pages0, and pointer restore read sector003000 as CRCf5c23372 with pages0. Both
+had spi_error0 and no erase/program. The data sector was then installed and a
+normal cold start still showed working `Huvudmeny`, proving it remained
+inactive before pointer activation.
+
+After exact two-byte pointer activation, the user observed the complete
+controlled alphabet sequence scrolling as the first display row. No crash or
+reboot was reported. A read-only full16KiB SRAM capture found all113 visible
+bytes plus NUL exactly once at stable source address20003978. Raw SRAM remains
+ignored; capture SHA256 is
+64538cb320a9026b0d63e6b002ef073ad2700441bb52da630d11860b7307c569.
+This proves ordinary-string allocation114 is accepted on this path; it does
+not establish buffer capacity or an overflow.
+
+Recovery followed the predeclared pointer-first order. Pointer sector
+6f68933f was restored and verified as original f5c23372; the user confirmed
+working `Huvudmeny` and button response. Only then was the now-unreferenced data
+sector restored6417ecbd->all-FF f154670a. Final cold start again showed working
+`Huvudmeny` and responsive button. Both sectors are restored. Evidence:
+`artifacts/kw520-jlink/20261101-overmax114-cycle-complete.json`.

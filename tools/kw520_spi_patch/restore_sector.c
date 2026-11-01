@@ -38,10 +38,13 @@
 #ifndef KW_EXPECTED_FINAL_CRC32
 #define KW_EXPECTED_FINAL_CRC32 0xf5c23372u
 #endif
+#ifndef KW_SECTOR_ADDRESS
+#define KW_SECTOR_ADDRESS 0x00003000u
+#endif
 
 #define HELPER_MAGIC KW_HELPER_MAGIC
 #define ARM_MAGIC KW_ARM_MAGIC
-#define SECTOR_ADDRESS 0x00003000u
+#define SECTOR_ADDRESS KW_SECTOR_ADDRESS
 #define SECTOR_SIZE 4096u
 #define ERASED_CRC32 0xf154670au
 
@@ -226,8 +229,10 @@ static int target_crc32(uint32_t *result) {
     uint8_t ignored, value;
     drain_receive();
     cs_low();
-    if (!spi_xfer(0x03u, &ignored) || !spi_xfer(0x00u, &ignored) ||
-        !spi_xfer(0x30u, &ignored) || !spi_xfer(0x00u, &ignored)) {
+    if (!spi_xfer(0x03u, &ignored) ||
+        !spi_xfer((uint8_t)(SECTOR_ADDRESS >> 16), &ignored) ||
+        !spi_xfer((uint8_t)(SECTOR_ADDRESS >> 8), &ignored) ||
+        !spi_xfer((uint8_t)SECTOR_ADDRESS, &ignored)) {
         cs_high();
         return 0;
     }
@@ -269,8 +274,10 @@ static int erase_fixed_sector(void) {
     uint8_t ignored;
     drain_receive();
     cs_low();
-    int ok = spi_xfer(0x20u, &ignored) && spi_xfer(0x00u, &ignored) &&
-             spi_xfer(0x30u, &ignored) && spi_xfer(0x00u, &ignored);
+    int ok = spi_xfer(0x20u, &ignored) &&
+             spi_xfer((uint8_t)(SECTOR_ADDRESS >> 16), &ignored) &&
+             spi_xfer((uint8_t)(SECTOR_ADDRESS >> 8), &ignored) &&
+             spi_xfer((uint8_t)SECTOR_ADDRESS, &ignored);
     if (ok) {
         ok = wait_spi_idle();
     }

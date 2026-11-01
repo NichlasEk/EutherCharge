@@ -177,3 +177,17 @@ hittade hela payloaden plus NUL exakt en gång, vid samma beständiga källbuffe
 denna fångst och ska därför behandlas som övergående. Detta kvalificerar den
 kända legitima formatmaxgränsen på källvägen, men säger fortfarande inget om
 säkerheten över 113 byte.
+
+Första värdet över den gränsen provades därefter med en fristående post i den
+tidigare helt `0xff`-fyllda sektorn `0x00c000`. Posten hade allokering 114,
+113 kontrollerade ASCII-byte (`E114-…Z`) och NUL inom allokeringen. Sektorn
+installerades och verifierades först medan titelpekaren fortfarande var
+original; laddaren startade då normalt. Endast titelpekarens två byte ändrades
+sedan till relativ offset `0x00008e00`.
+
+På apparaten scrollade hela den kontrollerade alfabetsekvensen på första raden.
+En read-only-SRAM-fångst hittade exakt 113 ASCII-byte plus NUL vid den beständiga
+källbufferten `0x20003978`. Detta visar att parsern accepterar 114 på denna väg,
+men är fortfarande inte bevis för overflow eller buffertens slut. Återställning
+gjordes i strikt ordning: titelpekaren först, normal `Huvudmeny` bekräftades,
+sedan återställdes `0x00c000` till exakt all-FF CRC `f154670a`.
