@@ -90,3 +90,43 @@ update-path disclosure, or use a separately qualified fault-injection route.
 Disabling FAP remains forbidden because the transition mass-erases main Flash.
 
 Evidence: `artifacts/kw520-jlink/20261031-ram-probe-gates-2-4.json`.
+
+## Main-flash call-oracle result, 2026-11-01
+
+A later MPU-guarded oracle tested whether one recurrent code-range value could
+be invoked while keeping all data traffic inside two SRAM buffers. The target
+reported eight MPU regions. Candidate `0x0800ad8f` ran unprivileged with only
+main flash read/execute plus the oracle, mailbox, source, destination and stack
+SRAM windows mapped; peripheral and other memory accesses had no MPU mapping.
+
+The corrected attempt reached mailbox state `0x21`, immediately before/at the
+branch, but did not return or enter the local fault handler. J-Link observed
+Thread/User mode at PC `0x08010000`, exactly beyond the 64 KiB flash range, and
+PSP `0x20002300`. The 32-byte destination and its surrounding bytes remained
+unchanged, both guards survived, VTOR returned to `0x08000000`, and the entire
+affected SRAM range matched its backup byte-for-byte.
+
+This is consistent with FAP blocking main-flash execution/access while active
+debug is asserted. It does not identify candidate 18 as a function and does not
+recover firmware. Trying the remaining observed addresses with the same debug
+state is stopped because the result cannot distinguish their semantics from
+the protection boundary. A future main-flash-resident route must start without
+active debug, for example through an independently established updater/parser
+entry path; J-Link may only retrieve output after that code has completed.
+
+The follow-up detach gate explicitly cleared core debug with keyed
+`DHCSR=0xa05f0000` and cleared DP debug-power while retaining system-power:
+`CTRL/STAT` read back `0xc0000040`. The SRAM helper itself observed
+`C_DEBUGEN=0`, passed state `0x40`, waited a 2,000,000-iteration guard and
+reached branch state `0x21`. Thus active debug was genuinely released before
+the candidate branch.
+
+Even then, reconnect found PC `0x08010000`, no local fault frame and an
+unchanged SRAM destination. Full affected-SRAM restoration was exact. This
+cannot tell whether FAP remembers the SRAM execution/boot origin or whether
+the observed `0x0800ad8f` value is merely a return address that is invalid as a
+function entry. It does show that blind calls to the remaining SRAM-observed
+addresses are not a justified extraction strategy. The next route must enter
+through normally booted main-flash firmware, such as a demonstrated external
+parser or updater path, rather than branching from a debugger-loaded SRAM
+helper.
