@@ -1,4 +1,67 @@
-# Latest — user-authorized C6 probe flash, 2026-10-27
+# Latest — KW520 access/EMFI work paused, 2026-11-02
+
+User explicitly paused this part until purchased equipment arrives:
+Faulty Cat V2.1 (PicoEMP-based EMFI, from Neven in Czechia) and
+AT-START-F421 V1.2 with AT32F421C8T7. First practice with own firmware on
+the development board and verify the entire flash is preserved after erase
+suppression; then consider applying the findings to the charger.
+Read [the pause and EMFI plan](docs/kw520-emfi-plan-paus-20261102.md) before
+resuming. Verify actual hardware/installed firmware before selecting software
+or wiring. User-supplied research lead: CHES/TCHES 2024, “Unlock the Door
+to my Secrets, but don’t Forget to Glitch”, CVE-2024-21740.
+No automatic hardware attempts during this pause. Other project work is not
+automatically paused. User confirmed responsive UI after the final CSW test
+below; no subsequent full power cycle is confirmed. The pause plan, ADC/CSW
+probe changes and host tests are included in the checkpoint carrying this update.
+Older uncommitted/pending statements below describe their historical snapshots.
+
+# Earlier — isolated KW520 logic board, 2026-11-02
+
+Newest result after full power cycle: clean initial DP status=0 at 3.300 V.
+System-only setup passed. Reviewed CSW helper wrote 00000002 (ACK=1), then
+immediately read DP status=c0000060 versus prior c0000040: new STICKYERR.
+Stopped before further AP operations; restore deliberately skipped. Exit 1,
+USB closed; no RAM/flash access or debug-power request. This is a fresh error
+following the write, not just stale state. UI confirmation pending; power-cycle
+both logic supply and J-Link USB before any further hardware attempt.
+
+Latest live attempt: precheck returned VTref=3290 mV, valid DPIDR, but initial
+DP CTRL/STAT=c0000020 (system request/ack + STICKYERR). Clean-state gate
+stopped before any write. Revised CSW helper was NOT run. No retry/clear.
+Ask for both logic supply off and J-Link USB disconnected before the next
+fresh baseline, to avoid retained debug state/backfeed. UI status not checked.
+
+Update after the failure below: user cold-started and confirmed responsive UI.
+Host-only review fixed unsafe AP cleanup after FAULT and misleading restore
+logging; added post-write DP status check and failure on CSW SIZE mismatch.
+Mock fault-path tests pass; new binary `raw-csw-systemonly-reviewed` has only
+been dry-run, NOT executed on hardware. See probe README's host review section.
+No new hardware connection during review; system-only precondition must be
+re-established before another experiment. First FAULT cause remains unresolved.
+
+Power board disconnected. User reports bench supply 3.30 V, 0.10 A limit,
+0.04 A draw and normal UI; raw DPIDR read left UI responsive. System-only
+AP ID/CSW reads returned zero. New `firmware/kw520-probe/raw-csw-systemonly.c`
+tested AP0 CSW SIZE=2 without debug power or any target-memory access.
+At VTref=3.290 V the write got ACK=1; next read FAULT/ACK=4; attempted restore
+got invalid ACK=7. Restoration NOT verified. Helper exited 1, USB closed.
+Stop retries; cold-cycle logic board before another attempt. UI recovery not
+yet confirmed. See firmware/kw520-probe/README.md for exact results.
+Source and these notes are uncommitted. No RAM/flash read/write was attempted
+by this helper and no reset/debug-power request was issued.
+
+# Earlier — KW520 button mapping and ADC probe, 2026-11-01
+
+Resume from [KW520 probe handoff](docs/kw520-probe-handoff-20261101.md).
+All five buttons are confirmed. RAM probe/button inventory commit `6bc7003`
+was pushed; subsequent ADC capture work and this handoff remain uncommitted.
+Latest same-session clamp capture failed the live-state gate; no ADC data was
+read. User was asked to separate clamps and cold-start, not yet confirmed.
+No openocd/JLinkExe process was found at handoff. Do not repeat the failed
+attachment blindly or treat ADC correlations as a mapped protection input.
+Original internal firmware is still not backed up; no flash unlock/erase done.
+
+# Earlier — user-authorized C6 probe flash, 2026-10-27
 
 User confirmed empty XIAO ESP32-C6 and explicitly requested probe installation
 without backup. Live ESP32-C6FH4 rev0.2,4MB on /dev/ttyACM0; no secure boot or
