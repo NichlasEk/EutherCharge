@@ -1,4 +1,14 @@
-# Latest — KW520 access/EMFI work paused, 2026-11-02
+# Latest — KW520 consolidated handoff, 2026-11-04
+
+Start with [KW520 handoff 2026-11-04](docs/KW520-HANDOFF-20261104.md).
+Access/EMFI work remains paused pending Faulty Cat V2.1 and AT-START-F421.
+The handoff consolidates verified results, unresolved issues, last confirmed
+hardware state, published checkpoint 3a7358d and the development-board-first
+plan. No hardware connection was made for this update. Older status statements
+below are historical; in particular, user confirmed the UI responsive after
+the final reviewed CSW test. No internal firmware backup has been obtained.
+
+# Earlier — KW520 access/EMFI work paused, 2026-11-02
 
 User explicitly paused this part until purchased equipment arrives:
 Faulty Cat V2.1 (PicoEMP-based EMFI, from Neven in Czechia) and
